@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Electric field-guided DNA synthesis for random-access DNA data storage</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: #0a0e1a;
+    color: #e0e6f0;
+    line-height: 1.8;
+    overflow-x: hidden;
+  }
+  .hero {
+    min-height: 100vh;
+    display: flex; flex-direction: column; justify-content: center; align-items: center;
+    text-align: center;
+    background: linear-gradient(135deg, #0a0e1a 0%, #1a1e3a 50%, #0d1225 100%);
+    position: relative; padding: 2rem;
+  }
+  .hero::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+    background: radial-gradient(circle at 30% 40%, rgba(59,130,246,0.15) 0%, transparent 60%),
+                radial-gradient(circle at 70% 60%, rgba(139,92,246,0.1) 0%, transparent 60%);
+  }
+  .hero-content { position: relative; z-index: 1; max-width: 900px; }
+  .hero h1 {
+    font-size: clamp(1.8rem, 4vw, 3.2rem); font-weight: 800;
+    background: linear-gradient(135deg, #60a5fa, #a78bfa, #60a5fa);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 1rem;
+  }
+  .hero .subtitle { font-size: 1.15rem; color: #94a3b8; margin-bottom: 0.5rem; }
+  .hero .journal {
+    display: inline-block; padding: 0.3rem 1rem;
+    background: rgba(59,130,246,0.15); border: 1px solid rgba(59,130,246,0.3);
+    border-radius: 20px; font-size: 0.95rem; color: #60a5fa; margin-bottom: 2rem;
+  }
+  .scroll-hint { position: absolute; bottom: 2rem; animation: bounce 2s infinite; color: #475569; font-size: 0.9rem; }
+  @keyframes bounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(8px)} }
+
+  .nav-dots { position:fixed; right:1.5rem; top:50%; transform:translateY(-50%); z-index:100; display:flex; flex-direction:column; gap:12px; }
+  .nav-dot { width:10px; height:10px; border-radius:50%; background:rgba(255,255,255,0.2); cursor:pointer; transition:all 0.3s; border:none; }
+  .nav-dot:hover,.nav-dot.active { background:#60a5fa; transform:scale(1.3); }
+  .nav-dot-label { position:absolute; right:20px; background:#1e293b; color:#e0e6f0; padding:4px 10px; border-radius:6px; font-size:0.8rem; white-space:nowrap; opacity:0; pointer-events:none; transition:opacity 0.2s; }
+  .nav-dot:hover .nav-dot-label { opacity:1; }
+
+  .section { min-height:100vh; padding:5rem 2rem; max-width:1100px; margin:0 auto; display:flex; flex-direction:column; justify-content:center; }
+  .section-title { font-size:clamp(1.5rem,3vw,2.4rem); font-weight:700; margin-bottom:0.5rem; color:#f1f5f9; }
+  .section-number { font-size:0.9rem; color:#60a5fa; font-weight:600; letter-spacing:3px; text-transform:uppercase; margin-bottom:0.5rem; }
+  .section-desc { color:#94a3b8; font-size:1.1rem; margin-bottom:2.5rem; max-width:700px; }
+
+  .card-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:1.5rem; margin:1.5rem 0; }
+  .card { background:rgba(30,41,59,0.6); border:1px solid rgba(255,255,255,0.06); border-radius:16px; padding:1.8rem; transition:transform 0.3s,border-color 0.3s; backdrop-filter:blur(10px); }
+  .card:hover { transform:translateY(-4px); border-color:rgba(59,130,246,0.3); }
+  .card-icon { font-size:2rem; margin-bottom:0.8rem; }
+  .card h3 { font-size:1.15rem; color:#f1f5f9; margin-bottom:0.5rem; }
+  .card p { color:#94a3b8; font-size:1rem; }
+
+  .highlight-box { background:linear-gradient(135deg,rgba(59,130,246,0.1),rgba(139,92,246,0.1)); border:1px solid rgba(59,130,246,0.2); border-radius:16px; padding:2rem; margin:1.5rem 0; }
+  .highlight-box h3 { color:#60a5fa; margin-bottom:1rem; font-size:1.2rem; }
+
+  .comparison-table { width:100%; border-collapse:separate; border-spacing:0; margin:1.5rem 0; border-radius:12px; overflow:hidden; }
+  .comparison-table th { background:rgba(59,130,246,0.15); color:#60a5fa; padding:1rem; font-weight:600; font-size:1rem; text-align:left; border-bottom:1px solid rgba(59,130,246,0.2); }
+  .comparison-table td { padding:0.85rem 1rem; border-bottom:1px solid rgba(255,255,255,0.04); font-size:1rem; color:#cbd5e1; }
+  .comparison-table tr:hover td { background:rgba(59,130,246,0.05); }
+  .comparison-table .highlight-row td { background:rgba(59,130,246,0.08); color:#60a5fa; font-weight:600; }
+
+  .process-flow { display:flex; flex-wrap:wrap; gap:1rem; margin:2rem 0; justify-content:center; }
+  .process-step { flex:1; min-width:200px; max-width:260px; background:rgba(30,41,59,0.8); border-radius:16px; padding:1.5rem; text-align:center; position:relative; border:1px solid rgba(255,255,255,0.06); }
+  .process-step::after { content:'\2192'; position:absolute; right:-1rem; top:50%; transform:translateY(-50%); color:#475569; font-size:1.5rem; }
+  .process-step:last-child::after { display:none; }
+  .step-number { display:inline-flex; width:36px; height:36px; background:linear-gradient(135deg,#3b82f6,#8b5cf6); border-radius:50%; align-items:center; justify-content:center; font-weight:700; font-size:0.9rem; margin-bottom:0.8rem; color:white; }
+  .process-step h4 { color:#f1f5f9; margin-bottom:0.5rem; font-size:1.05rem; }
+  .process-step p { color:#94a3b8; font-size:0.95rem; line-height:1.6; }
+
+  .stat-row { display:flex; align-items:center; gap:1rem; margin:1rem 0; }
+  .stat-label { min-width:160px; font-size:1rem; color:#94a3b8; }
+  .stat-bar-bg { flex:1; height:32px; background:rgba(255,255,255,0.05); border-radius:16px; overflow:hidden; position:relative; }
+  .stat-bar { height:100%; border-radius:16px; display:flex; align-items:center; padding-left:14px; font-size:0.9rem; font-weight:600; color:white; transition:width 1.5s ease-out; white-space:nowrap; }
+  .stat-bar.blue { background:linear-gradient(90deg,#3b82f6,#60a5fa); }
+  .stat-bar.purple { background:linear-gradient(90deg,#7c3aed,#a78bfa); }
+  .stat-bar.red { background:linear-gradient(90deg,#dc2626,#f87171); }
+  .stat-bar.green { background:linear-gradient(90deg,#16a34a,#4ade80); }
+
+  /* ===== CHIP SECTION ===== */
+  .chip-section-wrapper { position:relative; max-width:1200px; margin:0 auto; }
+  .chip-layout { display:flex; gap:12px; align-items:stretch; justify-content:center; margin:2rem 0; }
+  .pixel-panel { flex:0 0 220px; display:flex; flex-direction:column; gap:6px; overflow-y:auto; max-height:460px; }
+  .chip-diagram { display:flex; justify-content:center; flex-shrink:0; }
+  .chip-container {
+    background:#0f172a; border:2px solid #334155; border-radius:16px; padding:1.2rem;
+    display:grid; grid-template-columns:repeat(4,1fr); gap:8px; width:440px; height:440px;
+  }
+  .electrode {
+    border-radius:10px; display:flex; flex-direction:column;
+    align-items:center; justify-content:center; font-size:0.85rem; font-weight:600;
+    transition:all 0.4s; cursor:pointer; border:2px solid transparent; position:relative;
+  }
+  .electrode.active { background:rgba(59,130,246,0.2); border-color:#3b82f6; box-shadow:0 0 20px rgba(59,130,246,0.3); animation:pulse 2s infinite; }
+  .electrode.inactive { background:rgba(100,116,139,0.1); border-color:rgba(100,116,139,0.2); color:#64748b; }
+  @keyframes pulse { 0%,100%{box-shadow:0 0 20px rgba(59,130,246,0.3)} 50%{box-shadow:0 0 30px rgba(59,130,246,0.5)} }
+  .electrode small { font-size:0.7rem; color:#94a3b8; margin-top:2px; }
+  .electrode .dna-helix { font-size:1.2rem; margin-bottom:2px; }
+
+  /* Pixel art popup cards */
+  .pixel-card {
+    background:rgba(30,41,59,0.9); border:1px solid rgba(59,130,246,0.25);
+    border-radius:8px; padding:6px 8px; display:flex; align-items:center; gap:8px;
+    animation:popIn 0.3s ease-out; backdrop-filter:blur(8px);
+  }
+  @keyframes popIn { from{opacity:0;transform:scale(0.7)} to{opacity:1;transform:scale(1)} }
+  .pixel-card canvas { border-radius:4px; image-rendering:pixelated; flex-shrink:0; }
+  .pixel-card-info { display:flex; flex-direction:column; }
+  .pixel-card-label { font-size:0.7rem; color:#60a5fa; font-weight:600; line-height:1.2; }
+  .pixel-card-name { font-size:0.8rem; color:#f1f5f9; font-weight:700; line-height:1.3; }
+  .pixel-card-desc { font-size:0.7rem; color:#94a3b8; line-height:1.2; }
+
+  .chip-controls { display:flex; justify-content:center; gap:0.5rem; margin-top:1rem; flex-wrap:wrap; }
+  .chip-btn { padding:0.5rem 1.2rem; border:1px solid rgba(59,130,246,0.3); background:rgba(59,130,246,0.1); color:#60a5fa; border-radius:8px; cursor:pointer; font-size:0.95rem; transition:all 0.3s; }
+  .chip-btn:hover { background:rgba(59,130,246,0.25); border-color:#3b82f6; }
+
+  .pim-diagram { display:flex; flex-wrap:wrap; gap:1rem; justify-content:center; margin:2rem 0; align-items:center; }
+  .pim-block { background:rgba(30,41,59,0.8); border:1px solid rgba(255,255,255,0.08); border-radius:12px; padding:1.2rem 1.5rem; text-align:center; min-width:120px; }
+  .pim-block.result { background:linear-gradient(135deg,rgba(59,130,246,0.15),rgba(139,92,246,0.15)); border-color:rgba(59,130,246,0.3); }
+  .pim-block h4 { color:#60a5fa; font-size:0.85rem; margin-bottom:0.3rem; }
+  .pim-block .word { font-size:1.3rem; font-weight:700; color:#f1f5f9; }
+  .pim-arrow { font-size:1.5rem; color:#475569; }
+
+  .glossary-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:1rem; margin-top:1.5rem; }
+  .glossary-item { background:rgba(30,41,59,0.5); border-radius:12px; padding:1.2rem; border-left:3px solid #3b82f6; }
+  .glossary-item dt { color:#60a5fa; font-weight:600; margin-bottom:0.3rem; font-size:1rem; }
+  .glossary-item dd { color:#94a3b8; font-size:0.95rem; }
+
+  .encoding-demo { background:rgba(30,41,59,0.6); border-radius:16px; padding:2rem; margin:1.5rem 0; text-align:center; }
+  .encoding-row { display:flex; justify-content:center; gap:0.5rem; margin:0.8rem 0; flex-wrap:wrap; align-items:center; }
+  .encoding-cell { padding:0.5rem 0.8rem; border-radius:8px; font-family:'JetBrains Mono',monospace; font-weight:600; font-size:1.05rem; }
+  .encoding-cell.binary { background:rgba(59,130,246,0.15); color:#60a5fa; }
+  .encoding-cell.dna-a { background:rgba(239,68,68,0.15); color:#f87171; }
+  .encoding-cell.dna-t { background:rgba(34,197,94,0.15); color:#4ade80; }
+  .encoding-cell.dna-g { background:rgba(251,191,36,0.15); color:#fbbf24; }
+  .encoding-cell.dna-c { background:rgba(139,92,246,0.15); color:#a78bfa; }
+  .encoding-arrow { color:#475569; font-size:1.2rem; margin:0.5rem 0; }
+
+  .result-badges { display:flex; flex-wrap:wrap; gap:1rem; margin:1.5rem 0; justify-content:center; }
+  .result-badge { background:rgba(30,41,59,0.8); border:1px solid rgba(255,255,255,0.06); border-radius:16px; padding:1.5rem 2rem; text-align:center; min-width:180px; }
+  .result-badge .big-number { font-size:2rem; font-weight:800; background:linear-gradient(135deg,#60a5fa,#a78bfa); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+  .result-badge .label { color:#94a3b8; font-size:0.9rem; margin-top:0.3rem; }
+
+  .timeline { position:relative; padding-left:3rem; margin:2rem 0; }
+  .timeline::before { content:''; position:absolute; left:14px; top:0; bottom:0; width:2px; background:linear-gradient(to bottom,#3b82f6,#8b5cf6); }
+  .timeline-item { position:relative; margin-bottom:2rem; }
+  .timeline-item::before { content:''; position:absolute; left:-2.35rem; top:0.5rem; width:12px; height:12px; border-radius:50%; background:#3b82f6; border:2px solid #0a0e1a; }
+  .timeline-item h4 { color:#f1f5f9; margin-bottom:0.3rem; font-size:1.05rem; }
+  .timeline-item p { color:#94a3b8; font-size:0.95rem; }
+  .timeline-item .time-tag { display:inline-block; padding:2px 8px; background:rgba(59,130,246,0.15); border-radius:6px; font-size:0.8rem; color:#60a5fa; margin-bottom:0.3rem; }
+
+  .section-divider { height:1px; background:linear-gradient(to right,transparent,rgba(59,130,246,0.3),transparent); margin:0 auto; max-width:400px; }
+  .footer { text-align:center; padding:3rem 2rem; color:#475569; font-size:0.9rem; }
+  .analogy-box { background:rgba(139,92,246,0.08); border:1px solid rgba(139,92,246,0.2); border-radius:12px; padding:1.5rem; margin:1rem 0; display:flex; gap:1rem; align-items:flex-start; }
+  .analogy-icon { font-size:1.5rem; flex-shrink:0; }
+  .analogy-content h4 { color:#a78bfa; margin-bottom:0.3rem; font-size:1rem; }
+  .analogy-content p { color:#94a3b8; font-size:0.95rem; }
+
+  .fade-in { opacity:0; transform:translateY(30px); transition:opacity 0.8s,transform 0.8s; }
+  .fade-in.visible { opacity:1; transform:translateY(0); }
+
+  @media (max-width:1100px) {
+    .chip-layout { flex-direction:column; align-items:center; }
+    .pixel-panel { flex-direction:row; flex-wrap:wrap; justify-content:center; flex:auto; max-height:none; overflow-y:visible; }
+    .chip-container { width:380px; height:380px; }
+  }
+  @media (max-width:768px) {
+    .process-step::after { display:none; }
+    .process-flow { flex-direction:column; align-items:center; }
+    .nav-dots { display:none; }
+    .section { padding:3rem 1.2rem; }
+    .chip-container { width:300px; height:300px; grid-template-columns:repeat(4,1fr); gap:6px; padding:0.8rem; }
+    .pixel-panel { flex:auto; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Hero -->
+<section class="hero" id="hero">
+  <div class="hero-content">
+    <div class="journal">Science Advances | Incheon National University</div>
+    <h1>DNA 데이터 저장의 새로운 돌파구:<br>전기장으로 DNA를 읽는 칩</h1>
+    <p class="subtitle">Lim, Kang et al. &mdash; Electric field-guided DNA synthesis for random-access DNA data storage</p>
+    <a href="https://www.science.org/doi/10.1126/sciadv.aee4328" target="_blank" style="display:inline-block;padding:0.5rem 1.5rem;background:rgba(59,130,246,0.12);border:1px solid rgba(59,130,246,0.4);border-radius:10px;color:#60a5fa;text-decoration:none;font-size:0.95rem;font-weight:600;transition:all 0.3s;margin:1rem 0;">&#x1F4C4; 원문 논문 보기 (Science Advances)</a>
+    <p style="color:#64748b; font-size:1rem;">비전공자를 위한 논문 완전 해설</p>
+  </div>
+  <div class="scroll-hint">아래로 스크롤하세요</div>
+</section>
+
+<!-- Section 1: Why DNA? -->
+<section class="section" id="sec-why">
+  <div class="fade-in">
+    <p class="section-number">PART 01</p>
+    <h2 class="section-title">왜 DNA에 데이터를 저장하려 하는가?</h2>
+    <p class="section-desc">전 세계 데이터는 2025년 175 제타바이트에 달합니다. 기존 저장장치로는 한계가 있어, 과학자들은 자연의 저장 매체인 DNA에 주목하고 있습니다.</p>
+  </div>
+  <div class="card-grid fade-in">
+    <div class="card"><div class="card-icon">&#x1F4BE;</div><h3>초고밀도 저장</h3><p>DNA 1g에 <strong>455 엑사바이트</strong> 저장 가능.<br>전 세계 인터넷 데이터를 구두 상자 하나에 담을 수 있는 양입니다.</p></div>
+    <div class="card"><div class="card-icon">&#x23F3;</div><h3>초장기 보존</h3><p>적절한 조건에서 <strong>수천~수만 년</strong> 보존 가능.<br>하드디스크(5-30년)와는 차원이 다른 수명입니다.</p></div>
+    <div class="card"><div class="card-icon">&#x1F50B;</div><h3>무전력 유지</h3><p>저장 유지에 <strong>전력이 필요 없습니다</strong>.<br>데이터센터의 막대한 냉각/전력 비용을 해결할 수 있습니다.</p></div>
+  </div>
+  <div class="encoding-demo fade-in">
+    <h3 style="color:#f1f5f9; margin-bottom:1rem;">데이터 &rarr; DNA 변환 원리</h3>
+    <p style="color:#94a3b8; font-size:0.95rem; margin-bottom:1.5rem;">컴퓨터의 이진법(0, 1)을 DNA의 네 가지 염기(A, T, G, C)로 변환합니다.</p>
+    <div>
+      <p style="color:#64748b; font-size:0.85rem; margin-bottom:0.3rem;">디지털 데이터 (이진법)</p>
+      <div class="encoding-row">
+        <span class="encoding-cell binary">00</span><span class="encoding-cell binary">01</span><span class="encoding-cell binary">10</span><span class="encoding-cell binary">11</span>
+        <span class="encoding-cell binary">00</span><span class="encoding-cell binary">11</span><span class="encoding-cell binary">01</span><span class="encoding-cell binary">10</span>
+      </div>
+      <div class="encoding-arrow">&darr; 변환 규칙: 00=T, 01=A, 10=G, 11=C</div>
+      <p style="color:#64748b; font-size:0.85rem; margin-bottom:0.3rem;">DNA 염기 서열</p>
+      <div class="encoding-row">
+        <span class="encoding-cell dna-t">T</span><span class="encoding-cell dna-a">A</span><span class="encoding-cell dna-g">G</span><span class="encoding-cell dna-c">C</span>
+        <span class="encoding-cell dna-t">T</span><span class="encoding-cell dna-c">C</span><span class="encoding-cell dna-a">A</span><span class="encoding-cell dna-g">G</span>
+      </div>
+    </div>
+    <p style="color:#64748b; font-size:0.85rem; margin-top:1rem;">이렇게 사진, 영상, 문서 등 모든 디지털 파일을 DNA로 변환할 수 있습니다.</p>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- Section 2: Current Problems -->
+<section class="section" id="sec-problems">
+  <div class="fade-in">
+    <p class="section-number">PART 02</p>
+    <h2 class="section-title">현재의 문제점: 왜 아직 실용화되지 못했나?</h2>
+    <p class="section-desc">DNA 저장은 2012년에 처음 시연되었지만, 핵심적인 기술적 병목 때문에 아직 실용화되지 못하고 있습니다.</p>
+  </div>
+  <div class="card-grid fade-in">
+    <div class="card" style="border-left:3px solid #f87171;"><h3 style="color:#f87171;">문제 1: 읽기가 너무 느림</h3><p>기존 PCR(DNA 복사 기술) 기반으로 데이터를 읽으려면 NGS 준비에만 <strong>6~12시간</strong>이 걸립니다. USB를 꽂고 파일을 여는 데 반나절이 걸리는 셈입니다.</p></div>
+    <div class="card" style="border-left:3px solid #fbbf24;"><h3 style="color:#fbbf24;">문제 2: 수작업 의존</h3><p>숙련된 기술자가 직접 시약을 준비하고, 프라이머를 선택하고, 라이브러리를 만들어야 합니다. <strong>자동화가 어렵고 실수가 잦습니다.</strong></p></div>
+    <div class="card" style="border-left:3px solid #a78bfa;"><h3 style="color:#a78bfa;">문제 3: 일회용</h3><p>대부분의 기존 방식은 DNA를 한 번 읽으면 더 이상 사용 불가. <strong>USB를 한번 읽고 버리는 것</strong>과 같습니다.</p></div>
+  </div>
+  <div class="analogy-box fade-in">
+    <div class="analogy-icon">&#x1F4DA;</div>
+    <div class="analogy-content"><h4>비유로 이해하기</h4><p>기존 DNA 저장은 <strong>"거대한 도서관에서 사서가 수작업으로 책을 찾아 복사해주는 것"</strong>과 같습니다. 찾고 싶은 책(데이터)의 고유 번호(프라이머)를 알려줘야 하고, 복사(PCR)에 시간이 오래 걸리며, 한번 꺼내면 원본이 손상됩니다.</p></div>
+  </div>
+  <h3 style="color:#f1f5f9; margin:2rem 0 1rem; font-size:1.15rem;" class="fade-in">기존 해결 시도들의 한계</h3>
+  <table class="comparison-table fade-in">
+    <thead><tr><th>방법</th><th>연구 그룹</th><th>원리</th><th>한계</th></tr></thead>
+    <tbody>
+      <tr><td>실리카 캡슐</td><td>MIT (2021)</td><td>유리 캡슐 + 형광 바코드</td><td>캡슐 제작에 <strong>4일</strong></td></tr>
+      <tr><td>온도 반응 캡슐</td><td>TU Eindhoven / MS (2023)</td><td>온도에 반응하는 막</td><td>밤새 고정 필요, PCR 여전히 필요</td></tr>
+      <tr><td>MOF 입자</td><td>Shanghai (2023)</td><td>금속유기골격체 + pH 반응</td><td>84번만 재사용 가능</td></tr>
+      <tr><td>광자 마이크로스피어</td><td>Tianjin (2025)</td><td>구조색 기반 인덱싱</td><td>준비 72시간, NGS 6-12시간</td></tr>
+    </tbody>
+  </table>
+  <p class="fade-in" style="color:#f87171; font-size:0.95rem; text-align:center;">공통 한계: <strong>NGS 라이브러리 준비 6~12시간의 병목을 해결하지 못함</strong></p>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- Section 3: The Solution -->
+<section class="section" id="sec-solution" style="max-width:1300px;">
+  <div class="fade-in">
+    <p class="section-number">PART 03</p>
+    <h2 class="section-title">전기장 DNA 칩: 전기장으로 DNA를 직접 제어</h2>
+    <p class="section-desc">반도체 칩 위의 마이크로전극에 전기장을 걸어 DNA를 선택적으로 읽는 완전히 새로운 방식을 제안합니다.</p>
+  </div>
+  <div class="analogy-box fade-in">
+    <div class="analogy-icon">&#x1F4A1;</div>
+    <div class="analogy-content"><h4>핵심 비유</h4><p>기존: "사서가 수작업으로 책을 찾아 복사" &rarr; <strong>전기장 DNA 칩: "전자 도서관에서 버튼 하나로 원하는 책이 자동 출력"</strong></p></div>
+  </div>
+
+  <!-- Interactive Chip with Pixel Art -->
+  <div class="fade-in">
+    <h3 style="color:#f1f5f9; text-align:center; margin:2rem 0 0.5rem; font-size:1.3rem;">마이크로전극 어레이 칩 (인터랙티브)</h3>
+    <p style="color:#94a3b8; text-align:center; font-size:0.95rem; margin-bottom:1.5rem;">전극을 클릭하면 저장된 데이터가 나타납니다. 다시 클릭하면 사라집니다.</p>
+    <div class="chip-layout">
+      <!-- Left pixel panel -->
+      <div class="pixel-panel" id="panelLeft"></div>
+      <!-- Chip -->
+      <div class="chip-diagram">
+        <div class="chip-container" id="chipGrid"></div>
+      </div>
+      <!-- Right pixel panel -->
+      <div class="pixel-panel" id="panelRight"></div>
+    </div>
+    <div class="chip-controls">
+      <button class="chip-btn" onclick="activateAll()">전체 활성화</button>
+      <button class="chip-btn" onclick="deactivateAll()">전체 비활성화</button>
+      <button class="chip-btn" onclick="selectiveAccess()">선택적 접근 데모</button>
+    </div>
+    <p id="chipStatus" style="text-align:center; color:#60a5fa; font-size:0.95rem; margin-top:1rem;">전극을 클릭해보세요!</p>
+  </div>
+
+  <!-- Process Flow -->
+  <h3 style="color:#f1f5f9; margin:3rem 0 1.5rem; text-align:center; font-size:1.2rem;" class="fade-in">작동 과정 4단계</h3>
+  <div class="process-flow fade-in">
+    <div class="process-step"><div class="step-number">1</div><h4>DNA 고정</h4><p>전극 표면에 DNA(데이터)를 화학적으로 고정. 전기장 이용시 <strong>20분</strong>이면 완료</p></div>
+    <div class="process-step"><div class="step-number">2</div><h4>프라이머 결합</h4><p>전기장 ON인 전극에서만 프라이머가 결합. <strong>같은 프라이머</strong>로 다른 전극의 다른 데이터 접근 가능</p></div>
+    <div class="process-step"><div class="step-number">3</div><h4>DNA 합성</h4><p>Klenow 효소가 <strong>상온</strong>에서 DNA 복제. 전기장이 재료(dNTP)를 전극으로 모아줌</p></div>
+    <div class="process-step"><div class="step-number">4</div><h4>추출 &amp; 분석</h4><p>합성된 DNA 추출 후 <strong>20분 내</strong> NGS 준비 완료. 디코딩으로 원본 복원</p></div>
+  </div>
+  <div class="highlight-box fade-in">
+    <h3>핵심 혁신: 공통 프라이머 (Common Primer)</h3>
+    <p style="color:#cbd5e1; font-size:1rem;">
+      기존 방식에서는 각 데이터마다 <strong>고유한 프라이머</strong>가 필요했습니다 (100개 데이터 = 100종 프라이머).<br>
+      전기장 DNA 칩에서는 <strong>하나의 동일한 프라이머</strong>로 어떤 전극의 데이터든 접근할 수 있습니다.<br>
+      전기장이 "어느 전극을 켤지"만 결정하면, 같은 프라이머가 해당 전극의 DNA에만 결합합니다.<br><br>
+      <span style="color:#60a5fa;">마치 만능 열쇠(프라이머)는 하나인데, 전기 스위치(전기장)로 어느 방(전극)을 열지 선택하는 것과 같습니다.</span>
+    </p>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- Section 4: Key Results -->
+<section class="section" id="sec-results">
+  <div class="fade-in">
+    <p class="section-number">PART 04</p>
+    <h2 class="section-title">주요 실험 결과</h2>
+    <p class="section-desc">전기장 DNA 칩의 성능을 숫자로 확인합니다.</p>
+  </div>
+  <div class="result-badges fade-in">
+    <div class="result-badge"><div class="big-number">~10<sup>5</sup></div><div class="label">재사용 가능 횟수</div></div>
+    <div class="result-badge"><div class="big-number">20분</div><div class="label">NGS 준비 시간</div></div>
+    <div class="result-badge"><div class="big-number">96.6%</div><div class="label">완벽 일치율</div></div>
+    <div class="result-badge"><div class="big-number">0.2 MB</div><div class="label">저장 데이터 크기</div></div>
+    <div class="result-badge"><div class="big-number">1,339</div><div class="label">고유 DNA 가닥 수</div></div>
+  </div>
+
+  <h3 style="color:#f1f5f9; margin:2.5rem 0 1rem;" class="fade-in">재사용성 비교 (기존 대비)</h3>
+  <div class="fade-in">
+    <div class="stat-row"><span class="stat-label" style="color:#60a5fa; font-weight:600;">전기장 DNA 칩</span><div class="stat-bar-bg"><div class="stat-bar blue" style="width:100%;">~100,000 회</div></div></div>
+    <div class="stat-row"><span class="stat-label">MOF (2023)</span><div class="stat-bar-bg"><div class="stat-bar purple" style="width:0.084%;">84 회</div></div></div>
+    <div class="stat-row"><span class="stat-label">기존 대부분</span><div class="stat-bar-bg"><div class="stat-bar red" style="width:0.001%;">1 회 (일회용)</div></div></div>
+  </div>
+
+  <h3 style="color:#f1f5f9; margin:2.5rem 0 1rem;" class="fade-in">NGS 준비 시간 비교</h3>
+  <div class="fade-in">
+    <div class="stat-row"><span class="stat-label" style="color:#60a5fa; font-weight:600;">전기장 DNA 칩</span><div class="stat-bar-bg"><div class="stat-bar green" style="width:3%;">20분</div></div></div>
+    <div class="stat-row"><span class="stat-label">기존 방법들</span><div class="stat-bar-bg"><div class="stat-bar red" style="width:100%;">6 ~ 12 시간 (360 ~ 720분)</div></div></div>
+  </div>
+  <p class="fade-in" style="text-align:center; color:#4ade80; margin-top:0.5rem; font-size:1rem;"><strong>18~36배</strong> 빠른 NGS 준비 시간</p>
+
+  <h3 style="color:#f1f5f9; margin:2.5rem 0 1rem;" class="fade-in">종합 비교표</h3>
+  <table class="comparison-table fade-in">
+    <thead><tr><th>항목</th><th>전기장 DNA 칩</th><th>기존 최고 수준</th><th>향상 정도</th></tr></thead>
+    <tbody>
+      <tr class="highlight-row"><td>NGS 준비 시간</td><td>20분</td><td>6~12시간</td><td>18~36배 단축</td></tr>
+      <tr class="highlight-row"><td>재사용 횟수</td><td>~100,000번</td><td>84번 (MOF)</td><td>~1,200배 향상</td></tr>
+      <tr class="highlight-row"><td>프라이머</td><td>공통 (1종)</td><td>데이터마다 고유</td><td>워크플로우 단순화</td></tr>
+      <tr><td>자동화</td><td>전기 신호 자동 제어</td><td>수작업</td><td>사람 개입 최소화</td></tr>
+      <tr><td>데이터 검증</td><td>0.2 MB / 96.6%</td><td>다양</td><td>실용성 입증</td></tr>
+      <tr><td>분자 수/전극</td><td>1.1 x 10<sup>9</sup></td><td>~10<sup>9</sup> (Xu 2021)</td><td>동등 수준</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- Section 5: PIM -->
+<section class="section" id="sec-pim">
+  <div class="fade-in">
+    <p class="section-number">PART 05</p>
+    <h2 class="section-title">DNA Processing-in-Memory (메모리 내 처리)</h2>
+    <p class="section-desc">저장된 DNA 데이터를 꺼내지 않고 그 자리에서 바로 조합/처리할 수 있습니다.</p>
+  </div>
+  <div class="analogy-box fade-in">
+    <div class="analogy-icon">&#x1F4BB;</div>
+    <div class="analogy-content"><h4>컴퓨터로 비유하면</h4><p>일반 컴퓨터: 하드디스크(저장) &rarr; RAM(메모리) &rarr; CPU(처리) 순서로 데이터를 옮겨야 합니다.<br><strong>Processing-in-Memory</strong>: 저장소에서 바로 처리! 데이터 이동 없이 더 빠르고 효율적입니다.</p></div>
+  </div>
+  <h3 style="color:#f1f5f9; margin:2rem 0 1rem; text-align:center;" class="fade-in">예시: 문장 조합하기</h3>
+  <div class="pim-diagram fade-in">
+    <div class="pim-block"><h4>전극 A</h4><div class="word">"We"</div></div>
+    <div class="pim-arrow">+</div>
+    <div class="pim-block"><h4>전극 B</h4><div class="word">"love"</div></div>
+    <div class="pim-arrow">+</div>
+    <div class="pim-block"><h4>전극 C</h4><div class="word">"DNA."</div></div>
+    <div class="pim-arrow">&rarr;</div>
+    <div class="pim-block result"><h4>Assembly PCR</h4><div class="word">"We love DNA."</div></div>
+  </div>
+  <div style="text-align:center; margin:1rem 0;" class="fade-in"><p style="color:#94a3b8; font-size:0.95rem;">전극 B 대신 전극 D를 선택하면:</p></div>
+  <div class="pim-diagram fade-in">
+    <div class="pim-block"><h4>전극 A</h4><div class="word">"We"</div></div>
+    <div class="pim-arrow">+</div>
+    <div class="pim-block" style="border-color:rgba(139,92,246,0.3);"><h4 style="color:#a78bfa;">전극 D</h4><div class="word">"synthesize"</div></div>
+    <div class="pim-arrow">+</div>
+    <div class="pim-block"><h4>전극 C</h4><div class="word">"DNA."</div></div>
+    <div class="pim-arrow">&rarr;</div>
+    <div class="pim-block result"><h4>Assembly PCR</h4><div class="word">"We synthesize DNA."</div></div>
+  </div>
+  <div class="highlight-box fade-in" style="margin-top:2rem;">
+    <h3>Assembly PCR이란?</h3>
+    <p style="color:#cbd5e1; font-size:1rem;">
+      여러 DNA 조각을 순서대로 이어붙이는 기술입니다.<br>
+      각 조각의 끝부분이 서로 겹치게 설계되어 있어서, 마치 <strong>레고 블록</strong>처럼 자동으로 맞물려 연결됩니다.<br>
+      전기장 DNA 칩에서는 각 단어를 담은 DNA 조각에 "주소(토큰 프라이머)"가 달려 있어, 올바른 순서로 조립됩니다.
+    </p>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- Section 6: Data Storage Demo -->
+<section class="section" id="sec-data">
+  <div class="fade-in">
+    <p class="section-number">PART 06</p>
+    <h2 class="section-title">대용량 데이터 저장 실험</h2>
+    <p class="section-desc">0.2 MB 크기의 3D 문화유산 파일을 DNA에 저장하고 복원하는 데 성공했습니다.</p>
+  </div>
+  <div class="timeline fade-in">
+    <div class="timeline-item"><div class="time-tag">인코딩</div><h4>3D 파일 &rarr; DNA 변환</h4><p>0.2 MB 3D 문화유산 데이터를 1,339개의 고유 DNA 가닥(각 150 뉴클레오타이드)으로 변환. Reed-Solomon 오류 정정 코드 + XOR 중복성 코드 추가.</p></div>
+    <div class="timeline-item"><div class="time-tag">어댑터 결합</div><h4>NGS 어댑터 부착</h4><p>DNA 가닥에 NGS 어댑터(시퀀싱 장비 인식용) 결합. 총 275 뉴클레오타이드 길이의 DNA 풀 생성.</p></div>
+    <div class="timeline-item"><div class="time-tag">칩 고정</div><h4>전기장으로 전극에 고정</h4><p>DNA 풀을 전기장 제어를 통해 마이크로전극에 고정. 전극 하나에 이론적으로 11억 개(1.1 x 10<sup>9</sup>)의 분자 저장 가능.</p></div>
+    <div class="timeline-item"><div class="time-tag">합성 &amp; 추출</div><h4>전기장 기반 DNA 합성</h4><p>전기장으로 프라이머 결합 &rarr; Klenow 효소로 DNA 복제 &rarr; 추출. 20분 PCR 프로토콜로 NGS 라이브러리 준비 완료.</p></div>
+    <div class="timeline-item"><div class="time-tag">디코딩</div><h4>NGS 분석 &amp; 데이터 복원</h4><p>96.56% 완벽 일치율, 중간 깊이 10,337.9 reads. 합의 시퀀싱 + XOR 디코딩으로 3D 파일 완벽 복원.</p></div>
+  </div>
+  <div class="highlight-box fade-in">
+    <h3>왜 96.56%면 충분한가?</h3>
+    <p style="color:#cbd5e1; font-size:1rem;">
+      DNA 데이터 저장에는 <strong>오류 정정 코드</strong>(Reed-Solomon, XOR)가 포함되어 있습니다.<br>
+      일부 DNA 가닥이 완벽하지 않더라도, 오류 정정 알고리즘이 자동으로 복구합니다.<br>
+      마치 QR코드가 일부 손상되어도 스캔 가능한 것과 같은 원리입니다.<br>
+      실제로 이 실험에서 3D 파일은 <strong>완벽하게 복원</strong>되었습니다.
+    </p>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- Section 7: Discussion -->
+<section class="section" id="sec-discussion">
+  <div class="fade-in">
+    <p class="section-number">PART 07</p>
+    <h2 class="section-title">의의와 남은 과제</h2>
+    <p class="section-desc">전기장 DNA 칩이 DNA 데이터 저장 분야에서 갖는 의미와, 앞으로 해결해야 할 과제들입니다.</p>
+  </div>
+  <h3 style="color:#4ade80; margin-bottom:1rem;" class="fade-in">전기장 DNA 칩의 3가지 핵심 의의</h3>
+  <div class="card-grid fade-in">
+    <div class="card" style="border-top:3px solid #4ade80;"><h3>1. 분자 + 전자의 융합</h3><p>DNA(분자)를 반도체 칩(전자)으로 직접 제어하는 새로운 패러다임. 화학/생물학적 방법에서 전자적 제어로의 전환.</p></div>
+    <div class="card" style="border-top:3px solid #60a5fa;"><h3>2. 실용화에 한 걸음</h3><p>20분 NGS 준비, 10만 번 재사용, 공통 프라이머 &mdash; DNA 저장의 주요 병목을 모두 해결하는 방향.</p></div>
+    <div class="card" style="border-top:3px solid #a78bfa;"><h3>3. 반도체 공정 호환</h3><p>기존 반도체 제조 공정으로 칩 제작 가능 &rarr; 전극 수를 늘려 용량 확장이 용이. 메모리 칩과 같은 확장 경로.</p></div>
+  </div>
+  <h3 style="color:#fbbf24; margin:2.5rem 0 1rem;" class="fade-in">남은 과제 (리뷰어 지적 포함)</h3>
+  <div class="card-grid fade-in">
+    <div class="card" style="border-left:3px solid #fbbf24;"><h3 style="font-size:1.05rem;">확장성 검증</h3><p>현재 4개 전극 시연 &rarr; 수백~수천 개에서도 작동하는지 확인 필요. 전극 간 DNA 확산(crossover) 문제 검토.</p></div>
+    <div class="card" style="border-left:3px solid #fbbf24;"><h3 style="font-size:1.05rem;">최대 DNA 길이</h3><p>합성 가능한 최대 가닥 길이와 효율 관계 규명 필요. 길이가 길어야 저장 밀도가 높아짐.</p></div>
+    <div class="card" style="border-left:3px solid #fbbf24;"><h3 style="font-size:1.05rem;">공정한 시간 비교</h3><p>칩에 DNA를 처음 고정하는 시간도 포함하여 총 시간 비교가 필요하다는 리뷰어 지적.</p></div>
+    <div class="card" style="border-left:3px solid #fbbf24;"><h3 style="font-size:1.05rem;">용어 정리</h3><p>"DNA 합성"이라는 표현이 새로운 데이터 쓰기로 오해될 수 있음. 실제로는 기존 데이터의 복제/읽기.</p></div>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- Section 8: Glossary -->
+<section class="section" id="sec-glossary">
+  <div class="fade-in">
+    <p class="section-number">PART 08</p>
+    <h2 class="section-title">핵심 용어 사전</h2>
+    <p class="section-desc">논문에 등장하는 주요 용어들을 쉽게 풀어 설명합니다.</p>
+  </div>
+  <div class="glossary-grid fade-in">
+    <dl class="glossary-item"><dt>DNA (디옥시리보핵산)</dt><dd>생명체의 유전정보를 담는 분자. A, T, G, C 네 글자로 이루어진 매우 긴 코드. 이 연구에서는 디지털 데이터를 저장하는 매체로 사용됩니다.</dd></dl>
+    <dl class="glossary-item"><dt>뉴클레오타이드</dt><dd>DNA를 구성하는 기본 단위. A(아데닌), T(티민), G(구아닌), C(시토신) 각각이 해당. 디지털 비트(0,1)에 대응됩니다.</dd></dl>
+    <dl class="glossary-item"><dt>PCR (중합효소연쇄반응)</dt><dd>특정 DNA 조각을 수백만 배로 복사하는 기술. "DNA 복사기". 기존 DNA 저장에서 데이터를 읽는 핵심 수단이지만 느리고 오류가 발생합니다.</dd></dl>
+    <dl class="glossary-item"><dt>NGS (차세대 시퀀싱)</dt><dd>DNA 염기 서열을 대량으로 빠르게 읽는 기술. "DNA 판독기". 수백만 개의 DNA를 동시에 읽을 수 있지만, 시료 준비에 6-12시간이 걸립니다.</dd></dl>
+    <dl class="glossary-item"><dt>프라이머 (Primer)</dt><dd>DNA 복제의 시작점이 되는 짧은 DNA 조각(15~25글자). "책갈피" 역할. 전기장 DNA 칩의 핵심 혁신은 하나의 프라이머로 모든 전극에 접근하는 것.</dd></dl>
+    <dl class="glossary-item"><dt>Klenow Fragment</dt><dd>DNA 중합효소의 한 종류. 상온(실온)에서 DNA를 복제할 수 있는 특별한 효소. 높은 온도가 필요한 일반 PCR과 달리, 전극 위에서 안전하게 작동.</dd></dl>
+    <dl class="glossary-item"><dt>마이크로전극 어레이</dt><dd>아주 작은 금(Au) 전극들이 실리콘 칩 위에 격자 형태로 배열된 구조. 반도체 공정으로 제작. 각 전극에 독립적으로 전기장을 걸 수 있음.</dd></dl>
+    <dl class="glossary-item"><dt>어댑터 (Adapter)</dt><dd>NGS 장비가 DNA를 인식하고 읽을 수 있게 붙이는 특수 DNA 서열. 전기장 DNA 칩에서는 미리 어댑터를 포함하여 NGS 준비 시간을 20분으로 단축.</dd></dl>
+    <dl class="glossary-item"><dt>Random Access (랜덤 접근)</dt><dd>원하는 데이터에 순서 상관없이 바로 접근하는 능력. HDD/SSD처럼 아무 위치나 즉시 읽기. DNA 저장에서는 전극 선택으로 구현.</dd></dl>
+    <dl class="glossary-item"><dt>Reed-Solomon 코드</dt><dd>데이터에 오류가 있어도 자동으로 복구하는 수학적 방법. QR코드, CD, 위성 통신 등에도 사용. DNA 가닥 일부가 손상되어도 원본 복구 가능.</dd></dl>
+    <dl class="glossary-item"><dt>Processing-in-Memory</dt><dd>데이터를 저장소에서 CPU로 옮기지 않고, 저장소 안에서 바로 처리하는 방식. DNA 조각들을 직접 조합하여 새로운 정보를 생성.</dd></dl>
+    <dl class="glossary-item"><dt>Cross-electrode Contamination</dt><dd>인접한 전극의 DNA가 서로 섞이는 현상. 전기장 DNA 칩에서는 전극 간 오염이 거의 없음을 NGS로 확인하여 선택적 접근의 신뢰성을 입증.</dd></dl>
+  </div>
+</section>
+
+<div class="footer">
+  <p>Lim et al., "Electric field-guided DNA synthesis for random-access DNA data storage"</p>
+  <p>Science Advances (투고 중) | Incheon National University</p>
+  <p style="margin-top:0.5rem; color:#334155;">비전공자를 위한 논문 해설 자료</p>
+</div>
+
+<nav class="nav-dots" id="navDots">
+  <button class="nav-dot active" data-target="hero"><span class="nav-dot-label">시작</span></button>
+  <button class="nav-dot" data-target="sec-why"><span class="nav-dot-label">왜 DNA?</span></button>
+  <button class="nav-dot" data-target="sec-problems"><span class="nav-dot-label">문제점</span></button>
+  <button class="nav-dot" data-target="sec-solution"><span class="nav-dot-label">해결책</span></button>
+  <button class="nav-dot" data-target="sec-results"><span class="nav-dot-label">실험 결과</span></button>
+  <button class="nav-dot" data-target="sec-pim"><span class="nav-dot-label">PIM</span></button>
+  <button class="nav-dot" data-target="sec-data"><span class="nav-dot-label">데이터 저장</span></button>
+  <button class="nav-dot" data-target="sec-discussion"><span class="nav-dot-label">결론</span></button>
+  <button class="nav-dot" data-target="sec-glossary"><span class="nav-dot-label">용어 사전</span></button>
+</nav>
+
+<script>
+// ===== 16 PIXEL ART DATA DEFINITIONS =====
+const DATA_ITEMS = [
+  { name:'풍경 사진', desc:'산과 하늘', side:'left', pixels:[
+    '..bbbb..','..bbbb..','.bccccb.','.bcyybb.','ggyyggg.','gggggggg','GGggGGgg','GGGGGGGG'
+  ]},
+  { name:'음악 파일', desc:'클래식 교향곡', side:'right', pixels:[
+    '....pp..','....ppp.','....p..p','....p..p','...pp...','..pp....','..pp....','.pppp...'
+  ]},
+  { name:'공원 풍경', desc:'나무와 벤치', side:'left', pixels:[
+    '..gg....','..gg..g.','.gggg.gg','.gggggg.','..BB..B.','..BB..B.','bbbbbbbb','BBBBBBBB'
+  ]},
+  { name:'하늘 사진', desc:'구름과 석양', side:'right', pixels:[
+    'cccccccc','ccwwcccc','cwwwwccc','ccccwwcc','cccccccc','ooccccoo','oooooooo','rroooorr'
+  ]},
+  { name:'의료 기록', desc:'심전도 데이터', side:'left', pixels:[
+    'wwwwwwww','w......w','w.rr...w','w.rrrr.w','w.r..r.w','w.r..r.w','w......w','wwwwwwww'
+  ]},
+  { name:'미술 작품', desc:'피카소 스타일', side:'right', pixels:[
+    'BBBBBBBB','B......B','B.ry.b.B','B.yr.g.B','B.bg.r.B','B.gb.y.B','B......B','BBBBBBBB'
+  ]},
+  { name:'영화 영상', desc:'SF 단편 영화', side:'left', pixels:[
+    '.BB..BB.','BBBBBBBB','BB.BB.BB','BBBBBBBB','BB.BB.BB','BBBBBBBB','BB.BB.BB','.BB..BB.'
+  ]},
+  { name:'전자책', desc:'논문 PDF', side:'right', pixels:[
+    '.bbbbb..','.bwwwb..','.bwwwb..','.bwwwb..','.bwwwb..','.bwwwb..','.bwwwb..','.bbbbbb.'
+  ]},
+  { name:'게임 세이브', desc:'RPG 캐릭터 데이터', side:'left', pixels:[
+    '........','..pppp..','..p..p..','.pppppp.','pp.pp.pp','...pp...','..p..p..','..p..p..'
+  ]},
+  { name:'유전체 정보', desc:'DNA 시퀀스 DB', side:'right', pixels:[
+    '.r..g...','.rr.gg..','..rr.gg.','...rr.g.','..rr.gg.','..r..gg.','.rr..g..','rr..gg..'
+  ]},
+  { name:'위성 지도', desc:'서울 3D 지형', side:'left', pixels:[
+    'bbbbbbbb','bggbbbgb','bgggbggb','bggggggb','bgbgggbb','bbgggbbb','bbbgbbbb','bbbbbbbb'
+  ]},
+  { name:'건축 도면', desc:'한옥 CAD 파일', side:'right', pixels:[
+    '...rr...','..rrrr..','.rrrrrr.','rrrrrrrr','..BBBB..','..B..B..','..B..B..','..BBBB..'
+  ]},
+  { name:'꽃 사진', desc:'벚꽃 접사', side:'left', pixels:[
+    '....g...','...ggg..','..pppp..','.pppppp.','.pppppp.','..pppp..','...gg...','...gg...'
+  ]},
+  { name:'AI 모델', desc:'신경망 가중치', side:'right', pixels:[
+    '..cccc..','..c..c..','.cccccc.','c.c..c.c','..cccc..','..c..c..','.c....c.','.c....c.'
+  ]},
+  { name:'금융 데이터', desc:'주식 차트', side:'left', pixels:[
+    '........','y.......','.y......','..yy..y.','....yy..','......y.','......yy','........'
+  ]},
+  { name:'우주 이미지', desc:'허블 성운 사진', side:'right', pixels:[
+    '..p..y..','........','y...p...','.....y..','..y....p','........','p..y....','......p.'
+  ]},
+];
+
+const COLOR_MAP = {
+  '.':'transparent','r':'#f87171','g':'#4ade80','b':'#60a5fa','p':'#c084fc',
+  'y':'#fbbf24','w':'#f1f5f9','c':'#22d3ee','o':'#fb923c',
+  'B':'#334155','G':'#166534','R':'#991b1b'
+};
+
+const LETTERS = 'ABCDEFGHIJKLMNOP';
+
+// Build chip grid
+const chipGrid = document.getElementById('chipGrid');
+for (let i = 0; i < 16; i++) {
+  const el = document.createElement('div');
+  el.className = 'electrode inactive';
+  el.dataset.idx = i;
+  el.onclick = () => toggleElectrode(el);
+  el.innerHTML = `<div class="dna-helix">&#x1F9EC;</div><span>전극 ${LETTERS[i]}</span><small>${DATA_ITEMS[i].name}</small>`;
+  chipGrid.appendChild(el);
+}
+
+// Track pixel card elements
+const pixelCards = {};
+
+function drawPixelArt(canvas, pixels) {
+  const ctx = canvas.getContext('2d');
+  const px = 7;
+  canvas.width = 8 * px;
+  canvas.height = 8 * px;
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  for (let y = 0; y < 8; y++) {
+    const row = pixels[y] || '........';
+    for (let x = 0; x < 8; x++) {
+      const ch = row[x] || '.';
+      const color = COLOR_MAP[ch] || 'transparent';
+      if (color !== 'transparent') {
+        ctx.fillStyle = color;
+        ctx.fillRect(x * px, y * px, px, px);
+      }
+    }
+  }
+}
+
+function showPixelCard(idx) {
+  if (pixelCards[idx]) return; // already showing
+  const item = DATA_ITEMS[idx];
+  const panel = document.getElementById(item.side === 'left' ? 'panelLeft' : 'panelRight');
+
+  const card = document.createElement('div');
+  card.className = 'pixel-card';
+  card.dataset.idx = idx;
+
+  const canvas = document.createElement('canvas');
+  canvas.style.width = '40px';
+  canvas.style.height = '40px';
+  drawPixelArt(canvas, item.pixels);
+
+  const info = document.createElement('div');
+  info.className = 'pixel-card-info';
+  info.innerHTML = `<span class="pixel-card-label">전극 ${LETTERS[idx]}</span><span class="pixel-card-name">${item.name}</span><span class="pixel-card-desc">${item.desc}</span>`;
+
+  card.appendChild(canvas);
+  card.appendChild(info);
+  panel.appendChild(card);
+  pixelCards[idx] = card;
+}
+
+function hidePixelCard(idx) {
+  if (!pixelCards[idx]) return;
+  pixelCards[idx].remove();
+  delete pixelCards[idx];
+}
+
+function toggleElectrode(el) {
+  const idx = parseInt(el.dataset.idx);
+  const isActive = el.classList.contains('active');
+  if (isActive) {
+    el.classList.remove('active');
+    el.classList.add('inactive');
+    hidePixelCard(idx);
+  } else {
+    el.classList.remove('inactive');
+    el.classList.add('active');
+    showPixelCard(idx);
+  }
+  updateChipStatus();
+}
+
+function activateAll() {
+  document.querySelectorAll('.electrode').forEach(el => {
+    el.classList.add('active');
+    el.classList.remove('inactive');
+    showPixelCard(parseInt(el.dataset.idx));
+  });
+  updateChipStatus();
+}
+
+function deactivateAll() {
+  document.querySelectorAll('.electrode').forEach(el => {
+    el.classList.remove('active');
+    el.classList.add('inactive');
+    hidePixelCard(parseInt(el.dataset.idx));
+  });
+  updateChipStatus();
+}
+
+function selectiveAccess() {
+  const pattern = [true,false,false,true,false,true,false,false,false,false,true,false,false,false,true,false];
+  document.querySelectorAll('.electrode').forEach((el, i) => {
+    if (pattern[i]) {
+      el.classList.add('active');
+      el.classList.remove('inactive');
+      showPixelCard(i);
+    } else {
+      el.classList.remove('active');
+      el.classList.add('inactive');
+      hidePixelCard(i);
+    }
+  });
+  updateChipStatus();
+}
+
+function updateChipStatus() {
+  const active = document.querySelectorAll('.electrode.active');
+  const count = active.length;
+  const names = Array.from(active).map(el => LETTERS[parseInt(el.dataset.idx)]);
+  const status = document.getElementById('chipStatus');
+  if (count === 0) {
+    status.textContent = '모든 전극이 비활성화 상태입니다. 전극을 클릭하여 데이터를 확인하세요.';
+  } else {
+    status.innerHTML = `<strong>${count}개</strong> 전극 활성화 (${names.join(', ')}) &mdash; 해당 데이터만 선택적으로 읽힙니다`;
+  }
+}
+
+// Scroll animations
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold: 0.1 });
+document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+
+// Nav dots
+const sections = ['hero','sec-why','sec-problems','sec-solution','sec-results','sec-pim','sec-data','sec-discussion','sec-glossary'];
+const dots = document.querySelectorAll('.nav-dot');
+dots.forEach(dot => dot.addEventListener('click', () => document.getElementById(dot.dataset.target).scrollIntoView({behavior:'smooth'})));
+const sectionObs = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) { const i=sections.indexOf(e.target.id); if(i>=0){dots.forEach(d=>d.classList.remove('active'));dots[i].classList.add('active');} } });
+}, { threshold: 0.3 });
+sections.forEach(id => { const el=document.getElementById(id); if(el) sectionObs.observe(el); });
+</script>
+</body>
+</html>
