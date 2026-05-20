@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Publications | STD Bioelectronics</title>
+  <meta name="description" content="Year-grouped publication list for STD Bioelectronics & Bio Optics Lab, sourced from the Youngjun Song Google Scholar profile.">
+  <style>
+    :root {
+      --ink: #0e1726;
+      --muted: #587083;
+      --line: #dbe5ea;
+      --soft: #f2f7f8;
+      --white: #ffffff;
+      --blue: #1d6fd2;
+      --teal: #10a58f;
+      --gold: #c5902d;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+      color: var(--ink);
+      background: var(--white);
+      line-height: 1.58;
+    }
+
+    a { color: inherit; }
+
+    .nav {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      background: rgba(255, 255, 255, 0.94);
+      border-bottom: 1px solid var(--line);
+      backdrop-filter: blur(14px);
+    }
+
+    .nav-inner {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 14px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+    }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 800;
+      text-decoration: none;
+    }
+
+    .brand img {
+      width: 42px;
+      height: 42px;
+      object-fit: contain;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 4px;
+      background: var(--soft);
+    }
+
+    nav {
+      display: flex;
+      gap: 18px;
+      color: #32475a;
+      font-size: 14px;
+    }
+
+    nav a { text-decoration: none; }
+
+    .hero {
+      background: linear-gradient(120deg, #0e1726, #0f4c5c);
+      color: var(--white);
+      padding: 76px 24px 60px;
+    }
+
+    .hero-inner,
+    .wrap {
+      max-width: 1180px;
+      margin: 0 auto;
+    }
+
+    .eyebrow {
+      color: #8be0d3;
+      font-weight: 800;
+      font-size: 13px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 14px 0 0;
+      font-size: clamp(42px, 6vw, 70px);
+      line-height: 1;
+      letter-spacing: 0;
+    }
+
+    .hero p {
+      max-width: 760px;
+      color: #d6e6ea;
+      font-size: 18px;
+      margin: 20px 0 0;
+    }
+
+    .source {
+      margin-top: 26px;
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 42px;
+      padding: 0 16px;
+      border-radius: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--white);
+      text-decoration: none;
+      font-weight: 800;
+    }
+
+    main {
+      padding: 54px 24px 80px;
+    }
+
+    .featured {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 16px;
+      margin-bottom: 42px;
+    }
+
+    .feature-card,
+    .paper {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--white);
+      padding: 20px;
+    }
+
+    .feature-card {
+      border-top: 4px solid var(--teal);
+    }
+
+    .tag {
+      display: inline-flex;
+      margin-bottom: 10px;
+      color: var(--gold);
+      font-size: 12px;
+      font-weight: 900;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .feature-card h2,
+    .paper h3 {
+      margin: 0;
+      font-size: 18px;
+      line-height: 1.25;
+    }
+
+    .feature-card p,
+    .paper p {
+      color: var(--muted);
+      margin: 10px 0 0;
+      font-size: 14px;
+    }
+
+    .year-group {
+      margin-top: 46px;
+    }
+
+    .year-title {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 14px;
+    }
+
+    .year-title h2 {
+      margin: 0;
+      font-size: 32px;
+      color: var(--blue);
+    }
+
+    .year-title span {
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .paper-list {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    .paper {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 18px;
+      align-items: start;
+    }
+
+    .meta {
+      color: var(--muted);
+      font-size: 14px;
+      margin-top: 7px;
+    }
+
+    .cite {
+      min-width: 74px;
+      padding: 8px 10px;
+      text-align: center;
+      border-radius: 8px;
+      background: var(--soft);
+      color: var(--blue);
+      font-weight: 900;
+    }
+
+    .cite small {
+      display: block;
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .source-note {
+      margin-top: 48px;
+      padding: 20px;
+      border-radius: 8px;
+      background: var(--soft);
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    footer {
+      padding: 28px 24px;
+      background: var(--ink);
+      color: #c9d9e1;
+    }
+
+    .footer-inner {
+      max-width: 1180px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      gap: 20px;
+      flex-wrap: wrap;
+      font-size: 14px;
+    }
+
+    @media (max-width: 820px) {
+      nav { display: none; }
+      .featured { grid-template-columns: 1fr; }
+      .paper { grid-template-columns: 1fr; }
+      .cite { justify-self: start; }
+    }
+  </style>
+</head>
+<body>
+  <header class="nav">
+    <div class="nav-inner">
+      <a class="brand" href="index.html">
+        <img src="assets/STDbio-web.png" alt="STD Bioelectronics logo">
+        <span>STD Bioelectronics</span>
+      </a>
+      <nav aria-label="Main navigation">
+        <a href="index.html">Home</a>
+        <a href="index.html#research">Research</a>
+        <a href="papers/electric-field-guided-dna-storage.html">Science Advances explainer</a>
+        <a href="https://scholar.google.com/citations?hl=en&user=NqwCwVcAAAAJ&view_op=list_works&sortby=pubdate" target="_blank" rel="noopener">Google Scholar</a>
+      </nav>
+    </div>
+  </header>
+
+  <section class="hero">
+    <div class="hero-inner">
+      <div class="eyebrow">Publication archive</div>
+      <h1>Year-grouped research output</h1>
+      <p>Publications are organized by year from the Youngjun Song Google Scholar profile snapshot. Featured papers are highlighted for research homepage visitors and future site updates.</p>
+      <div class="source">
+        <a class="button" href="https://scholar.google.com/citations?hl=en&user=NqwCwVcAAAAJ&view_op=list_works&sortby=pubdate" target="_blank" rel="noopener">Open Scholar source</a>
+        <a class="button" href="index.html#featured">Back to featured papers</a>
+      </div>
+    </div>
+  </section>
+
+  <main>
+    <div class="wrap">
+      <section class="featured" aria-label="Major papers">
+        <article class="feature-card">
+          <span class="tag">Science Advances explainer</span>
+          <h2>Electric field-guided DNA synthesis for random-access DNA data storage</h2>
+          <p>Visual explanation page prepared from the local Science Advance folder.</p>
+        </article>
+        <article class="feature-card">
+          <span class="tag">ACS Nano 2026</span>
+          <h2>High-Data-Density, High-Decoding-Speed, and High-Decoding-Accuracy DNA Data Ink for Digital Preservation</h2>
+          <p>Latest DNA data ink paper in the Scholar profile snapshot.</p>
+        </article>
+        <article class="feature-card">
+          <span class="tag">Cell Reports Physical Science 2025</span>
+          <h2>Enzyme-free chemical DNA ligation via amine-crosslinker-mediated DNA assembly for miRNA detection</h2>
+          <p>DNA chemistry and miRNA detection highlighted for the homepage.</p>
+        </article>
+      </section>
+
+      <section class="year-group" id="y2026">
+        <div class="year-title"><h2>2026</h2><span>2 works</span></div>
+        <div class="paper-list">
+          <article class="paper"><div><h3>High ratio carbon nanotube-carboxymethyl cellulose composite grid for Joule heating device</h3><div class="meta">W Lee, D Lim, T Kang, C Lee, S Noh, HS Eun, JW Lee, Y Song<br>Advanced Composite Materials 35 (2), 285-299</div></div><div class="cite">-<small>cites</small></div></article>
+          <article class="paper"><div><h3>High-Data-Density, High-Decoding-Speed, and High-Decoding-Accuracy DNA Data Ink for Digital Preservation</h3><div class="meta">T Kang, D Lim, W Lee, J Kim, X Huang, J Kim, Y Song<br>ACS Nano</div></div><div class="cite">-<small>cites</small></div></article>
+        </div>
+      </section>
+
+      <section class="year-group" id="y2025">
+        <div class="year-title"><h2>2025</h2><span>4 works</span></div>
+        <div class="paper-list">
+          <article class="paper"><div><h3>Enzyme-free chemical DNA ligation via amine-crosslinker-mediated DNA assembly for miRNA detection</h3><div class="meta">D Lim, Z Haider, H Lim, W Lee, T Kang, HS Eun, J Kim, Y Song<br>Cell Reports Physical Science 6 (10)</div></div><div class="cite">1<small>cites</small></div></article>
+          <article class="paper"><div><h3>Polymerase elongation onto patterned DNA for random accessed DNA data storage</h3><div class="meta">T Kang, D Lim, W Lee, Y Song<br>BioChip Journal 19 (3), 636-648</div></div><div class="cite">2<small>cites</small></div></article>
+          <article class="paper"><div><h3>Elastic conductive CNT/Ecoflex nanocomposites for tactile sensing</h3><div class="meta">W Lee, CH Lee, T Kang, Y Song<br>Soft Materials 23 (1-2), 45-54</div></div><div class="cite">-<small>cites</small></div></article>
+          <article class="paper"><div><h3>Amine-to-amine deoxyribonucleic acid conjugation process on gold surfaces for electric field-assisted hybridization</h3><div class="meta">D Lim, S Noh, T Kang, N Nergui, HS Eun, Y Song<br>Langmuir 41 (10), 7008-7015</div></div><div class="cite">2<small>cites</small></div></article>
+        </div>
+      </section>
+
+      <section class="year-group" id="y2024">
+        <div class="year-title"><h2>2024</h2><span>4 works</span></div>
+        <div class="paper-list">
+          <article class="paper"><div><h3>Development of eutectic gallium-indium-based transparent conductive electrodes on flexible substrates for touch sensor integration</h3><div class="meta">H Kim, Y Song, S Chang<br>Microelectronics Reliability 157, 115402</div></div><div class="cite">1<small>cites</small></div></article>
+          <article class="paper"><div><h3>Efficient combination chemo-sonodynamic cancer therapy using mitochondria-targeting sonosensitizer-loaded polysorbate-based micelles</h3><div class="meta">HJ Kang, Q Truong Hoang, J Min, MS Son, LTH Tram, BC Kim, Y Song, ...<br>International Journal of Molecular Sciences 25 (6), 3474</div></div><div class="cite">7<small>cites</small></div></article>
+          <article class="paper"><div><h3>The multiple fluorescent multi-bit DNA memory encoding system</h3><div class="meta">N Nergui, J Kim, D Lim, W Lee, T Kang, S Kim, MS Shim, Y Song<br>Nano Communication Networks 39, 100497</div></div><div class="cite">1<small>cites</small></div></article>
+          <article class="paper"><div><h3>The Fabrication of Directional Carbon Nanotube Networks by Dielectrophoresis With Layer-by-Layer Deposition</h3><div class="meta">J Kim, CH Lee, C Lee, N Nergui, S Noh, D Lim, KH Song, S Kim, Y Song<br>IEEE Access 12, 26410-26418</div></div><div class="cite">1<small>cites</small></div></article>
+        </div>
+      </section>
+
+      <section class="year-group" id="y2023">
+        <div class="year-title"><h2>2023</h2><span>4 works</span></div>
+        <div class="paper-list">
+          <article class="paper"><div><h3>Liquid Metal Electrodynamic Accumulation Microfluidics System for DNA Memory and Liquid Biopsy (Adv. Funct. Mater. 51/2023)</h3><div class="meta">Y Jeong, S Noh, M Yu, S Chang, H Eun, J Kim, Y Song<br>Advanced Functional Materials 33 (51)</div></div><div class="cite">-<small>cites</small></div></article>
+          <article class="paper"><div><h3>Liquid metal electrodynamic accumulation microfluidics system for DNA memory and liquid biopsy</h3><div class="meta">Y Jeong, S Noh, M Yu, S Chang, H Eun, J Kim, Y Song<br>Advanced Functional Materials 33 (51), 2305680</div></div><div class="cite">5<small>cites</small></div></article>
+          <article class="paper"><div><h3>Processing DNA storage through programmable assembly in a droplet-based fluidics system</h3><div class="meta">M Yu, D Lim, J Kim, Y Song<br>Advanced Science 10 (32), 2303197</div></div><div class="cite">15<small>cites</small></div></article>
+          <article class="paper"><div><h3>Structural conductive carbon nanotube nanocomposites for stretchable electronics</h3><div class="meta">J Ahn, S Noh, D Kim, BS Kim, S Kim, Y Song<br>Materials Research Express 10 (3), 036304</div></div><div class="cite">4<small>cites</small></div></article>
+        </div>
+      </section>
+
+      <section class="year-group" id="y2022">
+        <div class="year-title"><h2>2022</h2><span>4 works</span></div>
+        <div class="paper-list">
+          <article class="paper"><div><h3>Acid treatment to tune the optical properties of carbon quantum dots</h3><div class="meta">GH Oh, BS Kim, Y Song, S Kim<br>Applied Surface Science 605, 154690</div></div><div class="cite">38<small>cites</small></div></article>
+          <article class="paper"><div><h3>Elastic CNT nanocomposites for Joule heating and tactic sensing devices</h3><div class="meta">S Noh, Y Song<br>Mechanics of Advanced Materials and Structures 29 (13), 1874-1882</div></div><div class="cite">15<small>cites</small></div></article>
+          <article class="paper"><div><h3>Double layer methylcellulose substrate-based wearable touch sensor and display for communication</h3><div class="meta">Y Kim, SP Chang, Y Song<br>ACS Applied Electronic Materials 4 (5), 2227-2237</div></div><div class="cite">11<small>cites</small></div></article>
+          <article class="paper"><div><h3>Flexible liquid metal display using 3-Aminopropyl triethoxysilane-treated light emitting diodes (LEDs) array</h3><div class="meta">H Kim, S Chang, Y Song<br>Microelectronic Engineering 253, 111677</div></div><div class="cite">1<small>cites</small></div></article>
+        </div>
+      </section>
+
+      <section class="year-group" id="y2021">
+        <div class="year-title"><h2>2021</h2><span>5 works</span></div>
+        <div class="paper-list">
+          <article class="paper"><div><h3>Multilayer Methylcellulose Substrate-Based Wearable Touch Sensor and Display for Communication</h3><div class="meta">K Yunsu, S Chang, Y Song</div></div><div class="cite">-<small>cites</small></div></article>
+          <article class="paper"><div><h3>Programmable nanoparticle patterning by droplet electrophoretic deposition</h3><div class="meta">D Lim, S Noh, Y Song<br>Journal of Materials Research and Technology 14, 3150-3160</div></div><div class="cite">4<small>cites</small></div></article>
+          <article class="paper"><div><h3>Programmable DNA-based Boolean logic microfluidic processing unit</h3><div class="meta">W Lee, M Yu, D Lim, T Kang, Y Song<br>ACS Nano 15 (7), 11644-11654</div></div><div class="cite">39<small>cites</small></div></article>
+          <article class="paper"><div><h3>Dielectrophoretic trapping for nanoparticles, high-molecule-weight DNA, and SYBR gold using polyimide-based printed circuit board</h3><div class="meta">S Noh, Y Song<br>IEEE Sensors Journal 21 (17), 18451-18458</div></div><div class="cite">10<small>cites</small></div></article>
+          <article class="paper"><div><h3>Vacuum-filtration fabrication for diverse conductive transparent cellulose electronic devices</h3><div class="meta">S Noh, H An, Y Song<br>Cellulose 28 (5), 3081-3096</div></div><div class="cite">20<small>cites</small></div></article>
+        </div>
+      </section>
+
+      <section class="year-group" id="y2020">
+        <div class="year-title"><h2>2020</h2><span>5 works</span></div>
+        <div class="paper-list">
+          <article class="paper"><div><h3>DNA double-write/double binding identity</h3><div class="meta">MJ Heller, E Skowronski, Y Song, J Warner, S Chen<br>US Patent 10,754,250</div></div><div class="cite">1<small>cites</small></div></article>
+          <article class="paper"><div><h3>A programmable macroscale electrical field self-assembly array device for diverse thin film applications</h3><div class="meta">Y Song, S Kim, MJ Heller<br>Journal of Materials Research and Technology 9 (4), 8808-8819</div></div><div class="cite">9<small>cites</small></div></article>
+          <article class="paper"><div><h3>The poly-thymine based DNA photolithography onto electrostatic coupling substrates</h3><div class="meta">Y Song<br>Materials Science and Engineering: C 111, 110795</div></div><div class="cite">9<small>cites</small></div></article>
+          <article class="paper"><div><h3>A simple transparent electrode fabrication method by filling in Ag composites into scratch gap</h3><div class="meta">S Noh, Y Song<br>Microelectronic Engineering 228, 111331</div></div><div class="cite">5<small>cites</small></div></article>
+          <article class="paper"><div><h3>Macro-aligned carbon nanotube-polymer matrix by dielectrophoresis and transferring process</h3><div class="meta">S Noh, Y Song<br>Journal of Materials Research and Technology 9 (3), 4550-4557</div></div><div class="cite">11<small>cites</small></div></article>
+        </div>
+      </section>
+
+      <section class="year-group" id="y2019">
+        <div class="year-title"><h2>2019</h2><span>1 work</span></div>
+        <div class="paper-list">
+          <article class="paper"><div><h3>Ultrathin sub-3 nm nitrogen-doped graphene quantum dot layers coated TiO2 nanocomposites as high-performance photocatalysts</h3><div class="meta">S Kim, H Chang, JY Choi, Y Song, MJ Heller<br>Chemical Physics Letters 714, 1-5</div></div><div class="cite">12<small>cites</small></div></article>
+        </div>
+      </section>
+
+      <section class="year-group" id="y2018">
+        <div class="year-title"><h2>2018</h2><span>1 work</span></div>
+        <div class="paper-list">
+          <article class="paper"><div><h3>DNA multi-bit non-volatile memory and bit-shifting operations using addressable electrode arrays and electric field-induced hybridization</h3><div class="meta">Y Song, S Kim, MJ Heller, X Huang<br>Nature Communications 9 (1), 281</div></div><div class="cite">51<small>cites</small></div></article>
+        </div>
+      </section>
+
+      <section class="year-group" id="y2017">
+        <div class="year-title"><h2>2017</h2><span>7 works</span></div>
+        <div class="paper-list">
+          <article class="paper"><div><h3>An implantable transparent conductive film with water resistance and ultrabendability for electronic devices</h3><div class="meta">Y Song, S Kim, MJ Heller<br>ACS Applied Materials & Interfaces 9 (48), 42302-42312</div></div><div class="cite">24<small>cites</small></div></article>
+          <article class="paper"><div><h3>White-light emission of blue-luminescent graphene quantum dots by europium (III) complex incorporation</h3><div class="meta">S Kim, JK Seo, JH Park, Y Song, YS Meng, MJ Heller<br>Carbon 124, 479-485</div></div><div class="cite">57<small>cites</small></div></article>
+          <article class="paper"><div><h3>Seamless aqueous arc discharge process for producing graphitic carbon nanostructures</h3><div class="meta">S Kim, Y Song, MJ Heller<br>Carbon 120, 83-88</div></div><div class="cite">31<small>cites</small></div></article>
+          <article class="paper"><div><h3>Polymorphic architectures of graphene quantum dots</h3><div class="meta">S Kim, Y Song, MJ Heller<br>Advanced Materials 29 (31), 1701845</div></div><div class="cite">19<small>cites</small></div></article>
+          <article class="paper"><div><h3>A programmable DNA double-write material: synergy of photolithography and self-assembly nanofabrication</h3><div class="meta">Y Song, T Takahashi, S Kim, YC Heaney, J Warner, S Chen, MJ Heller<br>ACS Applied Materials & Interfaces 9 (1), 22-28</div></div><div class="cite">19<small>cites</small></div></article>
+          <article class="paper"><div><h3>Research Article Influence of MWCNTs on beta-Phase PVDF and Triboelectric Properties</h3><div class="meta">S Kim, Y Song, MJ Heller</div></div><div class="cite">-<small>cites</small></div></article>
+          <article class="paper"><div><h3>Influence of MWCNTs on beta-Phase PVDF and Triboelectric Properties</h3><div class="meta">S Kim, Y Song, MJ Heller<br>Journal of Nanomaterials 2017 (1), 2697382</div></div><div class="cite">35<small>cites</small></div></article>
+        </div>
+      </section>
+
+      <section class="year-group" id="y2016">
+        <div class="year-title"><h2>2016</h2><span>3 works</span></div>
+        <div class="paper-list">
+          <article class="paper"><div><h3>Controlled degrees of oxidation of nanoporous graphene filters for water purification using an aqueous arc discharge</h3><div class="meta">S Kim, Y Song, S Ibsen, SY Ko, MJ Heller<br>Carbon 109, 624-631</div></div><div class="cite">17<small>cites</small></div></article>
+          <article class="paper"><div><h3>Thin film deposition apparatus and thin film deposition method using electric field</h3><div class="meta">JS Heo, K Choi, SJ Kim, MJ Heller, YJ Song<br>US Patent 9,399,826</div></div><div class="cite">1<small>cites</small></div></article>
+          <article class="paper"><div><h3>Graphene bi-and trilayers produced by a novel aqueous arc discharge process</h3><div class="meta">S Kim, Y Song, J Wright, MJ Heller<br>Carbon 102, 339-345</div></div><div class="cite">58<small>cites</small></div></article>
+        </div>
+      </section>
+
+      <section class="year-group" id="y2015">
+        <div class="year-title"><h2>2015</h2><span>4 works</span></div>
+        <div class="paper-list">
+          <article class="paper"><div><h3>An electric field assembler system for micro-nanofabrication of energy storage materials</h3><div class="meta">Y Song, MJ Heller<br>Journal of Nanoscience and Nanotechnology 15 (11), 9287-9290</div></div><div class="cite">8<small>cites</small></div></article>
+          <article class="paper"><div><h3>An Aqueous Single Reactor Arc Discharge Process for the Synthesis of Graphene Nanospheres</h3><div class="meta">S Kim, Y Song, T Takahashi, T Oh, MJ Heller<br>Small 11 (38), 5041-5046</div></div><div class="cite">26<small>cites</small></div></article>
+          <article class="paper"><div><h3>Device for dielectrophoretic separation and collection of nanoparticles and DNA under high conductance conditions</h3><div class="meta">Y Song, A Sonnenberg, Y Heaney, MJ Heller<br>Electrophoresis 36 (9-10), 1107-1114</div></div><div class="cite">41<small>cites</small></div></article>
+          <article class="paper"><div><h3>DNA double-write photolithography: A synergy for top-down and bottom-up nanofabrication (abstract #611)</h3><div class="meta">MJ Heller, Y Song<br>10th Annual TechConnect World Innovation Conference and Expo</div></div><div class="cite">-<small>cites</small></div></article>
+        </div>
+      </section>
+
+      <section class="year-group" id="y2014">
+        <div class="year-title"><h2>2014</h2><span>1 work</span></div>
+        <div class="paper-list">
+          <article class="paper"><div><h3>Nanoparticles Patterning by Directed Electric Field Assembly and Photolithography</h3><div class="meta">Y Song<br>University of California, San Diego</div></div><div class="cite">-<small>cites</small></div></article>
+        </div>
+      </section>
+
+      <section class="year-group" id="y2012">
+        <div class="year-title"><h2>2012</h2><span>2 works</span></div>
+        <div class="paper-list">
+          <article class="paper"><div><h3>Design and fabrication of a large scale electric field array device for directed self-assembly of multilayer bioderivatized nanoparticle materials</h3><div class="meta">MJ Heller, Y Song<br>Nanotechnology 2012: Electronics, Devices, Fabrication, MEMS, Fluidics and ...</div></div><div class="cite">-<small>cites</small></div></article>
+          <article class="paper"><div><h3>Electric Field-Directed Assembly of Bioderivatized Nanoparticles</h3><div class="meta">Y Song, MJ Heller<br>Encyclopedia of Nanotechnology, 652-662</div></div><div class="cite">-<small>cites</small></div></article>
+        </div>
+      </section>
+
+      <div class="source-note">
+        Source snapshot: Google Scholar profile for Youngjun Song, sorted by publication date, accessed on 2026-05-20 KST. Citation counts are volatile and should be refreshed before formal reporting.
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+      <span>STD Bioelectronics & Bio Optics Lab</span>
+      <span><a href="index.html">Home</a></span>
+    </div>
+  </footer>
+</body>
+</html>

@@ -3,62 +3,510 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>STD Bioelectronics</title>
-
+  <title>STD Bioelectronics & Bio Optics Lab</title>
+  <meta name="description" content="STD Bioelectronics & Bio Optics Lab at Incheon National University develops DNA data storage, electric-field biochips, bioelectronics, and bio-optical systems.">
+  <meta property="og:title" content="STD Bioelectronics & Bio Optics Lab">
+  <meta property="og:description" content="Research homepage for DNA data storage, electric-field biochips, bioelectronics, and bio-optical systems.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://stdbioelec.com/">
+  <meta property="og:image" content="https://stdbioelec.com/assets/BEBO-web.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="STD Bioelectronics & Bio Optics Lab">
+  <meta name="twitter:description" content="DNA data storage, electric-field biochips, and bioelectronics research.">
+  <meta name="twitter:image" content="https://stdbioelec.com/assets/BEBO-web.png">
   <style>
-    body{
-      margin:0;
-      font-family:Arial, sans-serif;
-      background:#0f172a;
-      color:white;
-      display:flex;
-      justify-content:center;
-      align-items:center;
-      height:100vh;
-      text-align:center;
+    :root {
+      --ink: #0e1726;
+      --panel: #122235;
+      --muted: #587083;
+      --line: #dbe5ea;
+      --soft: #f2f7f8;
+      --white: #ffffff;
+      --blue: #1d6fd2;
+      --teal: #10a58f;
+      --gold: #c5902d;
     }
 
-    .box{
-      max-width:700px;
-      padding:40px;
+    * {
+      box-sizing: border-box;
     }
 
-    h1{
-      font-size:56px;
-      margin-bottom:10px;
+    body {
+      margin: 0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+      color: var(--ink);
+      background: var(--white);
+      line-height: 1.6;
     }
 
-    p{
-      font-size:20px;
-      color:#cbd5e1;
+    a {
+      color: inherit;
     }
 
-    .tag{
-      margin-top:30px;
-      display:inline-block;
-      padding:12px 20px;
-      border:1px solid #334155;
-      border-radius:12px;
-      background:#111827;
+    .nav {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      background: rgba(255, 255, 255, 0.94);
+      border-bottom: 1px solid var(--line);
+      backdrop-filter: blur(14px);
+    }
+
+    .nav-inner {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 14px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+    }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+      font-weight: 800;
+      letter-spacing: 0;
+    }
+
+    .brand img {
+      width: 42px;
+      height: 42px;
+      object-fit: contain;
+      border-radius: 8px;
+      background: var(--soft);
+      border: 1px solid var(--line);
+      padding: 4px;
+    }
+
+    nav {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      font-size: 14px;
+      color: #32475a;
+    }
+
+    nav a {
+      text-decoration: none;
+    }
+
+    .hero {
+      background:
+        linear-gradient(120deg, rgba(14, 23, 38, 0.94), rgba(18, 55, 78, 0.86)),
+        linear-gradient(90deg, #0e1726, #0f4c5c);
+      color: var(--white);
+    }
+
+    .hero-inner {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 88px 24px 72px;
+      display: grid;
+      grid-template-columns: minmax(0, 1.25fr) minmax(320px, 0.75fr);
+      gap: 52px;
+      align-items: center;
+    }
+
+    .eyebrow {
+      margin-bottom: 18px;
+      color: #8be0d3;
+      font-weight: 800;
+      font-size: 13px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(44px, 6vw, 76px);
+      line-height: 0.96;
+      letter-spacing: 0;
+    }
+
+    .hero p {
+      max-width: 720px;
+      margin: 24px 0 0;
+      color: #d6e6ea;
+      font-size: 19px;
+    }
+
+    .actions {
+      margin-top: 34px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 44px;
+      padding: 0 18px;
+      border-radius: 8px;
+      background: var(--teal);
+      color: var(--white);
+      font-weight: 800;
+      text-decoration: none;
+      border: 1px solid rgba(255, 255, 255, 0.16);
+    }
+
+    .button.secondary {
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    .logo-panel {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      border-radius: 8px;
+      padding: 22px;
+    }
+
+    .logo-panel img {
+      display: block;
+      width: 100%;
+      height: auto;
+      background: var(--white);
+      border-radius: 8px;
+      padding: 16px;
+    }
+
+    .logo-panel img + img {
+      margin-top: 14px;
+    }
+
+    section {
+      padding: 76px 24px;
+    }
+
+    .wrap {
+      max-width: 1180px;
+      margin: 0 auto;
+    }
+
+    .section-head {
+      max-width: 760px;
+      margin-bottom: 30px;
+    }
+
+    .section-head h2 {
+      margin: 0;
+      font-size: clamp(30px, 4vw, 44px);
+      line-height: 1.08;
+      letter-spacing: 0;
+    }
+
+    .section-head p {
+      margin: 14px 0 0;
+      color: var(--muted);
+      font-size: 17px;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1px;
+      background: var(--line);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .stat {
+      background: var(--white);
+      padding: 26px;
+    }
+
+    .stat strong {
+      display: block;
+      font-size: 34px;
+      line-height: 1;
+      color: var(--blue);
+    }
+
+    .stat span {
+      display: block;
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .focus-grid,
+    .paper-grid,
+    .link-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .card {
+      min-height: 100%;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 22px;
+      background: var(--white);
+    }
+
+    .card b {
+      display: block;
+      margin-bottom: 10px;
+      font-size: 18px;
+    }
+
+    .card p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 15px;
+    }
+
+    .card a {
+      display: inline-flex;
+      margin-top: 16px;
+      color: var(--blue);
+      font-weight: 800;
+      text-decoration: none;
+      font-size: 14px;
+    }
+
+    .band {
+      background: var(--soft);
+    }
+
+    .featured {
+      border-left: 4px solid var(--teal);
+    }
+
+    .featured .journal {
+      display: inline-flex;
+      margin-bottom: 12px;
+      color: var(--gold);
+      font-weight: 800;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .note {
+      background: var(--ink);
+      color: var(--white);
+      border-radius: 8px;
+      padding: 28px;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 24px;
+      align-items: center;
+    }
+
+    .note p {
+      margin: 8px 0 0;
+      color: #c9d9e1;
+    }
+
+    footer {
+      padding: 28px 24px;
+      background: var(--ink);
+      color: #c9d9e1;
+    }
+
+    .footer-inner {
+      max-width: 1180px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      gap: 20px;
+      flex-wrap: wrap;
+      font-size: 14px;
+    }
+
+    @media (max-width: 920px) {
+      .hero-inner {
+        grid-template-columns: 1fr;
+      }
+
+      .focus-grid,
+      .paper-grid,
+      .link-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 640px) {
+      nav {
+        display: none;
+      }
+
+      .stats,
+      .focus-grid,
+      .paper-grid,
+      .link-grid,
+      .note {
+        grid-template-columns: 1fr;
+      }
+
+      section {
+        padding: 56px 20px;
+      }
     }
   </style>
 </head>
-
 <body>
+  <header class="nav">
+    <div class="nav-inner">
+      <a class="brand" href="/">
+        <img src="assets/STDbio-web.png" alt="STD Bioelectronics logo">
+        <span>STD Bioelectronics</span>
+      </a>
+      <nav aria-label="Main navigation">
+        <a href="#research">Research</a>
+        <a href="#featured">Featured</a>
+        <a href="publications.html">Publications</a>
+        <a href="#connect">Connect</a>
+      </nav>
+    </div>
+  </header>
 
-<div class="box">
-  <h1>STD Bioelectronics</h1>
+  <main>
+    <section class="hero">
+      <div class="hero-inner">
+        <div>
+          <div class="eyebrow">Bioelectronics Bio Optics Lab</div>
+          <h1>Electric-field biochips for molecular memory and analysis</h1>
+          <p>STD Bioelectronics & Bio Optics Lab develops DNA data storage, electric-field-guided molecular processing, microfluidic biochips, and soft bioelectronic systems at Incheon National University.</p>
+          <div class="actions">
+            <a class="button" href="publications.html">View publications</a>
+            <a class="button secondary" href="papers/electric-field-guided-dna-storage.html">Science Advances explainer</a>
+            <a class="button secondary" href="https://scholar.google.com/citations?hl=en&user=NqwCwVcAAAAJ&view_op=list_works&sortby=pubdate" target="_blank" rel="noopener">Google Scholar</a>
+          </div>
+        </div>
+        <aside class="logo-panel" aria-label="Lab logos">
+          <img src="assets/BEBO-web.png" alt="Bioelectronics Bio Optics Lab logo">
+          <img src="assets/STDbio-web.png" alt="STD Bioelectronics logo">
+        </aside>
+      </div>
+    </section>
 
-  <p>
-    Electric-field-guided molecular systems,
-    DNA data storage,
-    bioelectronics & computational biotechnology
-  </p>
+    <section>
+      <div class="wrap">
+        <div class="stats">
+          <div class="stat"><strong>47</strong><span>Google Scholar indexed works in the current profile snapshot</span></div>
+          <div class="stat"><strong>611</strong><span>Citations shown on the Google Scholar profile snapshot</span></div>
+          <div class="stat"><strong>2026</strong><span>Latest publications include ACS Nano and Advanced Composite Materials</span></div>
+        </div>
+      </div>
+    </section>
 
-  <div class="tag">
-    Incheon National University
-  </div>
-</div>
+    <section class="band" id="research">
+      <div class="wrap">
+        <div class="section-head">
+          <h2>Research themes</h2>
+          <p>The lab connects electric-field control, DNA chemistry, nanomaterials, and microfluidics into practical bioelectronic platforms.</p>
+        </div>
+        <div class="focus-grid">
+          <article class="card">
+            <b>DNA data storage</b>
+            <p>Random access, molecular encoding, DNA data ink, and processing-in-memory workflows for digital preservation.</p>
+          </article>
+          <article class="card">
+            <b>Electric-field biochips</b>
+            <p>Electrode arrays, dielectrophoretic assembly, and field-guided synthesis for programmable molecular operations.</p>
+          </article>
+          <article class="card">
+            <b>Bio-optical interfaces</b>
+            <p>Fluorescent DNA memory, optical readout, and biochip visualization for data and diagnostics workflows.</p>
+          </article>
+          <article class="card">
+            <b>Soft bioelectronics</b>
+            <p>CNT composites, liquid metal electrodes, flexible sensors, and wearable interfaces for biological measurement.</p>
+          </article>
+        </div>
+      </div>
+    </section>
 
+    <section id="featured">
+      <div class="wrap">
+        <div class="section-head">
+          <h2>Featured papers</h2>
+          <p>Major papers are grouped for fast review by students, collaborators, and AI coding agents updating this GitHub Pages site.</p>
+        </div>
+        <div class="paper-grid">
+          <article class="card featured">
+            <span class="journal">Science Advances explainer</span>
+            <b>Electric field-guided DNA synthesis for random-access DNA data storage</b>
+            <p>A visual Korean explainer for the lab's DNA storage chip concept: reusable synthesis, random access, rapid NGS preparation, and data restoration.</p>
+            <a href="papers/electric-field-guided-dna-storage.html">Open visual explainer</a>
+          </article>
+          <article class="card">
+            <span class="journal">ACS Nano 2026</span>
+            <b>High-Data-Density, High-Decoding-Speed, and High-Decoding-Accuracy DNA Data Ink for Digital Preservation</b>
+            <p>DNA data ink for high density digital preservation, emphasizing decoding speed and accuracy.</p>
+            <a href="publications.html#y2026">See in publications</a>
+          </article>
+          <article class="card">
+            <span class="journal">Cell Reports Physical Science 2025</span>
+            <b>Enzyme-free chemical DNA ligation via amine-crosslinker-mediated DNA assembly for miRNA detection</b>
+            <p>Chemical DNA assembly approach for miRNA detection without enzyme-dependent ligation.</p>
+            <a href="publications.html#y2025">See in publications</a>
+          </article>
+          <article class="card">
+            <span class="journal">ACS Nano 2021</span>
+            <b>Programmable DNA-based Boolean logic microfluidic processing unit</b>
+            <p>Programmable DNA logic in a microfluidic format, connecting molecular computation to biochip processing.</p>
+            <a href="publications.html#y2021">See in publications</a>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="band" id="connect">
+      <div class="wrap">
+        <div class="section-head">
+          <h2>Connect</h2>
+          <p>External profiles are wired here so this GitHub Pages site can be expanded into a full research homepage.</p>
+        </div>
+        <div class="link-grid">
+          <article class="card">
+            <b>Google Scholar</b>
+            <p>Publication source used for the current year-grouped list.</p>
+            <a href="https://scholar.google.com/citations?hl=en&user=NqwCwVcAAAAJ&view_op=list_works&sortby=pubdate" target="_blank" rel="noopener">Open Scholar profile</a>
+          </article>
+          <article class="card">
+            <b>GitHub</b>
+            <p>Static site deployment and future lab code repositories.</p>
+            <a href="https://github.com/bioelectronicsbiooptics" target="_blank" rel="noopener">Open GitHub organization</a>
+          </article>
+          <article class="card">
+            <b>X / Twitter</b>
+            <p>Reserved social link. Create the account with the lab manager identity, then update this URL.</p>
+            <a href="https://x.com/stdbioelec" target="_blank" rel="noopener">Prepared handle link</a>
+          </article>
+          <article class="card">
+            <b>Email</b>
+            <p>Use this as the public contact until a preferred lab mailbox is finalized.</p>
+            <a href="mailto:labmanager.bebo.inu@gmail.com">labmanager.bebo.inu@gmail.com</a>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="wrap note">
+        <div>
+          <h2>Publication page is ready for updates</h2>
+          <p>The publication list is grouped by year and can be refreshed from the linked Google Scholar profile when new papers appear.</p>
+        </div>
+        <a class="button" href="publications.html">Open publications</a>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+      <span>STD Bioelectronics & Bio Optics Lab</span>
+      <span>Incheon National University</span>
+    </div>
+  </footer>
 </body>
 </html>
