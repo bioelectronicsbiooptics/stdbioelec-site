@@ -4,12 +4,31 @@ GitHub Pages site for `stdbioelec.com`.
 
 ## Main files
 
-- `index.html`: research homepage
-- `publications.html`: year-grouped Google Scholar publication list
+- `index.html`, `index-ko.html`: English and Korean research homepages
+- `publications.html`, `publications-ko.html`: English and Korean year-grouped Google Scholar publication lists
+- `class.html`, `class-ko.html`: LLM from Scratch class entry pages
+- `assets/site.css`: shared homepage, publication, and class page styles
 - `papers/electric-field-guided-dna-storage.html`: visual explainer copied from the local Science Advance folder
 - `assets/STDbio.png`, `assets/BEBO.png`: original lab logos
 - `assets/STDbio-web.png`, `assets/BEBO-web.png`: web-sized logo assets
 - `SOCIAL_SETUP.md`: X / social account setup notes
+
+## Local class source
+
+The public class pages summarize the course structure without publishing copyrighted
+book content. Local teaching materials are organized here:
+
+```text
+/Users/young/Desktop/Deep_Learning_from_Scratch/LLM_scratch
+```
+
+That folder contains English notes, Korean notes, linked notes, HTML pages, and
+PPTX material. Public links should point to official repositories:
+
+```text
+https://github.com/rasbt/LLMs-from-scratch
+https://github.com/rasbt/reasoning-from-scratch
+```
 
 ## Publication source
 
@@ -26,7 +45,7 @@ Snapshot date: 2026-05-20 KST.
 ```bash
 cd /Users/young/Desktop/stdbioelec-site
 git status
-git add index.html publications.html papers assets README.md SOCIAL_SETUP.md
+git add index.html index-ko.html publications.html publications-ko.html class.html class-ko.html papers assets README.md SOCIAL_SETUP.md
 git commit -m "Update research homepage and publication archive"
 git push origin main
 ```
