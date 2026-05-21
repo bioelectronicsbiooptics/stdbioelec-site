@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Enzyme-free chemical DNA ligation - Cell Reports Physical Science</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Pretendard',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#0a0e1a;color:#e0e6f0;line-height:1.8;overflow-x:hidden}
+.hero{min-height:100vh;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;background:linear-gradient(135deg,#0a0e1a 0%,#0a1a2a 50%,#0d1225 100%);position:relative;padding:2rem}
+.hero::before{content:'';position:absolute;top:0;left:0;right:0;bottom:0;background:radial-gradient(circle at 30% 40%,rgba(0,188,212,0.12) 0%,transparent 60%),radial-gradient(circle at 70% 60%,rgba(233,30,99,0.08) 0%,transparent 60%)}
+.hero-content{position:relative;z-index:1;max-width:900px}
+.hero h1{font-size:clamp(1.7rem,3.8vw,3rem);font-weight:800;background:linear-gradient(135deg,#00bcd4,#e91e63,#00bcd4);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:1rem}
+.hero .subtitle{font-size:1.1rem;color:#94a3b8;margin-bottom:0.5rem}
+.hero .journal{display:inline-block;padding:0.3rem 1rem;background:rgba(0,188,212,0.15);border:1px solid rgba(0,188,212,0.3);border-radius:20px;font-size:0.95rem;color:#00bcd4;margin-bottom:1.5rem}
+.paper-link{display:inline-block;padding:0.5rem 1.5rem;background:rgba(0,188,212,0.12);border:1px solid rgba(0,188,212,0.4);border-radius:10px;color:#00bcd4;text-decoration:none;font-size:0.95rem;font-weight:600;transition:all 0.3s;margin-bottom:1.5rem}
+.paper-link:hover{background:rgba(0,188,212,0.25);border-color:#00bcd4;transform:translateY(-2px)}
+.scroll-hint{position:absolute;bottom:2rem;animation:bounce 2s infinite;color:#475569;font-size:0.9rem}
+@keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(8px)}}
+.nav-dots{position:fixed;right:1.5rem;top:50%;transform:translateY(-50%);z-index:100;display:flex;flex-direction:column;gap:12px}
+.nav-dot{width:10px;height:10px;border-radius:50%;background:rgba(255,255,255,0.2);cursor:pointer;transition:all 0.3s;border:none}
+.nav-dot:hover,.nav-dot.active{background:#00bcd4;transform:scale(1.3)}
+.nav-dot-label{position:absolute;right:20px;background:#1e293b;color:#e0e6f0;padding:4px 10px;border-radius:6px;font-size:0.8rem;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity 0.2s}
+.nav-dot:hover .nav-dot-label{opacity:1}
+.section{min-height:100vh;padding:5rem 2rem;max-width:1100px;margin:0 auto;display:flex;flex-direction:column;justify-content:center}
+.section-title{font-size:clamp(1.5rem,3vw,2.4rem);font-weight:700;margin-bottom:0.5rem;color:#f1f5f9}
+.section-number{font-size:0.9rem;color:#00bcd4;font-weight:600;letter-spacing:3px;text-transform:uppercase;margin-bottom:0.5rem}
+.section-desc{color:#94a3b8;font-size:1.1rem;margin-bottom:2.5rem;max-width:700px}
+.card-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1.5rem;margin:1.5rem 0}
+.card{background:rgba(30,41,59,0.6);border:1px solid rgba(255,255,255,0.06);border-radius:16px;padding:1.8rem;transition:transform 0.3s,border-color 0.3s}
+.card:hover{transform:translateY(-4px);border-color:rgba(0,188,212,0.3)}
+.card-icon{font-size:2rem;margin-bottom:0.8rem}
+.card h3{font-size:1.15rem;color:#f1f5f9;margin-bottom:0.5rem}
+.card p{color:#94a3b8;font-size:1rem}
+.highlight-box{background:linear-gradient(135deg,rgba(0,188,212,0.08),rgba(233,30,99,0.06));border:1px solid rgba(0,188,212,0.2);border-radius:16px;padding:2rem;margin:1.5rem 0}
+.highlight-box h3{color:#00bcd4;margin-bottom:1rem;font-size:1.2rem}
+.comparison-table{width:100%;border-collapse:separate;border-spacing:0;margin:1.5rem 0;border-radius:12px;overflow:hidden}
+.comparison-table th{background:rgba(0,188,212,0.12);color:#00bcd4;padding:1rem;font-weight:600;font-size:0.95rem;text-align:left;border-bottom:1px solid rgba(0,188,212,0.2)}
+.comparison-table td{padding:0.85rem 1rem;border-bottom:1px solid rgba(255,255,255,0.04);font-size:0.95rem;color:#cbd5e1}
+.comparison-table tr:hover td{background:rgba(0,188,212,0.05)}
+.comparison-table .highlight-row td{background:rgba(0,188,212,0.08);color:#00bcd4;font-weight:600}
+.process-flow{display:flex;flex-wrap:wrap;gap:1rem;margin:2rem 0;justify-content:center}
+.process-step{flex:1;min-width:200px;max-width:260px;background:rgba(30,41,59,0.8);border-radius:16px;padding:1.5rem;text-align:center;position:relative;border:1px solid rgba(255,255,255,0.06)}
+.process-step::after{content:'\2192';position:absolute;right:-1rem;top:50%;transform:translateY(-50%);color:#475569;font-size:1.5rem}
+.process-step:last-child::after{display:none}
+.step-number{display:inline-flex;width:36px;height:36px;background:linear-gradient(135deg,#00bcd4,#e91e63);border-radius:50%;align-items:center;justify-content:center;font-weight:700;font-size:0.9rem;margin-bottom:0.8rem;color:white}
+.process-step h4{color:#f1f5f9;margin-bottom:0.5rem;font-size:1.05rem}
+.process-step p{color:#94a3b8;font-size:0.95rem;line-height:1.6}
+.result-badges{display:flex;flex-wrap:wrap;gap:1rem;margin:1.5rem 0;justify-content:center}
+.result-badge{background:rgba(30,41,59,0.8);border:1px solid rgba(255,255,255,0.06);border-radius:16px;padding:1.5rem 2rem;text-align:center;min-width:160px}
+.result-badge .big-number{font-size:1.8rem;font-weight:800;background:linear-gradient(135deg,#00bcd4,#e91e63);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.result-badge .label{color:#94a3b8;font-size:0.9rem;margin-top:0.3rem}
+/* Molecule vis */
+.molecule-compare{display:flex;flex-wrap:wrap;gap:1.5rem;justify-content:center;margin:2rem 0}
+.molecule-card{background:rgba(30,41,59,0.7);border:1px solid rgba(255,255,255,0.06);border-radius:14px;padding:1.5rem;text-align:center;width:220px;transition:all 0.3s}
+.molecule-card:hover{border-color:rgba(0,188,212,0.3);transform:translateY(-3px)}
+.mol-bar{height:12px;border-radius:6px;margin:1rem 0 0.5rem;position:relative}
+.mol-bar-inner{height:100%;border-radius:6px;transition:width 1s ease-out}
+.mol-label{font-size:0.85rem;color:#94a3b8}
+.mol-value{font-size:1.5rem;font-weight:800;margin:0.5rem 0}
+.mol-name{font-size:0.95rem;font-weight:600;color:#f1f5f9}
+.analogy-box{background:rgba(233,30,99,0.06);border:1px solid rgba(233,30,99,0.2);border-radius:12px;padding:1.5rem;margin:1rem 0;display:flex;gap:1rem;align-items:flex-start}
+.analogy-icon{font-size:1.5rem;flex-shrink:0}
+.analogy-content h4{color:#e91e63;margin-bottom:0.3rem;font-size:1rem}
+.analogy-content p{color:#94a3b8;font-size:0.95rem}
+.glossary-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:1rem;margin-top:1.5rem}
+.glossary-item{background:rgba(30,41,59,0.5);border-radius:12px;padding:1.2rem;border-left:3px solid #00bcd4}
+.glossary-item dt{color:#00bcd4;font-weight:600;margin-bottom:0.3rem;font-size:1rem}
+.glossary-item dd{color:#94a3b8;font-size:0.95rem}
+.section-divider{height:1px;background:linear-gradient(to right,transparent,rgba(0,188,212,0.3),transparent);margin:0 auto;max-width:400px}
+.footer{text-align:center;padding:3rem 2rem;color:#475569;font-size:0.9rem}
+.fade-in{opacity:0;transform:translateY(30px);transition:opacity 0.8s,transform 0.8s}
+.fade-in.visible{opacity:1;transform:translateY(0)}
+/* miRNA targets */
+.mirna-grid{display:flex;flex-wrap:wrap;gap:1rem;justify-content:center;margin:2rem 0}
+.mirna-card{background:rgba(30,41,59,0.7);border:1px solid rgba(255,255,255,0.06);border-radius:12px;padding:1.2rem;width:200px;text-align:center;cursor:pointer;transition:all 0.4s}
+.mirna-card:hover{border-color:rgba(0,188,212,0.4);transform:translateY(-3px)}
+.mirna-card.detected{border-color:#00bcd4;background:rgba(0,188,212,0.08);box-shadow:0 0 15px rgba(0,188,212,0.15)}
+.mirna-icon{font-size:1.8rem;margin-bottom:0.5rem}
+.mirna-name{font-size:1rem;font-weight:700;color:#00bcd4}
+.mirna-source{font-size:0.8rem;color:#94a3b8;margin-top:2px}
+.mirna-cond{font-size:0.75rem;color:#64748b;margin-top:4px}
+.mirna-result{font-size:0.85rem;color:#34d399;font-weight:600;margin-top:6px}
+@media(max-width:768px){.process-step::after{display:none}.process-flow{flex-direction:column;align-items:center}.nav-dots{display:none}.section{padding:3rem 1.2rem}.molecule-compare{flex-direction:column;align-items:center}}
+</style>
+</head>
+<body>
+
+<section class="hero" id="hero">
+  <div class="hero-content">
+    <div class="journal">Cell Reports Physical Science 6, 102867 (2025)</div>
+    <h1>효소 없이 화학으로 DNA를 연결하여<br>miRNA를 검출하다</h1>
+    <p class="subtitle">Lim, Haider et al. &mdash; Enzyme-free chemical DNA ligation via amine-crosslinker-mediated DNA assembly for miRNA detection</p>
+    <a class="paper-link" href="https://www.cell.com/cell-reports-physical-science/fulltext/S2666-3864(25)00466-7" target="_blank">&#x1F4C4; 원문 논문 보기 (Cell Press)</a>
+    <p style="color:#64748b;font-size:1rem;">비전공자를 위한 논문 완전 해설</p>
+  </div>
+  <div class="scroll-hint">아래로 스크롤하세요</div>
+</section>
+
+<!-- PART 01 -->
+<section class="section" id="sec-bg">
+  <div class="fade-in">
+    <p class="section-number">PART 01</p>
+    <h2 class="section-title">왜 효소 없는 DNA 연결이 필요한가?</h2>
+    <p class="section-desc">miRNA는 암, 간질환 등의 조기진단 바이오마커입니다. 하지만 기존 검출법은 불안정한 효소에 의존합니다.</p>
+  </div>
+  <div class="card-grid fade-in">
+    <div class="card"><div class="card-icon">&#x1F9EC;</div><h3>miRNA란?</h3><p>유전자 발현을 조절하는 <strong>18~25 글자의 짧은 RNA</strong>. 양이 변하면 질병의 신호입니다. 혈액 한 방울로 암을 조기 진단할 수 있는 바이오마커.</p></div>
+    <div class="card"><div class="card-icon">&#x1F9EA;</div><h3>기존 방식의 한계</h3><p>효소(리가아제)가 필수 &rarr; <strong>온도 민감, 냉장 필수, 배치간 변동, 고비용</strong>. 현장 진단(Point-of-Care)에 부적합.</p></div>
+    <div class="card"><div class="card-icon">&#x2697;&#xFE0F;</div><h3>해결책: 화학 연결</h3><p>효소 대신 <strong>화학 크로스링커(BS3)</strong>로 DNA를 연결. 넓은 온도, 상온 보관, 높은 재현성.</p></div>
+  </div>
+  <div class="analogy-box fade-in">
+    <div class="analogy-icon">&#x1F9F1;</div>
+    <div class="analogy-content"><h4>비유로 이해하기</h4><p>두 레고 블록(DNA 조각)을 연결할 때: <strong>효소 = 특수 접착제</strong> (온도/습도 맞아야 작동) &rarr; <strong>BS3 = 만능 스냅 커넥터</strong> (어디서나, 어떤 온도에서나 "딸깍")</p></div>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- PART 02 -->
+<section class="section" id="sec-methods">
+  <div class="fade-in">
+    <p class="section-number">PART 02</p>
+    <h2 class="section-title">두 가지 화학 연결 방법</h2>
+    <p class="section-desc">BS3 아민 크로스링킹과 CuAAC 클릭 화학, 두 가지를 비교합니다.</p>
+  </div>
+  <div class="highlight-box fade-in">
+    <h3>방법 1: BS3 크로스링커 (주력 기술)</h3>
+    <p style="color:#cbd5e1;font-size:1rem;">
+      양쪽에 NHS 에스터를 가진 분자가 DNA 끝의 <strong>아민기(-NH2)</strong>를 안정적인 아마이드 결합으로 연결.<br>
+      PEG 탄소 체인: <strong>11.4 Å</strong> | 금속 촉매 불필요 | pH 7~9, 넓은 온도 범위<br><br>
+      <span style="color:#00bcd4;">50 bp 아민-수식 ssDNA + 30 bp 스플린트 DNA &rarr; 30분 반응 &rarr; 100 bp 연결 산물</span>
+    </p>
+  </div>
+  <div class="highlight-box fade-in" style="background:linear-gradient(135deg,rgba(233,30,99,0.06),rgba(156,39,176,0.06));border-color:rgba(233,30,99,0.2);">
+    <h3 style="color:#e91e63;">방법 2: CuAAC 클릭 화학 (비교 대상)</h3>
+    <p style="color:#cbd5e1;font-size:1rem;">
+      3' 아자이드 + 5' 알카인 수식 DNA &rarr; <strong>Cu(I) 촉매</strong> 하에서 트리아졸 고리 형성.<br>
+      2022년 노벨 화학상 분야 | 높은 선택성 | 단점: 구리 이온이 DNA 손상 가능
+    </p>
+  </div>
+
+  <h3 style="color:#f1f5f9;margin:2.5rem 0 1rem;text-align:center;" class="fade-in">작동 과정</h3>
+  <div class="process-flow fade-in">
+    <div class="process-step"><div class="step-number">1</div><h4>miRNA 결합</h4><p>타겟 miRNA가 두 DNA 프로브를 <strong>나란히 정렬</strong>시킴 (스플린트 역할)</p></div>
+    <div class="process-step"><div class="step-number">2</div><h4>화학 연결</h4><p>BS3가 두 프로브의 아민기를 <strong>30분 내 공유결합</strong>으로 연결</p></div>
+    <div class="process-step"><div class="step-number">3</div><h4>qPCR 증폭</h4><p>연결된 DNA만 PCR로 증폭. miRNA 존재 시에만 신호 발생</p></div>
+    <div class="process-step"><div class="step-number">4</div><h4>정량 분석</h4><p>형광 신호로 miRNA 양을 <strong>실시간 정량</strong>. 질병 진단</p></div>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- PART 03 -->
+<section class="section" id="sec-structure">
+  <div class="fade-in">
+    <p class="section-number">PART 03</p>
+    <h2 class="section-title">분자 구조 분석: DNA 백본이 얼마나 변했나?</h2>
+    <p class="section-desc">화학 수식이 DNA 이중나선 구조에 미치는 영향을 3D 모델링과 열 안정성으로 확인합니다.</p>
+  </div>
+  <div class="molecule-compare fade-in">
+    <div class="molecule-card">
+      <div class="mol-name" style="color:#e91e63;">클릭 화학 DNA</div>
+      <div class="mol-value" style="color:#e91e63;">5.815 Å</div>
+      <div class="mol-label">O-C 원자 간 거리</div>
+      <div class="mol-bar" style="background:rgba(233,30,99,0.1);"><div class="mol-bar-inner" style="width:73%;background:linear-gradient(90deg,#e91e63,#f48fb1);border-radius:6px;"></div></div>
+      <div class="mol-label">Tm: <strong>76.2°C</strong></div>
+    </div>
+    <div class="molecule-card" style="border-color:rgba(0,188,212,0.3);">
+      <div class="mol-name" style="color:#00bcd4;">BS3 연결 DNA</div>
+      <div class="mol-value" style="color:#00bcd4;">7.966 Å</div>
+      <div class="mol-label">O-C 원자 간 거리</div>
+      <div class="mol-bar" style="background:rgba(0,188,212,0.1);"><div class="mol-bar-inner" style="width:100%;background:linear-gradient(90deg,#00838f,#00bcd4);border-radius:6px;"></div></div>
+      <div class="mol-label">Tm: <strong>73.0°C</strong></div>
+    </div>
+    <div class="molecule-card">
+      <div class="mol-name" style="color:#4ade80;">자연 DNA (대조군)</div>
+      <div class="mol-value" style="color:#4ade80;">3.926 Å</div>
+      <div class="mol-label">O-C 원자 간 거리</div>
+      <div class="mol-bar" style="background:rgba(74,222,128,0.1);"><div class="mol-bar-inner" style="width:49%;background:linear-gradient(90deg,#16a34a,#4ade80);border-radius:6px;"></div></div>
+      <div class="mol-label">Tm: <strong>77.2°C</strong></div>
+    </div>
+  </div>
+  <p class="fade-in" style="text-align:center;color:#94a3b8;font-size:0.95rem;">BS3이 백본을 가장 많이 확장하지만, 이중나선 구조와 qPCR 호환성은 완벽히 유지됨</p>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- PART 04 -->
+<section class="section" id="sec-results">
+  <div class="fade-in">
+    <p class="section-number">PART 04</p>
+    <h2 class="section-title">핵심 실험 결과</h2>
+    <p class="section-desc">BS3 화학 연결의 성능을 숫자로 확인합니다.</p>
+  </div>
+  <div class="result-badges fade-in">
+    <div class="result-badge"><div class="big-number">30분</div><div class="label">연결 반응 시간</div></div>
+    <div class="result-badge"><div class="big-number">11.4 Å</div><div class="label">BS3 체인 길이</div></div>
+    <div class="result-badge"><div class="big-number">82.0°C</div><div class="label">qPCR Tm (BS3)</div></div>
+    <div class="result-badge"><div class="big-number">4°C~RT</div><div class="label">작동 온도 범위</div></div>
+    <div class="result-badge"><div class="big-number">3종</div><div class="label">검출된 miRNA</div></div>
+  </div>
+
+  <!-- miRNA detection targets -->
+  <h3 style="color:#f1f5f9;margin:2.5rem 0 1rem;text-align:center;" class="fade-in">실제 miRNA 검출 성공 (Figure 7)</h3>
+  <p style="text-align:center;color:#94a3b8;font-size:0.95rem;margin-bottom:1rem;" class="fade-in">카드를 클릭하면 검출 성공 표시</p>
+  <div class="mirna-grid fade-in" id="mirnaGrid">
+    <div class="mirna-card" onclick="this.classList.toggle('detected')"><div class="mirna-icon">&#x1FAC1;</div><div class="mirna-name">miR122</div><div class="mirna-source">간 질환 관련</div><div class="mirna-cond">실온, 30분</div><div class="mirna-result">검출 성공</div></div>
+    <div class="mirna-card" onclick="this.classList.toggle('detected')"><div class="mirna-icon">&#x1F33F;</div><div class="mirna-name">ptc-miR1444d</div><div class="mirna-source"><em>Populus trichocarpa</em></div><div class="mirna-cond">4°C</div><div class="mirna-result">검출 성공</div></div>
+    <div class="mirna-card" onclick="this.classList.toggle('detected')"><div class="mirna-icon">&#x1F33B;</div><div class="mirna-name">rgl-miR5578</div><div class="mirna-source"><em>Rehmannia glutinosa</em></div><div class="mirna-cond">4°C</div><div class="mirna-result">검출 성공</div></div>
+  </div>
+
+  <div class="highlight-box fade-in" style="margin-top:2rem;">
+    <h3>비상보적 스플린트와 비교하여 특이도 확인</h3>
+    <p style="color:#cbd5e1;font-size:1rem;">
+      22 bp 상보적 스플린트(miRNA) &rarr; 강한 qPCR 신호 (정확한 검출)<br>
+      30 bp 비상보적 스플린트 &rarr; 신호 없음 (비특이적 연결 없음 확인)<br><br>
+      <span style="color:#00bcd4;">결론: miRNA가 존재할 때만 정확하게 연결이 일어나며, 위양성이 없습니다.</span>
+    </p>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- PART 05 -->
+<section class="section" id="sec-compare">
+  <div class="fade-in">
+    <p class="section-number">PART 05</p>
+    <h2 class="section-title">기존 효소 방법 대비 비교</h2>
+  </div>
+  <table class="comparison-table fade-in">
+    <thead><tr><th>항목</th><th>BS3 화학 연결</th><th>CuAAC 클릭 화학</th><th>기존 효소 (리가아제)</th></tr></thead>
+    <tbody>
+      <tr class="highlight-row"><td>효소 필요</td><td>불필요</td><td>불필요</td><td>필수</td></tr>
+      <tr class="highlight-row"><td>금속 촉매</td><td>불필요</td><td>Cu(I) 필요</td><td>Mg2+ 등</td></tr>
+      <tr class="highlight-row"><td>작동 온도</td><td>4°C ~ 실온 (광범위)</td><td>제한적</td><td>특정 온도만</td></tr>
+      <tr><td>냉장 보관</td><td>불필요</td><td>불필요</td><td>필수 (-20°C)</td></tr>
+      <tr><td>DNA 손상 위험</td><td>없음</td><td>Cu 이온에 의한 가능</td><td>없음</td></tr>
+      <tr><td>qPCR Tm</td><td>82.0°C</td><td>81.5°C</td><td>~77°C</td></tr>
+      <tr class="highlight-row"><td>qPCR 호환</td><td>완벽</td><td>호환</td><td>호환</td></tr>
+      <tr><td>반응 시간</td><td>30분</td><td>30분</td><td>다양</td></tr>
+      <tr class="highlight-row"><td>현장 진단 적합</td><td>높음</td><td>중간</td><td>낮음</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- PART 06 -->
+<section class="section" id="sec-significance">
+  <div class="fade-in">
+    <p class="section-number">PART 06</p>
+    <h2 class="section-title">의의와 응용 가능성</h2>
+  </div>
+  <div class="card-grid fade-in">
+    <div class="card" style="border-top:3px solid #00bcd4;"><h3>효소 의존성 탈피</h3><p>DNA 연결에 효소 불필요 &rarr; 시약 안정성, 재현성, 비용 모두 개선. "화학이 생물학을 대체" 패러다임.</p></div>
+    <div class="card" style="border-top:3px solid #e91e63;"><h3>현장 진단 실현</h3><p>냉장 인프라 없이 miRNA 검출. 개발도상국, 응급 현장, 가정용 키트에 적용 가능.</p></div>
+    <div class="card" style="border-top:3px solid #4ade80;"><h3>범용 플랫폼</h3><p>인간(간질환 miR122) + 식물 miRNA까지 검출. 농축산, 환경 모니터링에도 확장 가능.</p></div>
+    <div class="card" style="border-top:3px solid #a78bfa;"><h3>기존 인프라 호환</h3><p>새 장비 없이 기존 qPCR 장비에서 즉시 사용. 프로토콜 변경 최소화.</p></div>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- PART 07 Glossary -->
+<section class="section" id="sec-glossary">
+  <div class="fade-in">
+    <p class="section-number">PART 07</p>
+    <h2 class="section-title">핵심 용어 사전</h2>
+  </div>
+  <div class="glossary-grid fade-in">
+    <dl class="glossary-item"><dt>miRNA</dt><dd>유전자 발현을 조절하는 짧은 RNA (18-25 nt). 암, 간질환 등의 바이오마커로 활용됩니다.</dd></dl>
+    <dl class="glossary-item"><dt>BS3 (크로스링커)</dt><dd>bis(sulfosuccinimidyl)suberate. 양쪽 NHS 에스터로 아민기(-NH2)를 연결하는 화학 시약. 11.4 Å PEG 체인.</dd></dl>
+    <dl class="glossary-item"><dt>CuAAC (클릭 화학)</dt><dd>구리 촉매 아자이드-알카인 고리화 첨가. 2022년 노벨 화학상 수상 분야의 고효율 화학 결합법.</dd></dl>
+    <dl class="glossary-item"><dt>리가아제</dt><dd>DNA 조각을 이어붙이는 효소. 온도 민감, 냉장 필수. 이 연구에서 화학으로 대체한 대상.</dd></dl>
+    <dl class="glossary-item"><dt>qPCR</dt><dd>정량 PCR. DNA를 증폭하면서 동시에 형광으로 실시간 정량하는 기술. 질병 진단의 표준.</dd></dl>
+    <dl class="glossary-item"><dt>Tm (녹는점)</dt><dd>DNA 이중나선이 50% 풀리는 온도. 높을수록 구조가 안정적. BS3 연결 DNA: 73.0°C.</dd></dl>
+    <dl class="glossary-item"><dt>스플린트 DNA</dt><dd>두 DNA 프로브를 나란히 정렬시키는 가이드 역할. 이 연구에서는 miRNA가 스플린트 역할.</dd></dl>
+    <dl class="glossary-item"><dt>Point-of-Care</dt><dd>병원 밖 현장에서 바로 진단하는 방식. 냉장 불필요한 BS3 방식이 특히 적합.</dd></dl>
+  </div>
+</section>
+
+<div class="footer">
+  <p>Lim et al., "Enzyme-free chemical DNA ligation via amine-crosslinker-mediated DNA assembly for miRNA detection"</p>
+  <p>Cell Reports Physical Science 6, 102867 | October 15, 2025</p>
+  <p style="margin-top:0.5rem;"><a href="https://doi.org/10.1016/j.xcrp.2025.102867" target="_blank" style="color:#00bcd4;text-decoration:none;">DOI: 10.1016/j.xcrp.2025.102867</a></p>
+</div>
+
+<nav class="nav-dots">
+  <button class="nav-dot active" data-target="hero"><span class="nav-dot-label">시작</span></button>
+  <button class="nav-dot" data-target="sec-bg"><span class="nav-dot-label">배경</span></button>
+  <button class="nav-dot" data-target="sec-methods"><span class="nav-dot-label">방법</span></button>
+  <button class="nav-dot" data-target="sec-structure"><span class="nav-dot-label">구조 분석</span></button>
+  <button class="nav-dot" data-target="sec-results"><span class="nav-dot-label">결과</span></button>
+  <button class="nav-dot" data-target="sec-compare"><span class="nav-dot-label">비교</span></button>
+  <button class="nav-dot" data-target="sec-significance"><span class="nav-dot-label">의의</span></button>
+  <button class="nav-dot" data-target="sec-glossary"><span class="nav-dot-label">용어</span></button>
+</nav>
+
+<script>
+const observer=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('visible');});},{threshold:0.1});
+document.querySelectorAll('.fade-in').forEach(el=>observer.observe(el));
+const sections=['hero','sec-bg','sec-methods','sec-structure','sec-results','sec-compare','sec-significance','sec-glossary'];
+const dots=document.querySelectorAll('.nav-dot');
+dots.forEach(d=>d.addEventListener('click',()=>document.getElementById(d.dataset.target).scrollIntoView({behavior:'smooth'})));
+const sObs=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting){const i=sections.indexOf(e.target.id);if(i>=0){dots.forEach(d=>d.classList.remove('active'));dots[i].classList.add('active');}}});},{threshold:0.3});
+sections.forEach(id=>{const el=document.getElementById(id);if(el)sObs.observe(el);});
+</script>
+</body>
+</html>

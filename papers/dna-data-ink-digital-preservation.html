@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DNA Data Ink for Digital Preservation - ACS Nano</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Pretendard',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#0a0e1a;color:#e0e6f0;line-height:1.8;overflow-x:hidden}
+.hero{min-height:100vh;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;background:linear-gradient(135deg,#0a0e1a 0%,#1a2a1a 50%,#0d1225 100%);position:relative;padding:2rem}
+.hero::before{content:'';position:absolute;top:0;left:0;right:0;bottom:0;background:radial-gradient(circle at 30% 40%,rgba(234,179,8,0.12) 0%,transparent 60%),radial-gradient(circle at 70% 60%,rgba(16,185,129,0.1) 0%,transparent 60%)}
+.hero-content{position:relative;z-index:1;max-width:900px}
+.hero h1{font-size:clamp(1.8rem,4vw,3.2rem);font-weight:800;background:linear-gradient(135deg,#fbbf24,#34d399,#fbbf24);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:1rem}
+.hero .subtitle{font-size:1.15rem;color:#94a3b8;margin-bottom:0.5rem}
+.hero .journal{display:inline-block;padding:0.3rem 1rem;background:rgba(234,179,8,0.15);border:1px solid rgba(234,179,8,0.3);border-radius:20px;font-size:0.95rem;color:#fbbf24;margin-bottom:2rem}
+.scroll-hint{position:absolute;bottom:2rem;animation:bounce 2s infinite;color:#475569;font-size:0.9rem}
+@keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(8px)}}
+.nav-dots{position:fixed;right:1.5rem;top:50%;transform:translateY(-50%);z-index:100;display:flex;flex-direction:column;gap:12px}
+.nav-dot{width:10px;height:10px;border-radius:50%;background:rgba(255,255,255,0.2);cursor:pointer;transition:all 0.3s;border:none}
+.nav-dot:hover,.nav-dot.active{background:#fbbf24;transform:scale(1.3)}
+.nav-dot-label{position:absolute;right:20px;background:#1e293b;color:#e0e6f0;padding:4px 10px;border-radius:6px;font-size:0.8rem;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity 0.2s}
+.nav-dot:hover .nav-dot-label{opacity:1}
+.section{min-height:100vh;padding:5rem 2rem;max-width:1100px;margin:0 auto;display:flex;flex-direction:column;justify-content:center}
+.section-title{font-size:clamp(1.5rem,3vw,2.4rem);font-weight:700;margin-bottom:0.5rem;color:#f1f5f9}
+.section-number{font-size:0.9rem;color:#fbbf24;font-weight:600;letter-spacing:3px;text-transform:uppercase;margin-bottom:0.5rem}
+.section-desc{color:#94a3b8;font-size:1.1rem;margin-bottom:2.5rem;max-width:700px}
+.card-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1.5rem;margin:1.5rem 0}
+.card{background:rgba(30,41,59,0.6);border:1px solid rgba(255,255,255,0.06);border-radius:16px;padding:1.8rem;transition:transform 0.3s,border-color 0.3s;backdrop-filter:blur(10px)}
+.card:hover{transform:translateY(-4px);border-color:rgba(234,179,8,0.3)}
+.card-icon{font-size:2rem;margin-bottom:0.8rem}
+.card h3{font-size:1.15rem;color:#f1f5f9;margin-bottom:0.5rem}
+.card p{color:#94a3b8;font-size:1rem}
+.highlight-box{background:linear-gradient(135deg,rgba(234,179,8,0.08),rgba(16,185,129,0.08));border:1px solid rgba(234,179,8,0.2);border-radius:16px;padding:2rem;margin:1.5rem 0}
+.highlight-box h3{color:#fbbf24;margin-bottom:1rem;font-size:1.2rem}
+.comparison-table{width:100%;border-collapse:separate;border-spacing:0;margin:1.5rem 0;border-radius:12px;overflow:hidden}
+.comparison-table th{background:rgba(234,179,8,0.12);color:#fbbf24;padding:1rem;font-weight:600;font-size:0.95rem;text-align:left;border-bottom:1px solid rgba(234,179,8,0.2)}
+.comparison-table td{padding:0.85rem 1rem;border-bottom:1px solid rgba(255,255,255,0.04);font-size:0.95rem;color:#cbd5e1}
+.comparison-table tr:hover td{background:rgba(234,179,8,0.05)}
+.comparison-table .highlight-row td{background:rgba(234,179,8,0.08);color:#fbbf24;font-weight:600}
+.process-flow{display:flex;flex-wrap:wrap;gap:1rem;margin:2rem 0;justify-content:center}
+.process-step{flex:1;min-width:200px;max-width:260px;background:rgba(30,41,59,0.8);border-radius:16px;padding:1.5rem;text-align:center;position:relative;border:1px solid rgba(255,255,255,0.06)}
+.process-step::after{content:'\2192';position:absolute;right:-1rem;top:50%;transform:translateY(-50%);color:#475569;font-size:1.5rem}
+.process-step:last-child::after{display:none}
+.step-number{display:inline-flex;width:36px;height:36px;background:linear-gradient(135deg,#eab308,#10b981);border-radius:50%;align-items:center;justify-content:center;font-weight:700;font-size:0.9rem;margin-bottom:0.8rem;color:#0a0e1a}
+.process-step h4{color:#f1f5f9;margin-bottom:0.5rem;font-size:1.05rem}
+.process-step p{color:#94a3b8;font-size:0.95rem;line-height:1.6}
+.stat-row{display:flex;align-items:center;gap:1rem;margin:1rem 0}
+.stat-label{min-width:160px;font-size:1rem;color:#94a3b8}
+.stat-bar-bg{flex:1;height:32px;background:rgba(255,255,255,0.05);border-radius:16px;overflow:hidden;position:relative}
+.stat-bar{height:100%;border-radius:16px;display:flex;align-items:center;padding-left:14px;font-size:0.9rem;font-weight:600;color:white;transition:width 1.5s ease-out;white-space:nowrap}
+.stat-bar.gold{background:linear-gradient(90deg,#ca8a04,#fbbf24)}
+.stat-bar.green{background:linear-gradient(90deg,#059669,#34d399)}
+.stat-bar.purple{background:linear-gradient(90deg,#7c3aed,#a78bfa)}
+.stat-bar.red{background:linear-gradient(90deg,#dc2626,#f87171)}
+.stat-bar.blue{background:linear-gradient(90deg,#3b82f6,#60a5fa)}
+.result-badges{display:flex;flex-wrap:wrap;gap:1rem;margin:1.5rem 0;justify-content:center}
+.result-badge{background:rgba(30,41,59,0.8);border:1px solid rgba(255,255,255,0.06);border-radius:16px;padding:1.5rem 2rem;text-align:center;min-width:160px}
+.result-badge .big-number{font-size:2rem;font-weight:800;background:linear-gradient(135deg,#fbbf24,#34d399);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.result-badge .label{color:#94a3b8;font-size:0.9rem;margin-top:0.3rem}
+
+/* Jikji interactive */
+.jikji-grid{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;margin:2rem 0}
+.jikji-item{width:130px;background:rgba(30,41,59,0.8);border:2px solid rgba(100,116,139,0.2);border-radius:12px;padding:12px;text-align:center;cursor:pointer;transition:all 0.4s;position:relative}
+.jikji-item.active{border-color:#fbbf24;background:rgba(234,179,8,0.1);box-shadow:0 0 20px rgba(234,179,8,0.2);animation:jpulse 2s infinite}
+@keyframes jpulse{0%,100%{box-shadow:0 0 15px rgba(234,179,8,0.2)}50%{box-shadow:0 0 25px rgba(234,179,8,0.4)}}
+.jikji-item canvas{border-radius:6px;image-rendering:pixelated;margin-bottom:6px}
+.jikji-item .j-label{font-size:0.85rem;color:#fbbf24;font-weight:700}
+.jikji-item .j-size{font-size:0.75rem;color:#94a3b8}
+.jikji-item .j-oligos{font-size:0.7rem;color:#64748b}
+.jikji-info{margin-top:1rem;text-align:center;min-height:60px}
+.jikji-info-card{display:inline-block;background:rgba(30,41,59,0.9);border:1px solid rgba(234,179,8,0.25);border-radius:10px;padding:10px 20px;animation:popIn 0.3s ease-out}
+@keyframes popIn{from{opacity:0;transform:scale(0.8)}to{opacity:1;transform:scale(1)}}
+
+/* Ink surface demo */
+.ink-surfaces{display:flex;flex-wrap:wrap;gap:1rem;justify-content:center;margin:2rem 0}
+.ink-surface{width:160px;background:rgba(30,41,59,0.7);border-radius:14px;padding:1.2rem;text-align:center;border:1px solid rgba(255,255,255,0.06);transition:all 0.3s;cursor:pointer}
+.ink-surface:hover{border-color:rgba(234,179,8,0.3);transform:translateY(-3px)}
+.ink-surface .surf-icon{font-size:2.5rem;margin-bottom:0.5rem}
+.ink-surface .surf-name{color:#f1f5f9;font-weight:600;font-size:0.95rem}
+.ink-surface .surf-desc{color:#94a3b8;font-size:0.8rem;margin-top:4px}
+.ink-surface .surf-result{color:#34d399;font-size:0.8rem;font-weight:600;margin-top:6px}
+
+/* Encoding pipeline */
+.pipeline{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:center;margin:2rem 0}
+.pipe-box{background:rgba(30,41,59,0.8);border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:10px 14px;text-align:center;min-width:100px}
+.pipe-box .pipe-label{font-size:0.7rem;color:#fbbf24;font-weight:600}
+.pipe-box .pipe-value{font-size:0.9rem;color:#f1f5f9;font-weight:700}
+.pipe-arrow{color:#475569;font-size:1.2rem}
+
+.glossary-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:1rem;margin-top:1.5rem}
+.glossary-item{background:rgba(30,41,59,0.5);border-radius:12px;padding:1.2rem;border-left:3px solid #eab308}
+.glossary-item dt{color:#fbbf24;font-weight:600;margin-bottom:0.3rem;font-size:1rem}
+.glossary-item dd{color:#94a3b8;font-size:0.95rem}
+.analogy-box{background:rgba(16,185,129,0.06);border:1px solid rgba(16,185,129,0.2);border-radius:12px;padding:1.5rem;margin:1rem 0;display:flex;gap:1rem;align-items:flex-start}
+.analogy-icon{font-size:1.5rem;flex-shrink:0}
+.analogy-content h4{color:#34d399;margin-bottom:0.3rem;font-size:1rem}
+.analogy-content p{color:#94a3b8;font-size:0.95rem}
+.section-divider{height:1px;background:linear-gradient(to right,transparent,rgba(234,179,8,0.3),transparent);margin:0 auto;max-width:400px}
+.footer{text-align:center;padding:3rem 2rem;color:#475569;font-size:0.9rem}
+.fade-in{opacity:0;transform:translateY(30px);transition:opacity 0.8s,transform 0.8s}
+.fade-in.visible{opacity:1;transform:translateY(0)}
+@media(max-width:768px){.process-step::after{display:none}.process-flow{flex-direction:column;align-items:center}.nav-dots{display:none}.section{padding:3rem 1.2rem}.jikji-item{width:100px}}
+</style>
+</head>
+<body>
+
+<section class="hero" id="hero">
+  <div class="hero-content">
+    <div class="journal">ACS Nano 2026, 20, 3444-3460</div>
+    <h1>DNA 잉크로 문화유산을 영구 보존하다</h1>
+    <p class="subtitle">Kang, Lim et al. &mdash; High-Data-Density, High-Decoding-Speed, and High-Decoding-Accuracy DNA Data Ink for Digital Preservation</p>
+    <a href="https://pubs.acs.org/doi/full/10.1021/acsnano.5c13665" target="_blank" style="display:inline-block;padding:0.5rem 1.5rem;background:rgba(234,179,8,0.12);border:1px solid rgba(234,179,8,0.4);border-radius:10px;color:#fbbf24;text-decoration:none;font-size:0.95rem;font-weight:600;transition:all 0.3s;margin:1rem 0;">&#x1F4C4; 원문 논문 보기 (ACS Nano)</a>
+    <p style="color:#64748b; font-size:1rem;">비전공자를 위한 논문 완전 해설</p>
+  </div>
+  <div class="scroll-hint">아래로 스크롤하세요</div>
+</section>
+
+<!-- PART 01: Background -->
+<section class="section" id="sec-bg">
+  <div class="fade-in">
+    <p class="section-number">PART 01</p>
+    <h2 class="section-title">왜 DNA에 데이터를 "인쇄"하려 하는가?</h2>
+    <p class="section-desc">하드디스크는 10년이면 죽습니다. 문화유산 3D 데이터를 수천 년 보존하려면 완전히 새로운 매체가 필요합니다.</p>
+  </div>
+  <div class="card-grid fade-in">
+    <div class="card"><div class="card-icon">&#x1F4BF;</div><h3>현재 저장장치의 한계</h3><p>HDD 5-10년, SSD 5-10년, CD 10-30년. 문화유산은 <strong>수백~수천 년</strong> 보존이 필요한데, 현재 기술로는 10-30년마다 복사해야 합니다.</p></div>
+    <div class="card"><div class="card-icon">&#x1F9EC;</div><h3>DNA: 궁극의 저장 매체</h3><p>1g에 <strong>455 엑사바이트</strong> 저장, 수천 년 보존 가능. 전력 불필요. 수만 년 된 화석에서도 DNA가 읽힌 사례가 있습니다.</p></div>
+    <div class="card"><div class="card-icon">&#x26A0;&#xFE0F;</div><h3>기존 DNA 저장의 3대 한계</h3><p><strong>1)</strong> 낮은 정보 밀도 (1-2 bit/nt)<br><strong>2)</strong> 느린 디코딩 (수 분~수 시간)<br><strong>3)</strong> 불완전한 정확도 (데이터 깨짐)</p></div>
+  </div>
+  <div class="analogy-box fade-in">
+    <div class="analogy-icon">&#x1F58B;&#xFE0F;</div>
+    <div class="analogy-content"><h4>DNA 잉크란?</h4><p>프린터 잉크로 종이에 글자를 인쇄하듯, <strong>DNA 잉크로 금속판/유리에 디지털 데이터를 기록</strong>하는 것입니다. 잉크 안에는 수십만 개의 DNA 가닥이 들어있고, 각 가닥이 데이터의 일부를 담고 있습니다.</p></div>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- PART 02: Three Innovations -->
+<section class="section" id="sec-innovations">
+  <div class="fade-in">
+    <p class="section-number">PART 02</p>
+    <h2 class="section-title">DNA 잉크의 세 가지 핵심 혁신</h2>
+    <p class="section-desc">밀도, 속도, 정확도 &mdash; 기존 DNA 저장의 세 가지 한계를 동시에 돌파합니다.</p>
+  </div>
+
+  <!-- Innovation 1: 3D DTL -->
+  <div class="highlight-box fade-in">
+    <h3>혁신 1: 3D DNA 번역층 (3D DTL) &mdash; 뉴클레오타이드당 9.78 bit</h3>
+    <p style="color:#cbd5e1;font-size:1rem;margin-bottom:1.5rem;">
+      기존에는 텍스트를 그대로 DNA로 바꿔서 같은 글자가 반복되면 AAAA, TTTT 같은 <strong>호모폴리머</strong>(읽기 오류의 원흉)가 생겼습니다.<br>
+      3D DTL은 3D 좌표 데이터를 숫자로 정규화한 뒤 DNA 4진법으로 직접 변환하여, 호모폴리머를 제거하고 밀도를 극대화합니다.
+    </p>
+    <div class="pipeline">
+      <div class="pipe-box"><div class="pipe-label">원본</div><div class="pipe-value">3D 좌표</div></div>
+      <div class="pipe-arrow">&rarr;</div>
+      <div class="pipe-box"><div class="pipe-label">변환</div><div class="pipe-value">삼각형 메시</div></div>
+      <div class="pipe-arrow">&rarr;</div>
+      <div class="pipe-box"><div class="pipe-label">정규화</div><div class="pipe-value">정수 변환</div></div>
+      <div class="pipe-arrow">&rarr;</div>
+      <div class="pipe-box"><div class="pipe-label">인코딩</div><div class="pipe-value">DNA 4진법</div></div>
+      <div class="pipe-arrow">&rarr;</div>
+      <div class="pipe-box" style="border-color:rgba(234,179,8,0.3);"><div class="pipe-label">결과</div><div class="pipe-value" style="color:#fbbf24;">9.78 bit/nt</div></div>
+    </div>
+  </div>
+
+  <!-- Innovation 2: iSCAN -->
+  <div class="highlight-box fade-in" style="background:linear-gradient(135deg,rgba(16,185,129,0.08),rgba(59,130,246,0.08));border-color:rgba(16,185,129,0.2);">
+    <h3 style="color:#34d399;">혁신 2: iSCAN &mdash; 기존 대비 360배 빠른 디코딩</h3>
+    <p style="color:#cbd5e1;font-size:1rem;margin-bottom:1rem;">
+      기존: 수백만 개 시퀀싱 리드를 하나하나 전체 비교 (느림)<br>
+      <strong>iSCAN</strong>: DNA 서열의 인덱스 위치만 스캔하여 즉시 분류 (빠름)
+    </p>
+    <div class="analogy-box" style="background:rgba(16,185,129,0.04);border-color:rgba(16,185,129,0.15);">
+      <div class="analogy-icon">&#x1F4DA;</div>
+      <div class="analogy-content"><h4>비유</h4><p>기존: 도서관에서 모든 책의 내용을 읽어서 비교 &rarr; <strong>iSCAN: 책등의 번호만 보고 바로 분류</strong></p></div>
+    </div>
+  </div>
+
+  <!-- Innovation 3: Dual ECC -->
+  <div class="highlight-box fade-in" style="background:linear-gradient(135deg,rgba(139,92,246,0.08),rgba(234,179,8,0.08));border-color:rgba(139,92,246,0.2);">
+    <h3 style="color:#a78bfa;">혁신 3: 이중 오류 정정 &mdash; 완벽한 데이터 복원</h3>
+    <p style="color:#cbd5e1;font-size:1rem;">
+      <strong>Inner RS (Reed-Solomon):</strong> 각 DNA 가닥 내부에서 최대 32비트 오류 자동 복구 &mdash; "각 페이지의 자동 교정 기능"<br><br>
+      <strong>Outer XOR:</strong> 가닥이 완전히 유실되어도 다른 가닥에서 복원 &mdash; "전체 백업 복사본"<br><br>
+      <span style="color:#a78bfa;">결과: 데이터를 5.33배 줄여도(다운샘플링) <strong>완벽한 복원</strong> 달성</span>
+    </p>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- PART 03: Results -->
+<section class="section" id="sec-results">
+  <div class="fade-in">
+    <p class="section-number">PART 03</p>
+    <h2 class="section-title">주요 실험 결과</h2>
+    <p class="section-desc">DNA 잉크의 성능을 숫자로 확인합니다.</p>
+  </div>
+  <div class="result-badges fade-in">
+    <div class="result-badge"><div class="big-number">9.78</div><div class="label">bit/nt 정보 밀도</div></div>
+    <div class="result-badge"><div class="big-number">53.28 MB</div><div class="label">저장 데이터 크기</div></div>
+    <div class="result-badge"><div class="big-number">360x</div><div class="label">디코딩 속도 향상</div></div>
+    <div class="result-badge"><div class="big-number">34.5초</div><div class="label">1.63GB 디코딩</div></div>
+    <div class="result-badge"><div class="big-number">290,505</div><div class="label">DNA 가닥 수</div></div>
+  </div>
+
+  <!-- Density comparison -->
+  <h3 style="color:#f1f5f9;margin:2.5rem 0 1rem;" class="fade-in">정보 밀도 비교 (bit/nt)</h3>
+  <div class="fade-in">
+    <div class="stat-row"><span class="stat-label" style="color:#fbbf24;font-weight:600;">DNA 잉크</span><div class="stat-bar-bg"><div class="stat-bar gold" style="width:48%;">9.78 bit/nt</div></div></div>
+    <div class="stat-row"><span class="stat-label">DNA-Aeon</span><div class="stat-bar-bg"><div class="stat-bar green" style="width:13%;">2.6 bit/nt</div></div></div>
+    <div class="stat-row"><span class="stat-label">Ping et al.</span><div class="stat-bar-bg"><div class="stat-bar purple" style="width:9%;">1.75 bit/nt</div></div></div>
+    <div class="stat-row"><span class="stat-label">Fountain</span><div class="stat-bar-bg"><div class="stat-bar blue" style="width:8%;">1.57 bit/nt</div></div></div>
+    <div class="stat-row"><span class="stat-label">RS-based ECC</span><div class="stat-bar-bg"><div class="stat-bar red" style="width:5.5%;">1.1 bit/nt</div></div></div>
+  </div>
+  <p class="fade-in" style="text-align:center;color:#fbbf24;margin-top:0.5rem;font-size:1rem;"><strong>기존 최고(1.78) 대비 ~5.5배 향상</strong></p>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- PART 04: Jikji Demo -->
+<section class="section" id="sec-jikji" style="max-width:1200px;">
+  <div class="fade-in">
+    <p class="section-number">PART 04</p>
+    <h2 class="section-title">직지심체요절: DNA로 보존한 세계 최초 금속활자</h2>
+    <p class="section-desc">1377년 인쇄된 세계 최초 금속활자본의 3D 디지털 데이터를 DNA 잉크로 영구 보존합니다. 활자를 클릭해보세요.</p>
+  </div>
+  <div class="jikji-grid fade-in" id="jikjiGrid"></div>
+  <div class="jikji-info" id="jikjiInfo"></div>
+
+  <!-- DNA ink surfaces -->
+  <h3 style="color:#f1f5f9;margin:3rem 0 1rem;text-align:center;font-size:1.2rem;" class="fade-in">DNA 잉크 적용 표면</h3>
+  <p style="color:#94a3b8;text-align:center;font-size:0.95rem;margin-bottom:1.5rem;" class="fade-in">DNA 잉크를 다양한 물리적 표면에 도포하여 데이터를 저장합니다.</p>
+  <div class="ink-surfaces fade-in">
+    <div class="ink-surface"><div class="surf-icon">&#x1FA99;</div><div class="surf-name">금(Gold) 기판</div><div class="surf-desc">금속 표면 위 DNA 도포</div><div class="surf-result">완벽 복원</div></div>
+    <div class="ink-surface"><div class="surf-icon">&#x1FAA9;</div><div class="surf-name">유리 기판</div><div class="surf-desc">Glass 위 DNA 도포</div><div class="surf-result">완벽 복원</div></div>
+    <div class="ink-surface"><div class="surf-icon">&#x1F3DB;&#xFE0F;</div><div class="surf-name">비너스 상</div><div class="surf-desc">입체 조각 위 도포</div><div class="surf-result">완벽 복원</div></div>
+    <div class="ink-surface"><div class="surf-icon">&#x1F3A8;</div><div class="surf-name">문화재 원본</div><div class="surf-desc">유물에 직접 기록 가능</div><div class="surf-result">자기 보존형</div></div>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- PART 05: Decoding Pipeline -->
+<section class="section" id="sec-decode">
+  <div class="fade-in">
+    <p class="section-number">PART 05</p>
+    <h2 class="section-title">디코딩 파이프라인: 34.5초에 1.63GB</h2>
+    <p class="section-desc">DNA에서 원본 데이터를 복원하는 전체 과정을 단계별로 살펴봅니다.</p>
+  </div>
+  <div class="process-flow fade-in">
+    <div class="process-step"><div class="step-number">1</div><h4>NGS 시퀀싱</h4><p>DNA 풀을 차세대 시퀀싱으로 읽어 수백만 개의 raw 리드 생성</p></div>
+    <div class="process-step"><div class="step-number">2</div><h4>프라이머 분류</h4><p>리드를 프라이머 서열 기준으로 분류하고 역상보 서열 생성</p></div>
+    <div class="process-step"><div class="step-number">3</div><h4>KIS 메타데이터</h4><p>Key Information Sequence에서 파일 구조, 인덱스 정보 자동 추출</p></div>
+    <div class="process-step"><div class="step-number">4</div><h4>iSCAN 정렬</h4><p>인덱스 스캔으로 서열을 초고속 분류 &amp; 합의 시퀀싱으로 정확도 향상</p></div>
+  </div>
+  <div class="process-flow fade-in">
+    <div class="process-step"><div class="step-number">5</div><h4>RS 오류 정정</h4><p>Inner Reed-Solomon 코드로 각 가닥의 오류 자동 복구</p></div>
+    <div class="process-step"><div class="step-number">6</div><h4>XOR 복원</h4><p>유실된 가닥을 XOR 중복성으로 복원. Outer ECC 적용</p></div>
+    <div class="process-step"><div class="step-number">7</div><h4>3D DTL 역변환</h4><p>DNA 서열 &rarr; 정수 &rarr; 3D 좌표로 역변환하여 원본 복원</p></div>
+    <div class="process-step"><div class="step-number">8</div><h4>데이터 출력</h4><p>완벽한 3D 파일 복원 완료. <strong>34.5초</strong> (1.63 GB 기준)</p></div>
+  </div>
+
+  <h3 style="color:#f1f5f9;margin:2.5rem 0 1rem;" class="fade-in">디코딩 속도 비교</h3>
+  <div class="fade-in">
+    <div class="stat-row"><span class="stat-label" style="color:#34d399;font-weight:600;">DNA 잉크 (iSCAN)</span><div class="stat-bar-bg"><div class="stat-bar green" style="width:3%;">~1분</div></div></div>
+    <div class="stat-row"><span class="stat-label">DNA-Aeon</span><div class="stat-bar-bg"><div class="stat-bar purple" style="width:25%;">~9분</div></div></div>
+    <div class="stat-row"><span class="stat-label">Fountain</span><div class="stat-bar-bg"><div class="stat-bar blue" style="width:14%;">~5분</div></div></div>
+    <div class="stat-row"><span class="stat-label">HELIX</span><div class="stat-bar-bg"><div class="stat-bar red" style="width:25%;">~9분</div></div></div>
+    <div class="stat-row"><span class="stat-label">기존 방법들</span><div class="stat-bar-bg"><div class="stat-bar red" style="width:100%;">1-6시간</div></div></div>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- PART 06: Comparison -->
+<section class="section" id="sec-compare">
+  <div class="fade-in">
+    <p class="section-number">PART 06</p>
+    <h2 class="section-title">종합 비교: 기존 기술 대비</h2>
+    <p class="section-desc">DNA 잉크가 기존 DNA 데이터 저장 방법들과 어떻게 다른지 한눈에 비교합니다.</p>
+  </div>
+  <table class="comparison-table fade-in">
+    <thead><tr><th>항목</th><th>DNA 잉크</th><th>HELIX</th><th>Fountain</th><th>DNA-Aeon</th><th>RS-ECC</th></tr></thead>
+    <tbody>
+      <tr class="highlight-row"><td>정보 밀도</td><td>9.78 bit/nt</td><td>20.34*</td><td>1.57</td><td>2.6</td><td>1.1</td></tr>
+      <tr class="highlight-row"><td>데이터 크기</td><td>53.28 MB</td><td>50 MB</td><td>2.14 MB</td><td>12 KB</td><td>0.176 KB</td></tr>
+      <tr class="highlight-row"><td>디코딩 시간</td><td>~1분</td><td>~9분</td><td>~5분</td><td>9분</td><td>~4분</td></tr>
+      <tr><td>올리고 수</td><td>290,505</td><td>140,000</td><td>72,000</td><td>35,464</td><td>404</td></tr>
+      <tr><td>오류 정정</td><td>Correlation+XOR/RS</td><td>Levenshtein</td><td>Fountain</td><td>RS/OTS</td><td>RS/RS</td></tr>
+      <tr class="highlight-row"><td>완벽 디코딩</td><td>O</td><td>X</td><td>O</td><td>X</td><td>O</td></tr>
+      <tr><td>물리 표면 도포</td><td>O (금/유리/조각)</td><td>X</td><td>X</td><td>X</td><td>X</td></tr>
+    </tbody>
+  </table>
+  <p class="fade-in" style="color:#64748b;font-size:0.85rem;text-align:center;">* HELIX 20.34 bit/nt는 오류 정정 미포함 수치. 오류 정정 포함 시 실효 밀도 대폭 감소.</p>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- PART 07: Discussion -->
+<section class="section" id="sec-discussion">
+  <div class="fade-in">
+    <p class="section-number">PART 07</p>
+    <h2 class="section-title">의의와 응용 가능성</h2>
+    <p class="section-desc">DNA 잉크 기술이 여는 미래와 남은 과제입니다.</p>
+  </div>
+  <div class="card-grid fade-in">
+    <div class="card" style="border-top:3px solid #fbbf24;"><h3>문화유산 영구 보존</h3><p>직지, 석굴암, 숭례문 등 문화재의 3D 데이터를 DNA로 수천 년 보존. 물리적 훼손 시에도 디지털 복원 가능.</p></div>
+    <div class="card" style="border-top:3px solid #34d399;"><h3>자율주행/AI 아카이빙</h3><p>자율주행 3D 센서 데이터, AI 학습 데이터 등 대용량 데이터의 초장기 보존. 공간 효율적, 에너지 불필요.</p></div>
+    <div class="card" style="border-top:3px solid #a78bfa;"><h3>자기 보존형 객체</h3><p>문화재 표면에 DNA 잉크를 직접 도포 &rarr; 원본과 디지털 트윈이 하나의 객체에 공존.</p></div>
+    <div class="card" style="border-top:3px solid #60a5fa;"><h3>VR/메타버스 콘텐츠</h3><p>3D 공간 데이터를 DNA 잉크로 기록. 물리적 객체가 자신의 디지털 정보를 담고 있는 형태.</p></div>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- PART 08: Glossary -->
+<section class="section" id="sec-glossary">
+  <div class="fade-in">
+    <p class="section-number">PART 08</p>
+    <h2 class="section-title">핵심 용어 사전</h2>
+    <p class="section-desc">논문에 등장하는 주요 용어들을 쉽게 풀어 설명합니다.</p>
+  </div>
+  <div class="glossary-grid fade-in">
+    <dl class="glossary-item"><dt>DNA 데이터 잉크</dt><dd>디지털 데이터를 인코딩한 DNA 가닥들의 용액. 물리적 표면에 도포하여 데이터를 저장할 수 있습니다.</dd></dl>
+    <dl class="glossary-item"><dt>3D DTL (DNA Translation Layer)</dt><dd>3D 좌표 데이터를 호모폴리머 없이 DNA로 고밀도 변환하는 번역 계층. 9.78 bit/nt 달성의 핵심.</dd></dl>
+    <dl class="glossary-item"><dt>iSCAN</dt><dd>Index Scan Cluster Alignment for Nucleotide. DNA 서열의 인덱스만 스캔하여 초고속 분류하는 디코딩 방법.</dd></dl>
+    <dl class="glossary-item"><dt>KIS (Key Information Sequence)</dt><dd>DNA 풀 안에 포함된 메타 정보 서열. 파일명, 크기, 인덱스 규칙 등을 담아 외부 정보 없이 디코딩 가능.</dd></dl>
+    <dl class="glossary-item"><dt>호모폴리머</dt><dd>AAAA, TTTT처럼 같은 염기가 연속 반복되는 서열. 시퀀싱 장비가 정확히 세지 못해 오류의 주원인.</dd></dl>
+    <dl class="glossary-item"><dt>Reed-Solomon 코드</dt><dd>데이터 오류를 자동으로 검출하고 복구하는 수학적 방법. CD, QR코드, 위성통신에도 사용됩니다.</dd></dl>
+    <dl class="glossary-item"><dt>XOR 중복성</dt><dd>여러 데이터 블록을 XOR 연산으로 결합하여 백업. 일부 가닥이 유실되어도 나머지에서 복원 가능.</dd></dl>
+    <dl class="glossary-item"><dt>올리고뉴클레오타이드</dt><dd>인공 합성된 짧은 DNA 가닥 (보통 150-300 nt). 데이터의 조각을 담는 기본 단위.</dd></dl>
+    <dl class="glossary-item"><dt>bit/nt</dt><dd>뉴클레오타이드(DNA 글자) 하나당 저장되는 비트 수. 높을수록 밀도가 높고 효율적.</dd></dl>
+    <dl class="glossary-item"><dt>다운샘플링</dt><dd>시퀀싱 데이터를 의도적으로 줄여서 최소한의 데이터로도 복원 가능한지 확인하는 실험.</dd></dl>
+    <dl class="glossary-item"><dt>Shannon 엔트로피</dt><dd>데이터가 얼마나 효율적으로 압축되었는지 측정하는 수학적 지표. 높을수록 정보 밀도가 높음.</dd></dl>
+    <dl class="glossary-item"><dt>직지심체요절 (Jikji)</dt><dd>1377년 고려에서 인쇄된 세계 최초 금속활자본. 이 연구에서 3D 스캔 데이터를 DNA로 보존한 대상.</dd></dl>
+  </div>
+</section>
+
+<div class="footer">
+  <p>Kang et al., "High-Data-Density, High-Decoding-Speed, and High-Decoding-Accuracy DNA Data Ink for Digital Preservation"</p>
+  <p>ACS Nano 2026, 20, 3444-3460 | DOI: 10.1021/acsnano.5c13665</p>
+  <p style="margin-top:0.5rem;color:#334155;">비전공자를 위한 논문 해설 자료</p>
+</div>
+
+<nav class="nav-dots">
+  <button class="nav-dot active" data-target="hero"><span class="nav-dot-label">시작</span></button>
+  <button class="nav-dot" data-target="sec-bg"><span class="nav-dot-label">배경</span></button>
+  <button class="nav-dot" data-target="sec-innovations"><span class="nav-dot-label">3대 혁신</span></button>
+  <button class="nav-dot" data-target="sec-results"><span class="nav-dot-label">실험 결과</span></button>
+  <button class="nav-dot" data-target="sec-jikji"><span class="nav-dot-label">직지</span></button>
+  <button class="nav-dot" data-target="sec-decode"><span class="nav-dot-label">디코딩</span></button>
+  <button class="nav-dot" data-target="sec-compare"><span class="nav-dot-label">비교</span></button>
+  <button class="nav-dot" data-target="sec-discussion"><span class="nav-dot-label">의의</span></button>
+  <button class="nav-dot" data-target="sec-glossary"><span class="nav-dot-label">용어</span></button>
+</nav>
+
+<script>
+// ===== JIKJI DATA =====
+const JIKJI = [
+  {id:'J1',size:'219 KB',oligos:'12,601',color:'#f87171',pixels:['..rrrr..','..rrrr..','.rrrrrr.','.r.rr.r.','rrrrrrrr','rr.rr.rr','.rrrrrr.','..rrrr..']},
+  {id:'J2',size:'227 KB',oligos:'13,243',color:'#fbbf24',pixels:['..yyyy..','..yyyy..','.yyyyyy.','.y.yy.y.','yyyyyyyy','yy.yy.yy','.yyyyyy.','..yyyy..']},
+  {id:'J3',size:'235 KB',oligos:'13,752',color:'#34d399',pixels:['..gggg..','..gggg..','.gggggg.','.g.gg.g.','gggggggg','gg.gg.gg','.gggggg.','..gggg..']},
+  {id:'J4',size:'254 KB',oligos:'14,872',color:'#60a5fa',pixels:['..bbbb..','..bbbb..','.bbbbbb.','.b.bb.b.','bbbbbbbb','bb.bb.bb','.bbbbbb.','..bbbb..']},
+  {id:'J5',size:'202 KB',oligos:'11,834',color:'#a78bfa',pixels:['..pppp..','..pppp..','.pppppp.','.p.pp.p.','pppppppp','pp.pp.pp','.pppppp.','..pppp..']},
+  {id:'J6',size:'230 KB',oligos:'13,489',color:'#f472b6',pixels:['..kkkk..','..kkkk..','.kkkkkk.','.k.kk.k.','kkkkkkkk','kk.kk.kk','.kkkkkk.','..kkkk..']},
+  {id:'J7',size:'293 KB',oligos:'45,381',color:'#fb923c',pixels:['..oooo..','..oooo..','.oooooo.','.o.oo.o.','oooooooo','oo.oo.oo','.oooooo.','..oooo..']},
+];
+const JCOLOR={'r':'#f87171','y':'#fbbf24','g':'#34d399','b':'#60a5fa','p':'#a78bfa','k':'#f472b6','o':'#fb923c','.':'transparent'};
+
+function drawJikji(canvas,pixels,color){
+  const ctx=canvas.getContext('2d');const px=7;canvas.width=8*px;canvas.height=8*px;
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  for(let y=0;y<8;y++){const row=pixels[y]||'........';for(let x=0;x<8;x++){const ch=row[x]||'.';const c=ch==='.'?'transparent':color;if(c!=='transparent'){ctx.fillStyle=c;ctx.fillRect(x*px,y*px,px,px);}}}
+}
+
+const jGrid=document.getElementById('jikjiGrid');
+const activeJikji=new Set();
+JIKJI.forEach((j,i)=>{
+  const el=document.createElement('div');el.className='jikji-item';el.dataset.idx=i;
+  const canvas=document.createElement('canvas');canvas.style.width='56px';canvas.style.height='56px';
+  drawJikji(canvas,j.pixels,j.color);
+  el.innerHTML='';el.appendChild(canvas);
+  el.innerHTML+=`<div class="j-label">${j.id}</div><div class="j-size">${j.size}</div><div class="j-oligos">${j.oligos} oligos</div>`;
+  el.onclick=()=>{
+    el.classList.toggle('active');
+    if(activeJikji.has(i)){activeJikji.delete(i);}else{activeJikji.add(i);}
+    updateJikjiInfo();
+  };
+  jGrid.appendChild(el);
+});
+
+function updateJikjiInfo(){
+  const info=document.getElementById('jikjiInfo');
+  if(activeJikji.size===0){info.innerHTML='<p style="color:#64748b;font-size:0.9rem;">활자를 클릭하여 저장된 3D 데이터를 확인하세요</p>';return;}
+  const items=Array.from(activeJikji).map(i=>JIKJI[i]);
+  const totalSize=items.reduce((s,j)=>s+parseFloat(j.size),0).toFixed(0);
+  const totalOligos=items.reduce((s,j)=>s+parseInt(j.oligos.replace(/,/g,'')),0).toLocaleString();
+  info.innerHTML=`<div class="jikji-info-card"><span style="color:#fbbf24;font-weight:700;">${items.map(j=>j.id).join(' + ')}</span> 선택됨 &mdash; 총 <strong>${totalSize} KB</strong>, <strong>${totalOligos}</strong>개 DNA 가닥으로 인코딩</div>`;
+}
+updateJikjiInfo();
+
+// Scroll animations
+const observer=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('visible');});},{threshold:0.1});
+document.querySelectorAll('.fade-in').forEach(el=>observer.observe(el));
+
+// Nav
+const sections=['hero','sec-bg','sec-innovations','sec-results','sec-jikji','sec-decode','sec-compare','sec-discussion','sec-glossary'];
+const dots=document.querySelectorAll('.nav-dot');
+dots.forEach(d=>d.addEventListener('click',()=>document.getElementById(d.dataset.target).scrollIntoView({behavior:'smooth'})));
+const sObs=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting){const i=sections.indexOf(e.target.id);if(i>=0){dots.forEach(d=>d.classList.remove('active'));dots[i].classList.add('active');}}});},{threshold:0.3});
+sections.forEach(id=>{const el=document.getElementById(id);if(el)sObs.observe(el);});
+</script>
+</body>
+</html>

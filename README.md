@@ -12,6 +12,8 @@ GitHub Pages site for `stdbioelec.com`.
 - `classes/llm-from-scratch/`: public HTML copy of the LLM from Scratch study notes
 - `assets/site.css`: shared homepage, publication, and class page styles
 - `papers/electric-field-guided-dna-storage.html`: visual explainer copied from the local Science Advance folder
+- `papers/dna-data-ink-digital-preservation.html`: ACS Nano DNA data ink visual explainer
+- `papers/enzyme-free-dna-ligation-mirna.html`: Cell Reports Physical Science miRNA ligation visual explainer
 - `assets/STDbio.png`, `assets/BEBO.png`: original lab logos
 - `assets/STDbio-web.png`, `assets/BEBO-web.png`: web-sized logo assets
 - `SOCIAL_SETUP.md`: X / social account setup notes

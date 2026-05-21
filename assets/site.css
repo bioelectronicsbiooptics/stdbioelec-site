@@ -482,6 +482,27 @@ section {
   font-weight: 700;
 }
 
+.paper-side {
+  display: grid;
+  gap: 8px;
+  justify-items: end;
+}
+
+.detail-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 34px;
+  padding: 0 12px;
+  border-radius: 8px;
+  background: var(--ink);
+  color: var(--white);
+  font-size: 13px;
+  font-weight: 900;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
 .source-note {
   margin-top: 48px;
   padding: 20px;
@@ -610,6 +631,10 @@ footer {
 
   .cite {
     justify-self: start;
+  }
+
+  .paper-side {
+    justify-items: start;
   }
 
   section {
