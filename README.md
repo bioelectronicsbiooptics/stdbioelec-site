@@ -4,7 +4,9 @@ GitHub Pages site for `stdbioelec.com`.
 
 ## Main files
 
-- `index.html`, `index-ko.html`: English and Korean research homepages
+- `index.html`: Korean default research homepage served at `stdbioelec.com`
+- `index-en.html`: English research homepage
+- `index-ko.html`: Korean alias page kept for older links
 - `publications.html`, `publications-ko.html`: English and Korean year-grouped Google Scholar publication lists
 - `class.html`, `class-ko.html`: LLM from Scratch class entry pages
 - `assets/site.css`: shared homepage, publication, and class page styles
@@ -45,7 +47,7 @@ Snapshot date: 2026-05-20 KST.
 ```bash
 cd /Users/young/Desktop/stdbioelec-site
 git status
-git add index.html index-ko.html publications.html publications-ko.html class.html class-ko.html papers assets README.md SOCIAL_SETUP.md
+git add index.html index-en.html index-ko.html publications.html publications-ko.html class.html class-ko.html papers assets README.md SOCIAL_SETUP.md
 git commit -m "Update research homepage and publication archive"
 git push origin main
 ```
