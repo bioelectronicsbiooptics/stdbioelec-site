@@ -1,0 +1,1087 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 1: Understanding Large Language Models</title>
+    <style>
+        :root {
+            --primary: #1a365d;
+            --primary-light: #2c5282;
+            --accent: #e53e3e;
+            --bg: #f7fafc;
+            --card-bg: #ffffff;
+            --text: #2d3748;
+            --text-light: #718096;
+            --border: #e2e8f0;
+            --code-bg: #1a202c;
+            --code-text: #e2e8f0;
+            --highlight: #fefcbf;
+            --success: #48bb78;
+            --info: #4299e1;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.7;
+        }
+        /* Navigation */
+        .top-nav {
+            background: var(--primary);
+            color: white;
+            padding: 12px 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .top-nav .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .top-nav a { color: rgba(255,255,255,0.85); text-decoration: none; font-size: 0.9rem; }
+        .top-nav a:hover { color: white; }
+        .nav-links { display: flex; gap: 20px; }
+        /* Header */
+        .chapter-header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            color: white;
+            padding: 60px 0 40px;
+        }
+        .chapter-header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+        .chapter-header .subtitle {
+            font-size: 1.1rem;
+            opacity: 0.85;
+            max-width: 700px;
+        }
+        .chapter-badge {
+            display: inline-block;
+            background: var(--accent);
+            color: white;
+            padding: 4px 16px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 16px;
+        }
+        /* Container */
+        .container { max-width: 1100px; margin: 0 auto; padding: 0 24px; }
+        /* TOC Sidebar */
+        .content-layout {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            gap: 40px;
+            margin-top: 40px;
+        }
+        .toc-sidebar {
+            position: sticky;
+            top: 80px;
+            height: fit-content;
+            max-height: calc(100vh - 100px);
+            overflow-y: auto;
+        }
+        .toc-sidebar h3 {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-light);
+            margin-bottom: 12px;
+        }
+        .toc-sidebar ul { list-style: none; }
+        .toc-sidebar li { margin-bottom: 4px; }
+        .toc-sidebar a {
+            display: block;
+            padding: 6px 12px;
+            color: var(--text-light);
+            text-decoration: none;
+            font-size: 0.88rem;
+            border-left: 3px solid transparent;
+            border-radius: 0 4px 4px 0;
+            transition: all 0.2s;
+        }
+        .toc-sidebar a:hover, .toc-sidebar a.active {
+            color: var(--primary);
+            background: rgba(26,54,93,0.05);
+            border-left-color: var(--primary);
+        }
+        .toc-sidebar a.sub { padding-left: 28px; font-size: 0.82rem; }
+        /* Main Content */
+        .main-content { min-width: 0; padding-bottom: 80px; }
+        /* Section Cards */
+        .section-card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 32px;
+            margin-bottom: 28px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+            border: 1px solid var(--border);
+        }
+        .section-card h2 {
+            font-size: 1.5rem;
+            color: var(--primary);
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid var(--border);
+        }
+        .section-card h3 {
+            font-size: 1.15rem;
+            color: var(--primary-light);
+            margin: 24px 0 12px;
+        }
+        .section-card h4 {
+            font-size: 1rem;
+            color: var(--text);
+            margin: 16px 0 8px;
+            font-weight: 600;
+        }
+        .section-card ul {
+            padding-left: 20px;
+            margin-bottom: 12px;
+        }
+        .section-card li {
+            margin-bottom: 8px;
+            line-height: 1.6;
+        }
+        .section-card p { margin-bottom: 12px; }
+        /* Figure Box */
+        .figure-box {
+            background: #f0f5ff;
+            border: 1px solid #bee3f8;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .figure-box .figure-label {
+            font-weight: 700;
+            color: var(--info);
+            font-size: 0.9rem;
+            margin-bottom: 8px;
+        }
+        .figure-box .figure-desc {
+            font-size: 0.95rem;
+            color: var(--text);
+            line-height: 1.6;
+        }
+        .figure-box .figure-caption {
+            font-size: 0.85rem;
+            color: var(--text-light);
+            font-style: italic;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid #bee3f8;
+        }
+        /* SVG Diagram */
+        .diagram-container {
+            text-align: center;
+            margin: 16px 0;
+            padding: 16px;
+            background: white;
+            border-radius: 8px;
+        }
+        .diagram-container svg {
+            max-width: 100%;
+            height: auto;
+        }
+        /* Table */
+        .table-box {
+            background: #f0fff4;
+            border: 1px solid #c6f6d5;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            overflow-x: auto;
+        }
+        .table-box .table-label {
+            font-weight: 700;
+            color: var(--success);
+            font-size: 0.9rem;
+            margin-bottom: 12px;
+        }
+        .table-box table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .table-box th, .table-box td {
+            padding: 10px 14px;
+            text-align: left;
+            border-bottom: 1px solid #c6f6d5;
+            font-size: 0.9rem;
+        }
+        .table-box th {
+            background: #e6ffed;
+            font-weight: 600;
+            color: var(--primary);
+        }
+        /* Code Block */
+        .code-block {
+            background: var(--code-bg);
+            color: var(--code-text);
+            border-radius: 8px;
+            padding: 20px;
+            margin: 16px 0;
+            overflow-x: auto;
+            font-family: 'JetBrains Mono', 'Fira Code', monospace;
+            font-size: 0.85rem;
+            line-height: 1.6;
+        }
+        .code-block .code-label {
+            color: #a0aec0;
+            font-size: 0.8rem;
+            margin-bottom: 10px;
+        }
+        /* Note/Tip Box */
+        .note-box {
+            background: var(--highlight);
+            border-left: 4px solid #d69e2e;
+            border-radius: 0 8px 8px 0;
+            padding: 16px 20px;
+            margin: 16px 0;
+            font-size: 0.92rem;
+        }
+        .note-box strong { color: #975a16; }
+        /* Key Concept */
+        .key-concept {
+            background: #ebf4ff;
+            border-left: 4px solid var(--info);
+            border-radius: 0 8px 8px 0;
+            padding: 16px 20px;
+            margin: 16px 0;
+        }
+        .key-concept strong { color: var(--primary); }
+        /* Summary Box */
+        .summary-box {
+            background: linear-gradient(135deg, #ebf4ff 0%, #f0f5ff 100%);
+            border: 2px solid var(--info);
+            border-radius: 12px;
+            padding: 28px;
+            margin: 28px 0;
+        }
+        .summary-box h2 { border-bottom-color: var(--info); }
+        /* Page Reference */
+        .page-ref {
+            display: inline-block;
+            background: #edf2f7;
+            color: var(--text-light);
+            font-size: 0.75rem;
+            padding: 2px 8px;
+            border-radius: 10px;
+            margin-left: 8px;
+        }
+        /* Responsive */
+        @media (max-width: 900px) {
+            .content-layout {
+                grid-template-columns: 1fr;
+            }
+            .toc-sidebar { display: none; }
+            .chapter-header h1 { font-size: 1.8rem; }
+        }
+        /* Print */
+        @media print {
+            .top-nav, .toc-sidebar { display: none; }
+            .section-card { break-inside: avoid; box-shadow: none; border: 1px solid #ddd; }
+        }
+            /* Book Figure Image */
+        .book-figure { text-align: center; margin: 18px 0 6px; padding: 14px; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 10px; }
+        .book-figure img { max-width: 100%; height: auto; border-radius: 6px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+        .book-figure .book-figure-tag { display: block; font-size: 0.78rem; color: #718096; margin-top: 8px; letter-spacing: 0.5px; text-transform: uppercase; }
+</style>
+</head>
+<body>
+    <nav class="top-nav">
+        <div class="container">
+            <a href="../index.html"><strong>Build a Large Language Model (From Scratch)</strong></a>
+            <div class="nav-links">
+                <a href="#">Previous</a>
+                <a href="../index.html">Contents</a>
+                <a href="../ch02/index.html">Next</a>
+            </div>
+        </div>
+    </nav>
+
+    <header class="chapter-header">
+        <div class="container">
+            <span class="chapter-badge">Chapter 1</span>
+            <h1>Understanding Large Language Models</h1>
+            <p class="subtitle">High-level explanations of LLM fundamentals, the transformer architecture, and a plan for building an LLM from scratch.</p>
+        </div>
+    </header>
+
+    <div class="container content-layout">
+        <aside class="toc-sidebar">
+            <h3>In This Chapter</h3>
+            <ul>
+                <li><a href="#sec-1-1">1.1 What is an LLM?</a></li>
+                <li><a href="#fig-1-1" class="sub">Figure 1.1: AI/ML/DL/LLM Hierarchy</a></li>
+                <li><a href="#sec-1-2">1.2 Applications of LLMs</a></li>
+                <li><a href="#sec-1-3">1.3 Stages of Building and Using LLMs</a></li>
+                <li><a href="#fig-1-2" class="sub">Figure 1.2: ChatGPT Interface</a></li>
+                <li><a href="#fig-1-3" class="sub">Figure 1.3: Pretraining & Fine-tuning</a></li>
+                <li><a href="#sec-1-4">1.4 Introducing the Transformer Architecture</a></li>
+                <li><a href="#fig-1-4" class="sub">Figure 1.4: Transformer Architecture</a></li>
+                <li><a href="#fig-1-5" class="sub">Figure 1.5: BERT vs GPT</a></li>
+                <li><a href="#fig-1-6" class="sub">Figure 1.6: Zero-shot & Few-shot</a></li>
+                <li><a href="#sec-1-5">1.5 Utilizing Large Datasets</a></li>
+                <li><a href="#table-1-1" class="sub">Table 1.1: GPT-3 Dataset</a></li>
+                <li><a href="#sec-1-6">1.6 A Closer Look at the GPT Architecture</a></li>
+                <li><a href="#fig-1-7" class="sub">Figure 1.7: Next-word Prediction</a></li>
+                <li><a href="#fig-1-8" class="sub">Figure 1.8: GPT Iterative Generation</a></li>
+                <li><a href="#sec-1-7">1.7 Building a Large Language Model</a></li>
+                <li><a href="#fig-1-9" class="sub">Figure 1.9: Three Stages</a></li>
+                <li><a href="#summary">Summary</a></li>
+            </ul>
+        </aside>
+
+        <main class="main-content">
+
+            <!-- Section 1.1 -->
+            <div class="section-card" id="sec-1-1">
+                <h2>1.1 What is an LLM? <span class="page-ref">p. 1-4</span></h2>
+
+                <p>Large language models (LLMs), such as those offered in OpenAI's ChatGPT, are deep neural network models developed over the past few years. They ushered in a new era for natural language processing (NLP).</p>
+
+                <key-concept class="key-concept">
+                    <strong>Definition: Large Language Model (LLM)</strong><br>
+                    An LLM is a neural network designed to understand, generate, and respond to human-like text. These models are deep neural networks trained on massive amounts of text data, sometimes encompassing large portions of the entire publicly available text on the internet. The "large" in "large language model" refers to both the model's size in terms of parameters and the immense dataset on which it's trained.
+                </key-concept>
+
+                <h3>Before LLMs</h3>
+                <ul>
+                    <li>Traditional methods excelled at categorization tasks (email spam classification, pattern recognition)</li>
+                    <li>They underperformed in tasks requiring complex understanding and generation: parsing detailed instructions, contextual analysis, creating coherent original text</li>
+                    <li>Previous models could not write an email from a list of keywords -- trivial for contemporary LLMs</li>
+                </ul>
+
+                <h3>LLMs and Deep Learning</h3>
+                <ul>
+                    <li>Enabled by advancements in deep learning (a subset of ML and AI focused on neural networks)</li>
+                    <li>Trained on vast quantities of text data, capturing deeper contextual information</li>
+                    <li>Significantly improved performance in text translation, sentiment analysis, question answering, and more</li>
+                </ul>
+
+                <div class="note-box">
+                    <strong>Important Clarification:</strong> When we say language models "understand," we mean they can process and generate text in ways that appear coherent and contextually relevant, not that they possess human-like consciousness or comprehension.
+                </div>
+
+                <h3>LLMs vs. Earlier NLP Models</h3>
+                <ul>
+                    <li>Earlier NLP models: designed for specific tasks (text categorization, language translation)</li>
+                    <li>LLMs: demonstrate broader proficiency across a wide range of NLP tasks</li>
+                    <li>Success attributed to the <strong>transformer architecture</strong> and vast training data</li>
+                </ul>
+
+                <h3>LLMs as Generative AI</h3>
+                <p>Since LLMs are capable of <em>generating</em> text, they are also referred to as a form of <strong>generative artificial intelligence (GenAI)</strong>.</p>
+
+                <!-- Figure 1.1 SVG -->
+                <div class="figure-box" id="fig-1-1">
+                    <div class="figure-label">Figure 1.1 -- AI / ML / DL / LLM Hierarchy</div>
+                    <div class="book-figure">
+                        <img src="../assets/ch01/ch01__image001.png" alt="Figure 1.1 -- AI / ML / DL / LLM Hierarchy" loading="lazy">
+                        <span class="book-figure-tag">From the book (Raschka, 2025)</span>
+                    </div>
+                    <div class="diagram-container">
+                        <svg viewBox="0 0 700 420" xmlns="http://www.w3.org/2000/svg" style="max-width:600px;">
+                            <!-- AI Layer -->
+                            <rect x="50" y="20" width="600" height="380" rx="20" fill="#e2e8f0" stroke="#a0aec0" stroke-width="2"/>
+                            <text x="350" y="390" text-anchor="middle" font-size="14" fill="#4a5568" font-weight="600">Artificial Intelligence</text>
+                            <text x="620" y="390" text-anchor="end" font-size="11" fill="#718096">Systems with human-like intelligence</text>
+                            <!-- ML Layer -->
+                            <rect x="100" y="60" width="500" height="300" rx="16" fill="#cbd5e0" stroke="#a0aec0" stroke-width="1.5"/>
+                            <text x="350" y="345" text-anchor="middle" font-size="13" fill="#4a5568" font-weight="600">Machine Learning</text>
+                            <text x="570" y="330" text-anchor="end" font-size="10" fill="#718096">Algorithms that learn from data</text>
+                            <!-- DL Layer -->
+                            <rect x="150" y="100" width="400" height="210" rx="14" fill="#a0aec0" stroke="#718096" stroke-width="1.5"/>
+                            <text x="350" y="295" text-anchor="middle" font-size="12" fill="#2d3748" font-weight="600">Deep Learning</text>
+                            <text x="520" y="280" text-anchor="end" font-size="10" fill="#4a5568">Neural networks with many layers</text>
+                            <!-- LLM -->
+                            <rect x="180" y="130" width="170" height="120" rx="10" fill="#2c5282" stroke="#1a365d" stroke-width="2"/>
+                            <text x="265" y="185" text-anchor="middle" font-size="13" fill="white" font-weight="700">Large Language</text>
+                            <text x="265" y="203" text-anchor="middle" font-size="13" fill="white" font-weight="700">Models</text>
+                            <text x="265" y="228" text-anchor="middle" font-size="9" fill="#bee3f8">Deep neural network for</text>
+                            <text x="265" y="240" text-anchor="middle" font-size="9" fill="#bee3f8">human-like text</text>
+                            <!-- GenAI -->
+                            <rect x="380" y="130" width="150" height="120" rx="10" fill="#4299e1" stroke="#2c5282" stroke-width="2"/>
+                            <text x="455" y="190" text-anchor="middle" font-size="14" fill="white" font-weight="700">GenAI</text>
+                            <text x="455" y="215" text-anchor="middle" font-size="9" fill="#ebf4ff">Create new content:</text>
+                            <text x="455" y="228" text-anchor="middle" font-size="9" fill="#ebf4ff">text, images, media</text>
+                        </svg>
+                    </div>
+                    <div class="figure-caption">LLMs represent a specific application of deep learning techniques, using their ability to process and generate human-like text. Deep learning is a specialized branch of machine learning that focuses on using multilayer neural networks.</div>
+                </div>
+
+                <h3>AI, Machine Learning, and Deep Learning</h3>
+                <ul>
+                    <li><strong>Machine learning</strong>: algorithms that learn from and make predictions based on data without being explicitly programmed</li>
+                    <li><strong>Deep learning</strong>: subset of ML using neural networks with 3+ layers (deep neural networks) to model complex patterns</li>
+                    <li>Traditional ML requires <strong>manual feature extraction</strong>; deep learning does not</li>
+                </ul>
+
+                <h3>AI Beyond ML/DL</h3>
+                <p>AI also includes rule-based systems, genetic algorithms, expert systems, fuzzy logic, and symbolic reasoning.</p>
+
+                <h3>Traditional ML vs. Deep Learning: Spam Classification Example</h3>
+                <ul>
+                    <li><strong>Traditional ML</strong>: Human experts manually extract features (trigger words, exclamation marks, uppercase words, suspicious links)</li>
+                    <li><strong>Deep Learning</strong>: Does not require manual feature extraction</li>
+                    <li>Both still require labeled data (spam vs. non-spam)</li>
+                </ul>
+            </div>
+
+            <!-- Section 1.2 -->
+            <div class="section-card" id="sec-1-2">
+                <h2>1.2 Applications of LLMs <span class="page-ref">p. 4-5</span></h2>
+
+                <p>LLMs have a broad range of applications across various domains, owing to their advanced capabilities to parse and understand unstructured text data.</p>
+
+                <h3>Key Applications</h3>
+                <ul>
+                    <li><strong>Machine translation</strong> and generation of novel texts</li>
+                    <li><strong>Sentiment analysis</strong> and <strong>text summarization</strong></li>
+                    <li><strong>Content creation</strong>: writing fiction, articles, and computer code</li>
+                    <li><strong>Chatbots and virtual assistants</strong>: OpenAI's ChatGPT, Google's Gemini (formerly Bard)</li>
+                    <li><strong>Knowledge retrieval</strong>: sifting through documents in medicine, law, etc.</li>
+                </ul>
+
+                <div class="note-box">
+                    <strong>Key Takeaway:</strong> LLMs are invaluable for automating almost any task that involves parsing and generating text. Their applications are virtually endless, with the potential to redefine our relationship with technology.
+                </div>
+            </div>
+
+            <!-- Section 1.3 -->
+            <div class="section-card" id="sec-1-3">
+                <h2>1.3 Stages of Building and Using LLMs <span class="page-ref">p. 5-7</span></h2>
+
+                <p>Coding an LLM from the ground up is an excellent exercise to understand its mechanics and limitations. It also equips us with the required knowledge for pretraining or fine-tuning existing open source LLM architectures.</p>
+
+                <div class="note-box">
+                    <strong>NOTE:</strong> Most LLMs today are implemented using the <strong>PyTorch</strong> deep learning library. Readers can find a comprehensive introduction to PyTorch in appendix A.
+                </div>
+
+                <h3>Custom-Built LLMs vs. General-Purpose LLMs</h3>
+                <ul>
+                    <li>Custom-built LLMs can outperform general-purpose LLMs (e.g., ChatGPT) for specific tasks or domains</li>
+                    <li>Examples: <strong>BloombergGPT</strong> (finance), medical QA LLMs</li>
+                </ul>
+
+                <h3>Advantages of Custom LLMs</h3>
+                <ul>
+                    <li><strong>Data privacy</strong>: avoid sharing sensitive data with third-party providers</li>
+                    <li><strong>Local deployment</strong>: deploy on customer devices (laptops, smartphones)</li>
+                    <li><strong>Reduced latency</strong>: decreased latency and reduced server costs</li>
+                    <li><strong>Developer autonomy</strong>: full control over updates and modifications</li>
+                </ul>
+
+                <!-- Figure 1.2 -->
+                <div class="figure-box" id="fig-1-2">
+                    <div class="figure-label">Figure 1.2 -- ChatGPT Interface</div>
+                    <div class="book-figure">
+                        <img src="../assets/ch01/ch01__image003.png" alt="Figure 1.2 -- ChatGPT Interface" loading="lazy">
+                        <span class="book-figure-tag">From the book (Raschka, 2025)</span>
+                    </div>
+                    <div class="figure-desc">
+                        LLM interfaces enable natural language communication between users and AI systems. The screenshot shows ChatGPT writing a 4-line poem containing the words Wisconsin, AI, and pizza, according to a user's specifications. The user provides instructions (input) and the model generates a poem (output).
+                    </div>
+                    <div class="figure-caption">LLM interfaces enable natural language communication between users and AI systems.</div>
+                </div>
+
+                <h3>The Two-Stage Process: Pretraining and Fine-Tuning</h3>
+
+                <key-concept class="key-concept">
+                    <strong>Pretraining:</strong> The initial phase where a model is trained on a large, diverse dataset to develop a broad understanding of language. Creates a <strong>base</strong> or <strong>foundation model</strong>.<br><br>
+                    <strong>Fine-tuning:</strong> The model is specifically trained on a narrower dataset, more specific to particular tasks or domains.
+                </key-concept>
+
+                <!-- Figure 1.3 SVG -->
+                <div class="figure-box" id="fig-1-3">
+                    <div class="figure-label">Figure 1.3 -- Pretraining and Fine-tuning Pipeline</div>
+                    <div class="book-figure">
+                        <img src="../assets/ch01/ch01__image005.png" alt="Figure 1.3 -- Pretraining and Fine-tuning Pipeline" loading="lazy">
+                        <span class="book-figure-tag">From the book (Raschka, 2025)</span>
+                    </div>
+                    <div class="diagram-container">
+                        <svg viewBox="0 0 800 300" xmlns="http://www.w3.org/2000/svg" style="max-width:700px;">
+                            <!-- Unlabeled data -->
+                            <rect x="20" y="60" width="150" height="180" rx="8" fill="#e2e8f0" stroke="#a0aec0" stroke-width="1.5"/>
+                            <text x="95" y="90" text-anchor="middle" font-size="11" fill="#2d3748" font-weight="600">Unlabeled Text Data</text>
+                            <text x="95" y="115" text-anchor="middle" font-size="9" fill="#718096">Internet texts</text>
+                            <text x="95" y="130" text-anchor="middle" font-size="9" fill="#718096">Books</text>
+                            <text x="95" y="145" text-anchor="middle" font-size="9" fill="#718096">Wikipedia</text>
+                            <text x="95" y="160" text-anchor="middle" font-size="9" fill="#718096">Research articles</text>
+                            <text x="95" y="185" text-anchor="middle" font-size="8" fill="#a0aec0">Trillions of words</text>
+                            <!-- Arrow -->
+                            <line x1="170" y1="150" x2="230" y2="150" stroke="#4a5568" stroke-width="2" marker-end="url(#arrow)"/>
+                            <text x="200" y="140" text-anchor="middle" font-size="10" fill="#4a5568">Train</text>
+                            <!-- Foundation model -->
+                            <rect x="230" y="100" width="160" height="100" rx="10" fill="#2c5282" stroke="#1a365d" stroke-width="2"/>
+                            <text x="310" y="140" text-anchor="middle" font-size="12" fill="white" font-weight="600">Pretrained LLM</text>
+                            <text x="310" y="158" text-anchor="middle" font-size="10" fill="#bee3f8">(Foundation Model)</text>
+                            <text x="310" y="185" text-anchor="middle" font-size="9" fill="#a0aec0">Text completion</text>
+                            <!-- Arrow to fine-tune -->
+                            <line x1="390" y1="150" x2="450" y2="150" stroke="#4a5568" stroke-width="2" marker-end="url(#arrow)"/>
+                            <text x="420" y="140" text-anchor="middle" font-size="10" fill="#4a5568">Train</text>
+                            <!-- Labeled dataset -->
+                            <rect x="410" y="200" width="100" height="50" rx="6" fill="#fefcbf" stroke="#d69e2e" stroke-width="1"/>
+                            <text x="460" y="228" text-anchor="middle" font-size="9" fill="#975a16">Labeled Dataset</text>
+                            <line x1="460" y1="200" x2="460" y2="175" stroke="#d69e2e" stroke-width="1" stroke-dasharray="4"/>
+                            <!-- Fine-tuned LLM -->
+                            <rect x="450" y="80" width="170" height="120" rx="10" fill="#4299e1" stroke="#2c5282" stroke-width="2"/>
+                            <text x="535" y="120" text-anchor="middle" font-size="12" fill="white" font-weight="600">Fine-tuned LLM</text>
+                            <text x="535" y="145" text-anchor="middle" font-size="9" fill="#ebf4ff">Classification</text>
+                            <text x="535" y="160" text-anchor="middle" font-size="9" fill="#ebf4ff">Summarization</text>
+                            <text x="535" y="175" text-anchor="middle" font-size="9" fill="#ebf4ff">Translation</text>
+                            <text x="535" y="190" text-anchor="middle" font-size="9" fill="#ebf4ff">Personal assistant</text>
+                            <!-- Arrow marker -->
+                            <defs>
+                                <marker id="arrow" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+                                    <polygon points="0 0, 10 3.5, 0 7" fill="#4a5568"/>
+                                </marker>
+                            </defs>
+                        </svg>
+                    </div>
+                    <div class="figure-caption">Pretraining an LLM involves next-word prediction on large text datasets. A pretrained LLM can then be fine-tuned using a smaller labeled dataset.</div>
+                </div>
+
+                <h3>Foundation Models</h3>
+                <ul>
+                    <li>The pretrained LLM is called a <strong>base</strong> or <strong>foundation model</strong></li>
+                    <li>Example: GPT-3 model (precursor of ChatGPT) -- capable of text completion and limited few-shot capabilities</li>
+                </ul>
+
+                <h3>Two Categories of Fine-Tuning</h3>
+                <ul>
+                    <li><strong>Instruction fine-tuning</strong>: labeled dataset of instruction-answer pairs (e.g., translation queries with correct translations)</li>
+                    <li><strong>Classification fine-tuning</strong>: labeled dataset of texts with class labels (e.g., emails labeled as "spam" or "not spam")</li>
+                </ul>
+            </div>
+
+            <!-- Section 1.4 -->
+            <div class="section-card" id="sec-1-4">
+                <h2>1.4 Introducing the Transformer Architecture <span class="page-ref">p. 7-10</span></h2>
+
+                <p>Most modern LLMs rely on the <strong>transformer</strong> architecture, a deep neural network architecture introduced in the 2017 paper "Attention Is All You Need." The original transformer was developed for machine translation (English to German and French).</p>
+
+                <!-- Figure 1.4 SVG -->
+                <div class="figure-box" id="fig-1-4">
+                    <div class="figure-label">Figure 1.4 -- Original Transformer Architecture (Simplified)</div>
+                    <div class="book-figure">
+                        <img src="../assets/ch01/ch01__image007.png" alt="Figure 1.4 -- Original Transformer Architecture (Simplified)" loading="lazy">
+                        <span class="book-figure-tag">From the book (Raschka, 2025)</span>
+                    </div>
+                    <div class="diagram-container">
+                        <svg viewBox="0 0 700 380" xmlns="http://www.w3.org/2000/svg" style="max-width:600px;">
+                            <!-- Encoder side -->
+                            <rect x="40" y="120" width="200" height="120" rx="12" fill="#e2e8f0" stroke="#a0aec0" stroke-width="2"/>
+                            <text x="140" y="178" text-anchor="middle" font-size="18" fill="#2d3748" font-weight="700">Encoder</text>
+                            <text x="140" y="198" text-anchor="middle" font-size="10" fill="#718096">Processes input text</text>
+                            <!-- Input text -->
+                            <rect x="60" y="290" width="160" height="35" rx="6" fill="#fefcbf" stroke="#d69e2e" stroke-width="1"/>
+                            <text x="140" y="312" text-anchor="middle" font-size="11" fill="#975a16">"This is an example"</text>
+                            <!-- Preprocessing -->
+                            <rect x="70" y="260" width="140" height="25" rx="4" fill="#bee3f8" stroke="#4299e1" stroke-width="1"/>
+                            <text x="140" y="277" text-anchor="middle" font-size="9" fill="#2c5282">Preprocessing steps</text>
+                            <line x1="140" y1="290" x2="140" y2="285" stroke="#4a5568" stroke-width="1.5" marker-end="url(#arrow2)"/>
+                            <line x1="140" y1="260" x2="140" y2="240" stroke="#4a5568" stroke-width="1.5" marker-end="url(#arrow2)"/>
+                            <!-- Embeddings -->
+                            <rect x="80" y="70" width="120" height="30" rx="4" fill="#c6f6d5" stroke="#48bb78" stroke-width="1"/>
+                            <text x="140" y="90" text-anchor="middle" font-size="10" fill="#276749">Embeddings</text>
+                            <line x1="140" y1="120" x2="140" y2="100" stroke="#4a5568" stroke-width="1.5" marker-end="url(#arrow2)"/>
+                            <!-- Arrow encoder to decoder -->
+                            <line x1="240" y1="85" x2="370" y2="85" stroke="#e53e3e" stroke-width="2" marker-end="url(#arrow-red)"/>
+                            <!-- Decoder side -->
+                            <rect x="370" y="120" width="200" height="120" rx="12" fill="#bee3f8" stroke="#4299e1" stroke-width="2"/>
+                            <text x="470" y="178" text-anchor="middle" font-size="18" fill="#1a365d" font-weight="700">Decoder</text>
+                            <text x="470" y="198" text-anchor="middle" font-size="10" fill="#2c5282">Generates output text</text>
+                            <!-- Decoder input -->
+                            <rect x="390" y="290" width="160" height="35" rx="6" fill="#fefcbf" stroke="#d69e2e" stroke-width="1"/>
+                            <text x="470" y="312" text-anchor="middle" font-size="11" fill="#975a16">"Das ist ein"</text>
+                            <!-- Preprocessing -->
+                            <rect x="400" y="260" width="140" height="25" rx="4" fill="#bee3f8" stroke="#4299e1" stroke-width="1"/>
+                            <text x="470" y="277" text-anchor="middle" font-size="9" fill="#2c5282">Preprocessing steps</text>
+                            <line x1="470" y1="290" x2="470" y2="285" stroke="#4a5568" stroke-width="1.5" marker-end="url(#arrow2)"/>
+                            <line x1="470" y1="260" x2="470" y2="240" stroke="#4a5568" stroke-width="1.5" marker-end="url(#arrow2)"/>
+                            <!-- Output layers -->
+                            <rect x="410" y="70" width="120" height="30" rx="4" fill="#fed7d7" stroke="#e53e3e" stroke-width="1"/>
+                            <text x="470" y="90" text-anchor="middle" font-size="10" fill="#9b2c2c">Output layers</text>
+                            <line x1="470" y1="120" x2="470" y2="100" stroke="#4a5568" stroke-width="1.5" marker-end="url(#arrow2)"/>
+                            <!-- Output text -->
+                            <rect x="380" y="20" width="180" height="35" rx="6" fill="#c6f6d5" stroke="#48bb78" stroke-width="1.5"/>
+                            <text x="470" y="42" text-anchor="middle" font-size="11" fill="#276749" font-weight="600">"Das ist ein Beispiel"</text>
+                            <line x1="470" y1="70" x2="470" y2="55" stroke="#4a5568" stroke-width="1.5" marker-end="url(#arrow2)"/>
+                            <defs>
+                                <marker id="arrow2" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#4a5568"/></marker>
+                                <marker id="arrow-red" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#e53e3e"/></marker>
+                            </defs>
+                        </svg>
+                    </div>
+                    <div class="figure-caption">The original transformer consists of an encoder (processes and embeds input text) and a decoder (generates translated text one word at a time). This figure shows the final stage of translating "This is an example" to "Das ist ein Beispiel."</div>
+                </div>
+
+                <h3>Transformer Components</h3>
+                <ul>
+                    <li><strong>Encoder</strong>: processes input text into numerical representations (vectors) capturing contextual information</li>
+                    <li><strong>Decoder</strong>: takes encoded vectors and generates output text</li>
+                    <li>Both consist of many layers connected by a <strong>self-attention mechanism</strong></li>
+                </ul>
+
+                <key-concept class="key-concept">
+                    <strong>Self-Attention Mechanism:</strong> A key component that allows the model to weigh the importance of different words or tokens in a sequence relative to each other. It enables capturing long-range dependencies and contextual relationships within input data, enhancing the model's ability to generate coherent output. Detailed discussion in Chapter 3.
+                </key-concept>
+
+                <h3>BERT vs. GPT</h3>
+                <ul>
+                    <li><strong>BERT</strong> (<em>Bidirectional Encoder Representations from Transformers</em>): built on the encoder submodule; specializes in masked word prediction; strengths in text classification (sentiment prediction, document categorization); X/Twitter uses BERT for toxic content detection</li>
+                    <li><strong>GPT</strong> (<em>Generative Pretrained Transformers</em>): focuses on the decoder portion; designed for text generation tasks (translation, summarization, fiction writing, code)</li>
+                </ul>
+
+                <!-- Figure 1.5 -->
+                <div class="figure-box" id="fig-1-5">
+                    <div class="figure-label">Figure 1.5 -- BERT (Encoder) vs. GPT (Decoder)</div>
+                    <div class="book-figure">
+                        <img src="../assets/ch01/ch01__image009.png" alt="Figure 1.5 -- BERT (Encoder) vs. GPT (Decoder)" loading="lazy">
+                        <span class="book-figure-tag">From the book (Raschka, 2025)</span>
+                    </div>
+                    <div class="diagram-container">
+                        <svg viewBox="0 0 700 320" xmlns="http://www.w3.org/2000/svg" style="max-width:620px;">
+                            <!-- BERT side -->
+                            <rect x="20" y="10" width="310" height="300" rx="10" fill="#f7fafc" stroke="#e2e8f0" stroke-width="1.5"/>
+                            <text x="175" y="35" text-anchor="middle" font-size="16" fill="#2d3748" font-weight="700">BERT</text>
+                            <!-- Encoder block -->
+                            <rect x="90" y="100" width="170" height="80" rx="10" fill="#e2e8f0" stroke="#a0aec0" stroke-width="2"/>
+                            <text x="175" y="145" text-anchor="middle" font-size="15" fill="#2d3748" font-weight="600">Encoder</text>
+                            <!-- Input with masks -->
+                            <rect x="55" y="230" width="240" height="30" rx="5" fill="#fefcbf" stroke="#d69e2e" stroke-width="1"/>
+                            <text x="175" y="250" text-anchor="middle" font-size="9" fill="#975a16">This is an __ of how concise I __ be</text>
+                            <text x="175" y="280" text-anchor="middle" font-size="9" fill="#718096">Receives inputs where words are randomly masked</text>
+                            <!-- Output -->
+                            <rect x="55" y="50" width="240" height="30" rx="5" fill="#c6f6d5" stroke="#48bb78" stroke-width="1"/>
+                            <text x="175" y="70" text-anchor="middle" font-size="9" fill="#276749">This is an example of how concise I can be</text>
+                            <text x="30" y="120" text-anchor="start" font-size="8" fill="#718096">Fills in the</text>
+                            <text x="30" y="132" text-anchor="start" font-size="8" fill="#718096">missing words</text>
+                            <!-- GPT side -->
+                            <rect x="370" y="10" width="310" height="300" rx="10" fill="#f0f5ff" stroke="#bee3f8" stroke-width="1.5"/>
+                            <text x="525" y="35" text-anchor="middle" font-size="16" fill="#1a365d" font-weight="700">GPT</text>
+                            <!-- Decoder block -->
+                            <rect x="440" y="100" width="170" height="80" rx="10" fill="#bee3f8" stroke="#4299e1" stroke-width="2"/>
+                            <text x="525" y="145" text-anchor="middle" font-size="15" fill="#1a365d" font-weight="600">Decoder</text>
+                            <!-- Input incomplete -->
+                            <rect x="405" y="230" width="240" height="30" rx="5" fill="#fefcbf" stroke="#d69e2e" stroke-width="1"/>
+                            <text x="525" y="250" text-anchor="middle" font-size="9" fill="#975a16">This is an example of how concise I can</text>
+                            <text x="525" y="280" text-anchor="middle" font-size="9" fill="#718096">Receives incomplete texts</text>
+                            <!-- Output -->
+                            <rect x="405" y="50" width="240" height="30" rx="5" fill="#c6f6d5" stroke="#48bb78" stroke-width="1"/>
+                            <text x="525" y="70" text-anchor="middle" font-size="9" fill="#276749">This is an example of how concise I can be</text>
+                            <text x="650" y="120" text-anchor="end" font-size="8" fill="#718096">Generates one</text>
+                            <text x="650" y="132" text-anchor="end" font-size="8" fill="#718096">word at a time</text>
+                        </svg>
+                    </div>
+                    <div class="figure-caption">Left: BERT-like LLMs focus on masked word prediction (encoder). Right: GPT-like LLMs focus on text completion (decoder).</div>
+                </div>
+
+                <h3>GPT Versatility: Zero-shot and Few-shot Learning</h3>
+                <ul>
+                    <li><strong>Zero-shot learning</strong>: ability to generalize to completely unseen tasks without any prior specific examples</li>
+                    <li><strong>Few-shot learning</strong>: learning from a minimal number of user-provided examples</li>
+                </ul>
+
+                <!-- Figure 1.6 -->
+                <div class="figure-box" id="fig-1-6">
+                    <div class="figure-label">Figure 1.6 -- Text Completion, Zero-shot, and Few-shot Examples</div>
+                    <div class="book-figure">
+                        <img src="../assets/ch01/ch01__image011.png" alt="Figure 1.6 -- Text Completion, Zero-shot, and Few-shot Examples" loading="lazy">
+                        <span class="book-figure-tag">From the book (Raschka, 2025)</span>
+                    </div>
+                    <div class="diagram-container">
+                        <svg viewBox="0 0 700 230" xmlns="http://www.w3.org/2000/svg" style="max-width:620px;">
+                            <text x="350" y="20" text-anchor="middle" font-size="12" fill="#2d3748" font-weight="600">Creates plausible text given a partial input text</text>
+                            <text x="220" y="45" text-anchor="middle" font-size="10" fill="#718096">Input</text>
+                            <text x="500" y="45" text-anchor="middle" font-size="10" fill="#718096">Output</text>
+                            <!-- Text completion -->
+                            <text x="40" y="75" font-size="10" fill="#2c5282" font-weight="600">TEXT COMPLETION</text>
+                            <rect x="140" y="58" width="200" height="28" rx="4" fill="#e2e8f0" stroke="#a0aec0" stroke-width="1"/>
+                            <text x="240" y="77" text-anchor="middle" font-size="9" fill="#4a5568">Breakfast is the</text>
+                            <rect x="380" y="58" width="250" height="28" rx="4" fill="#bee3f8" stroke="#4299e1" stroke-width="1"/>
+                            <text x="505" y="77" text-anchor="middle" font-size="9" fill="#1a365d">most important meal of the day.</text>
+                            <line x1="340" y1="72" x2="380" y2="72" stroke="#4a5568" stroke-width="1.5" marker-end="url(#arrow3)"/>
+                            <!-- Zero-shot -->
+                            <text x="40" y="120" font-size="10" fill="#2c5282" font-weight="600">ZERO-SHOT</text>
+                            <rect x="140" y="103" width="200" height="28" rx="4" fill="#e2e8f0" stroke="#a0aec0" stroke-width="1"/>
+                            <text x="240" y="122" text-anchor="middle" font-size="8" fill="#4a5568">Translate English to German: breakfast =></text>
+                            <rect x="380" y="103" width="250" height="28" rx="4" fill="#bee3f8" stroke="#4299e1" stroke-width="1"/>
+                            <text x="505" y="122" text-anchor="middle" font-size="9" fill="#1a365d">Fruhstuck</text>
+                            <line x1="340" y1="117" x2="380" y2="117" stroke="#4a5568" stroke-width="1.5" marker-end="url(#arrow3)"/>
+                            <!-- Few-shot -->
+                            <text x="40" y="170" font-size="10" fill="#2c5282" font-weight="600">FEW-SHOT</text>
+                            <rect x="140" y="148" width="200" height="40" rx="4" fill="#e2e8f0" stroke="#a0aec0" stroke-width="1"/>
+                            <text x="240" y="165" text-anchor="middle" font-size="8" fill="#4a5568">gaot => goat</text>
+                            <text x="240" y="177" text-anchor="middle" font-size="8" fill="#4a5568">sheo => shoe, pohne =></text>
+                            <rect x="380" y="148" width="250" height="40" rx="4" fill="#bee3f8" stroke="#4299e1" stroke-width="1"/>
+                            <text x="505" y="173" text-anchor="middle" font-size="9" fill="#1a365d">phone</text>
+                            <line x1="340" y1="168" x2="380" y2="168" stroke="#4a5568" stroke-width="1.5" marker-end="url(#arrow3)"/>
+                            <defs>
+                                <marker id="arrow3" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#4a5568"/></marker>
+                            </defs>
+                        </svg>
+                    </div>
+                    <div class="figure-caption">GPT-like LLMs can solve various tasks based on their inputs without needing retraining, fine-tuning, or task-specific model architecture changes.</div>
+                </div>
+
+                <div class="note-box">
+                    <strong>Transformers vs. LLMs:</strong> Not all transformers are LLMs (transformers can be used for computer vision). Not all LLMs are transformers (some use recurrent or convolutional architectures). This book uses "LLM" to refer to transformer-based LLMs similar to GPT.
+                </div>
+            </div>
+
+            <!-- Section 1.5 -->
+            <div class="section-card" id="sec-1-5">
+                <h2>1.5 Utilizing Large Datasets <span class="page-ref">p. 10-12</span></h2>
+
+                <p>The large training datasets for popular GPT- and BERT-like models represent diverse and comprehensive text corpora encompassing billions of words, including a vast array of topics and natural and computer languages.</p>
+
+                <!-- Table 1.1 -->
+                <div class="table-box" id="table-1-1">
+                    <div class="table-label">Table 1.1 -- The Pretraining Dataset of the Popular GPT-3 LLM</div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Dataset name</th>
+                                <th>Dataset description</th>
+                                <th>Number of tokens</th>
+                                <th>Proportion in training data</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>CommonCrawl (filtered)</td>
+                                <td>Web crawl data</td>
+                                <td>410 billion</td>
+                                <td>60%</td>
+                            </tr>
+                            <tr>
+                                <td>WebText2</td>
+                                <td>Web crawl data</td>
+                                <td>19 billion</td>
+                                <td>22%</td>
+                            </tr>
+                            <tr>
+                                <td>Books1</td>
+                                <td>Internet-based book corpus</td>
+                                <td>12 billion</td>
+                                <td>8%</td>
+                            </tr>
+                            <tr>
+                                <td>Books2</td>
+                                <td>Internet-based book corpus</td>
+                                <td>55 billion</td>
+                                <td>8%</td>
+                            </tr>
+                            <tr>
+                                <td>Wikipedia</td>
+                                <td>High-quality text</td>
+                                <td>3 billion</td>
+                                <td>3%</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <h3>Understanding Tokens</h3>
+                <ul>
+                    <li>A <strong>token</strong> is a unit of text that a model reads; roughly equivalent to words and punctuation characters</li>
+                    <li>Chapter 2 covers tokenization (converting text into tokens)</li>
+                    <li>The scale and diversity of the training dataset allow models to perform well on diverse tasks</li>
+                </ul>
+
+                <div class="note-box">
+                    <strong>GPT-3 Dataset Details:</strong>
+                    <ul style="margin-top:8px;">
+                        <li>Total tokens across subsets: 499 billion, but model trained on only <strong>300 billion tokens</strong></li>
+                        <li>CommonCrawl alone: ~570 GB of storage</li>
+                        <li>Meta's LLaMA expanded to include Arxiv papers (92 GB) and StackExchange Q&As (78 GB)</li>
+                        <li>Public alternative dataset: <em>Dolma</em> (3 trillion tokens) by Soldaini et al. 2024</li>
+                        <li>GPT-3 pretraining cost: estimated at <strong>$4.6 million</strong></li>
+                    </ul>
+                </div>
+
+                <h3>Foundation Models and Practical Considerations</h3>
+                <ul>
+                    <li>Pretrained models serve as <strong>base/foundation models</strong> for further fine-tuning</li>
+                    <li>Many pretrained LLMs are available as <strong>open source models</strong></li>
+                    <li>Fine-tuning on specific tasks with smaller datasets reduces computational cost and improves performance</li>
+                    <li>The book implements pretraining for educational purposes, executable on consumer hardware</li>
+                    <li>Code examples for loading openly available model weights are provided</li>
+                </ul>
+            </div>
+
+            <!-- Section 1.6 -->
+            <div class="section-card" id="sec-1-6">
+                <h2>1.6 A Closer Look at the GPT Architecture <span class="page-ref">p. 12-14</span></h2>
+
+                <h3>Origins of GPT</h3>
+                <ul>
+                    <li>Introduced in "Improving Language Understanding by Generative Pre-Training" by Radford et al. (OpenAI)</li>
+                    <li>GPT-3: scaled-up version with more parameters, trained on a larger dataset</li>
+                    <li>ChatGPT: created by fine-tuning GPT-3 on a large instruction dataset using the <strong>InstructGPT</strong> method</li>
+                </ul>
+
+                <h3>GPT Capabilities Beyond Text Completion</h3>
+                <ul>
+                    <li>Spelling correction, classification, language translation</li>
+                    <li>Remarkable given that GPT models are pretrained on a simple <strong>next-word prediction</strong> task</li>
+                </ul>
+
+                <!-- Figure 1.7 -->
+                <div class="figure-box" id="fig-1-7">
+                    <div class="figure-label">Figure 1.7 -- Next-Word Prediction Pretraining Task</div>
+                    <div class="book-figure">
+                        <img src="../assets/ch01/ch01__image013.png" alt="Figure 1.7 -- Next-Word Prediction Pretraining Task" loading="lazy">
+                        <span class="book-figure-tag">From the book (Raschka, 2025)</span>
+                    </div>
+                    <div class="diagram-container">
+                        <svg viewBox="0 0 500 100" xmlns="http://www.w3.org/2000/svg" style="max-width:420px;">
+                            <rect x="30" y="25" width="350" height="50" rx="8" fill="#ebf4ff" stroke="#4299e1" stroke-width="1.5"/>
+                            <text x="50" y="55" font-size="14" fill="#2d3748">The model is simply trained to predict the next</text>
+                            <rect x="392" y="32" width="60" height="36" rx="6" fill="#bee3f8" stroke="#4299e1" stroke-width="1.5"/>
+                            <text x="422" y="55" text-anchor="middle" font-size="13" fill="#1a365d" font-weight="700">word</text>
+                            <!-- curved arrow -->
+                            <path d="M 360 75 Q 380 95 410 75" stroke="#e53e3e" stroke-width="2" fill="none" marker-end="url(#arrow4)"/>
+                            <defs>
+                                <marker id="arrow4" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#e53e3e"/></marker>
+                            </defs>
+                        </svg>
+                    </div>
+                    <div class="figure-caption">The system learns to predict the upcoming word in a sentence by looking at the words that have come before it, forming a foundation for various other tasks.</div>
+                </div>
+
+                <key-concept class="key-concept">
+                    <strong>Self-Supervised Learning:</strong> The next-word prediction task is a form of self-supervised learning (self-labeling). No need to collect explicit labels -- the next word in a sentence serves as the label. This allows the use of massive unlabeled text datasets to train LLMs.
+                </key-concept>
+
+                <h3>GPT Architecture: Decoder-Only</h3>
+                <ul>
+                    <li>GPT uses only the <strong>decoder part</strong> of the transformer (no encoder)</li>
+                    <li>It is an <strong>autoregressive</strong> model: incorporates previous outputs as inputs for future predictions</li>
+                    <li>Each new word is chosen based on the sequence that precedes it</li>
+                </ul>
+
+                <!-- Figure 1.8 -->
+                <div class="figure-box" id="fig-1-8">
+                    <div class="figure-label">Figure 1.8 -- GPT Iterative Text Generation</div>
+                    <div class="book-figure">
+                        <img src="../assets/ch01/ch01__image015.png" alt="Figure 1.8 -- GPT Iterative Text Generation" loading="lazy">
+                        <span class="book-figure-tag">From the book (Raschka, 2025)</span>
+                    </div>
+                    <div class="diagram-container">
+                        <svg viewBox="0 0 750 300" xmlns="http://www.w3.org/2000/svg" style="max-width:650px;">
+                            <!-- Iteration 1 -->
+                            <text x="120" y="20" text-anchor="middle" font-size="12" fill="#2d3748" font-weight="600">Iteration 1</text>
+                            <rect x="55" y="220" width="130" height="28" rx="4" fill="#fefcbf" stroke="#d69e2e" stroke-width="1"/>
+                            <text x="120" y="239" text-anchor="middle" font-size="10" fill="#975a16">"This"</text>
+                            <rect x="65" y="185" width="110" height="22" rx="3" fill="#e2e8f0" stroke="#a0aec0" stroke-width="1"/>
+                            <text x="120" y="200" text-anchor="middle" font-size="8" fill="#718096">Preprocessing</text>
+                            <rect x="55" y="100" width="130" height="70" rx="8" fill="#bee3f8" stroke="#4299e1" stroke-width="2"/>
+                            <text x="120" y="140" text-anchor="middle" font-size="14" fill="#1a365d" font-weight="600">Decoder</text>
+                            <rect x="65" y="65" width="110" height="22" rx="3" fill="#fed7d7" stroke="#e53e3e" stroke-width="1"/>
+                            <text x="120" y="80" text-anchor="middle" font-size="8" fill="#9b2c2c">Output layers</text>
+                            <rect x="55" y="30" width="130" height="25" rx="4" fill="#c6f6d5" stroke="#48bb78" stroke-width="1"/>
+                            <text x="120" y="47" text-anchor="middle" font-size="9" fill="#276749">"This is"</text>
+                            <!-- Arrows -->
+                            <line x1="120" y1="220" x2="120" y2="207" stroke="#4a5568" stroke-width="1" marker-end="url(#a5)"/>
+                            <line x1="120" y1="185" x2="120" y2="170" stroke="#4a5568" stroke-width="1" marker-end="url(#a5)"/>
+                            <line x1="120" y1="100" x2="120" y2="87" stroke="#4a5568" stroke-width="1" marker-end="url(#a5)"/>
+                            <line x1="120" y1="65" x2="120" y2="55" stroke="#4a5568" stroke-width="1" marker-end="url(#a5)"/>
+
+                            <!-- Iteration 2 -->
+                            <text x="370" y="20" text-anchor="middle" font-size="12" fill="#2d3748" font-weight="600">Iteration 2</text>
+                            <rect x="305" y="220" width="130" height="28" rx="4" fill="#fefcbf" stroke="#d69e2e" stroke-width="1"/>
+                            <text x="370" y="239" text-anchor="middle" font-size="10" fill="#975a16">"This is"</text>
+                            <rect x="315" y="185" width="110" height="22" rx="3" fill="#e2e8f0" stroke="#a0aec0" stroke-width="1"/>
+                            <text x="370" y="200" text-anchor="middle" font-size="8" fill="#718096">Preprocessing</text>
+                            <rect x="305" y="100" width="130" height="70" rx="8" fill="#bee3f8" stroke="#4299e1" stroke-width="2"/>
+                            <text x="370" y="140" text-anchor="middle" font-size="14" fill="#1a365d" font-weight="600">Decoder</text>
+                            <rect x="315" y="65" width="110" height="22" rx="3" fill="#fed7d7" stroke="#e53e3e" stroke-width="1"/>
+                            <text x="370" y="80" text-anchor="middle" font-size="8" fill="#9b2c2c">Output layers</text>
+                            <rect x="305" y="30" width="130" height="25" rx="4" fill="#c6f6d5" stroke="#48bb78" stroke-width="1"/>
+                            <text x="370" y="47" text-anchor="middle" font-size="9" fill="#276749">"This is an"</text>
+                            <line x1="370" y1="220" x2="370" y2="207" stroke="#4a5568" stroke-width="1" marker-end="url(#a5)"/>
+                            <line x1="370" y1="185" x2="370" y2="170" stroke="#4a5568" stroke-width="1" marker-end="url(#a5)"/>
+                            <line x1="370" y1="100" x2="370" y2="87" stroke="#4a5568" stroke-width="1" marker-end="url(#a5)"/>
+                            <line x1="370" y1="65" x2="370" y2="55" stroke="#4a5568" stroke-width="1" marker-end="url(#a5)"/>
+
+                            <!-- Iteration 3 -->
+                            <text x="620" y="20" text-anchor="middle" font-size="12" fill="#2d3748" font-weight="600">Iteration 3</text>
+                            <rect x="555" y="220" width="130" height="28" rx="4" fill="#fefcbf" stroke="#d69e2e" stroke-width="1"/>
+                            <text x="620" y="239" text-anchor="middle" font-size="10" fill="#975a16">"This is an"</text>
+                            <rect x="565" y="185" width="110" height="22" rx="3" fill="#e2e8f0" stroke="#a0aec0" stroke-width="1"/>
+                            <text x="620" y="200" text-anchor="middle" font-size="8" fill="#718096">Preprocessing</text>
+                            <rect x="555" y="100" width="130" height="70" rx="8" fill="#bee3f8" stroke="#4299e1" stroke-width="2"/>
+                            <text x="620" y="140" text-anchor="middle" font-size="14" fill="#1a365d" font-weight="600">Decoder</text>
+                            <rect x="565" y="65" width="110" height="22" rx="3" fill="#fed7d7" stroke="#e53e3e" stroke-width="1"/>
+                            <text x="620" y="80" text-anchor="middle" font-size="8" fill="#9b2c2c">Output layers</text>
+                            <rect x="545" y="30" width="150" height="25" rx="4" fill="#c6f6d5" stroke="#48bb78" stroke-width="1"/>
+                            <text x="620" y="47" text-anchor="middle" font-size="9" fill="#276749">"This is an example"</text>
+                            <line x1="620" y1="220" x2="620" y2="207" stroke="#4a5568" stroke-width="1" marker-end="url(#a5)"/>
+                            <line x1="620" y1="185" x2="620" y2="170" stroke="#4a5568" stroke-width="1" marker-end="url(#a5)"/>
+                            <line x1="620" y1="100" x2="620" y2="87" stroke="#4a5568" stroke-width="1" marker-end="url(#a5)"/>
+                            <line x1="620" y1="65" x2="620" y2="55" stroke="#4a5568" stroke-width="1" marker-end="url(#a5)"/>
+
+                            <!-- Connecting arrows -->
+                            <path d="M 185 240 C 220 260, 260 260, 305 240" stroke="#e53e3e" stroke-width="1.5" fill="none" stroke-dasharray="4" marker-end="url(#a5r)"/>
+                            <path d="M 435 240 C 470 260, 510 260, 555 240" stroke="#e53e3e" stroke-width="1.5" fill="none" stroke-dasharray="4" marker-end="url(#a5r)"/>
+                            <text x="370" y="280" text-anchor="middle" font-size="9" fill="#e53e3e">Output of previous round serves as input to next round</text>
+
+                            <defs>
+                                <marker id="a5" markerWidth="6" markerHeight="5" refX="6" refY="2.5" orient="auto"><polygon points="0 0, 6 2.5, 0 5" fill="#4a5568"/></marker>
+                                <marker id="a5r" markerWidth="6" markerHeight="5" refX="6" refY="2.5" orient="auto"><polygon points="0 0, 6 2.5, 0 5" fill="#e53e3e"/></marker>
+                            </defs>
+                        </svg>
+                    </div>
+                    <div class="figure-caption">The GPT architecture employs only the decoder portion of the original transformer. It generates text iteratively, one word at a time, with the output of each round serving as input to the next.</div>
+                </div>
+
+                <h3>GPT-3 Scale</h3>
+                <ul>
+                    <li>Original transformer: encoder and decoder blocks repeated <strong>6 times</strong></li>
+                    <li>GPT-3: <strong>96 transformer layers</strong>, <strong>175 billion parameters</strong></li>
+                </ul>
+
+                <h3>Modern Relevance</h3>
+                <ul>
+                    <li>GPT-3 introduced in 2020, but underlying concepts remain foundational</li>
+                    <li>Meta's Llama and other recent architectures still based on same concepts with minor modifications</li>
+                </ul>
+
+                <key-concept class="key-concept">
+                    <strong>Emergent Behavior:</strong> The ability to perform tasks the model wasn't explicitly trained to perform. GPT models can perform translation, classification, and other tasks despite being trained only on next-word prediction. This emerges from exposure to vast quantities of multilingual data in diverse contexts.
+                </key-concept>
+            </div>
+
+            <!-- Section 1.7 -->
+            <div class="section-card" id="sec-1-7">
+                <h2>1.7 Building a Large Language Model <span class="page-ref">p. 14-16</span></h2>
+
+                <p>The fundamental idea behind GPT serves as a blueprint. The book tackles building an LLM in <strong>three stages</strong>.</p>
+
+                <!-- Figure 1.9 SVG -->
+                <div class="figure-box" id="fig-1-9">
+                    <div class="figure-label">Figure 1.9 -- Three Stages of Building an LLM</div>
+                    <div class="book-figure">
+                        <img src="../assets/ch01/ch01__image017.png" alt="Figure 1.9 -- Three Stages of Building an LLM" loading="lazy">
+                        <span class="book-figure-tag">From the book (Raschka, 2025)</span>
+                    </div>
+                    <div class="diagram-container">
+                        <svg viewBox="0 0 800 340" xmlns="http://www.w3.org/2000/svg" style="max-width:700px;">
+                            <!-- Stage 1 -->
+                            <rect x="20" y="30" width="230" height="200" rx="10" fill="#f7fafc" stroke="#e2e8f0" stroke-width="1.5"/>
+                            <text x="135" y="25" text-anchor="middle" font-size="13" fill="#e53e3e" font-weight="700">STAGE 1</text>
+                            <rect x="35" y="50" width="65" height="45" rx="5" fill="#e2e8f0" stroke="#a0aec0" stroke-width="1"/>
+                            <text x="67" y="68" text-anchor="middle" font-size="7" fill="#4a5568">1) Data prep</text>
+                            <text x="67" y="80" text-anchor="middle" font-size="7" fill="#4a5568">& sampling</text>
+                            <rect x="108" y="50" width="65" height="45" rx="5" fill="#e2e8f0" stroke="#a0aec0" stroke-width="1"/>
+                            <text x="140" y="68" text-anchor="middle" font-size="7" fill="#4a5568">2) Attention</text>
+                            <text x="140" y="80" text-anchor="middle" font-size="7" fill="#4a5568">mechanism</text>
+                            <rect x="180" y="50" width="60" height="45" rx="5" fill="#e2e8f0" stroke="#a0aec0" stroke-width="1"/>
+                            <text x="210" y="68" text-anchor="middle" font-size="7" fill="#4a5568">3) LLM</text>
+                            <text x="210" y="80" text-anchor="middle" font-size="7" fill="#4a5568">architecture</text>
+                            <!-- Building an LLM box -->
+                            <rect x="35" y="110" width="205" height="35" rx="5" fill="#2c5282" stroke="#1a365d" stroke-width="1"/>
+                            <text x="137" y="132" text-anchor="middle" font-size="10" fill="white" font-weight="600">Building an LLM</text>
+                            <text x="135" y="165" text-anchor="middle" font-size="8" fill="#718096">Implements data sampling and</text>
+                            <text x="135" y="177" text-anchor="middle" font-size="8" fill="#718096">understands the basic mechanism</text>
+
+                            <!-- Arrow stage 1 to 2 -->
+                            <line x1="250" y1="127" x2="290" y2="127" stroke="#4a5568" stroke-width="2" marker-end="url(#a6)"/>
+                            <text x="270" y="118" text-anchor="middle" font-size="8" fill="#4a5568">4) Pretraining</text>
+
+                            <!-- Stage 2 -->
+                            <rect x="290" y="30" width="220" height="200" rx="10" fill="#f0f5ff" stroke="#bee3f8" stroke-width="1.5"/>
+                            <text x="400" y="25" text-anchor="middle" font-size="13" fill="#e53e3e" font-weight="700">STAGE 2</text>
+                            <rect x="305" y="50" width="60" height="45" rx="5" fill="#bee3f8" stroke="#4299e1" stroke-width="1"/>
+                            <text x="335" y="68" text-anchor="middle" font-size="7" fill="#1a365d">5) Training</text>
+                            <text x="335" y="80" text-anchor="middle" font-size="7" fill="#1a365d">loop</text>
+                            <rect x="372" y="50" width="60" height="45" rx="5" fill="#bee3f8" stroke="#4299e1" stroke-width="1"/>
+                            <text x="402" y="68" text-anchor="middle" font-size="7" fill="#1a365d">6) Model</text>
+                            <text x="402" y="80" text-anchor="middle" font-size="7" fill="#1a365d">evaluation</text>
+                            <rect x="440" y="50" width="60" height="45" rx="5" fill="#bee3f8" stroke="#4299e1" stroke-width="1"/>
+                            <text x="470" y="68" text-anchor="middle" font-size="7" fill="#1a365d">7) Load</text>
+                            <text x="470" y="80" text-anchor="middle" font-size="7" fill="#1a365d">weights</text>
+                            <rect x="305" y="110" width="195" height="35" rx="5" fill="#4299e1" stroke="#2c5282" stroke-width="1"/>
+                            <text x="402" y="132" text-anchor="middle" font-size="10" fill="white" font-weight="600">Foundation Model</text>
+                            <text x="400" y="165" text-anchor="middle" font-size="8" fill="#718096">Pretrains LLM on unlabeled data</text>
+                            <text x="400" y="177" text-anchor="middle" font-size="8" fill="#718096">for foundation model</text>
+
+                            <!-- Arrow stage 2 to 3 -->
+                            <line x1="510" y1="100" x2="550" y2="70" stroke="#4a5568" stroke-width="2" marker-end="url(#a6)"/>
+                            <line x1="510" y1="140" x2="550" y2="210" stroke="#4a5568" stroke-width="2" marker-end="url(#a6)"/>
+
+                            <!-- Stage 3 top path -->
+                            <rect x="550" y="20" width="220" height="100" rx="10" fill="#f0fff4" stroke="#c6f6d5" stroke-width="1.5"/>
+                            <text x="660" y="15" text-anchor="middle" font-size="11" fill="#e53e3e" font-weight="700">STAGE 3a</text>
+                            <text x="660" y="45" text-anchor="middle" font-size="9" fill="#276749">8) Fine-tuning</text>
+                            <text x="660" y="60" text-anchor="middle" font-size="8" fill="#718096">Dataset with class labels</text>
+                            <rect x="610" y="75" width="100" height="30" rx="5" fill="#48bb78" stroke="#276749" stroke-width="1"/>
+                            <text x="660" y="95" text-anchor="middle" font-size="10" fill="white" font-weight="600">Classifier</text>
+
+                            <!-- Stage 3 bottom path -->
+                            <rect x="550" y="170" width="220" height="120" rx="10" fill="#fefcbf" stroke="#d69e2e" stroke-width="1.5"/>
+                            <text x="660" y="165" text-anchor="middle" font-size="11" fill="#e53e3e" font-weight="700">STAGE 3b</text>
+                            <text x="660" y="195" text-anchor="middle" font-size="9" fill="#975a16">9) Fine-tuning</text>
+                            <text x="660" y="210" text-anchor="middle" font-size="8" fill="#718096">Instruction dataset</text>
+                            <rect x="590" y="230" width="140" height="30" rx="5" fill="#d69e2e" stroke="#975a16" stroke-width="1"/>
+                            <text x="660" y="250" text-anchor="middle" font-size="10" fill="white" font-weight="600">Personal Assistant</text>
+
+                            <defs>
+                                <marker id="a6" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#4a5568"/></marker>
+                            </defs>
+                        </svg>
+                    </div>
+                    <div class="figure-caption">Stage 1: Build the LLM architecture and data preparation. Stage 2: Pretrain to create a foundation model. Stage 3: Fine-tune for classification or as a personal assistant.</div>
+                </div>
+
+                <h3>Stage 1: Building an LLM</h3>
+                <ul>
+                    <li>Learn fundamental data preprocessing steps</li>
+                    <li>Code the <strong>attention mechanism</strong> at the heart of every LLM</li>
+                </ul>
+
+                <h3>Stage 2: Pretraining (Foundation Model)</h3>
+                <ul>
+                    <li>Code and pretrain a GPT-like LLM capable of generating new texts</li>
+                    <li>Cover fundamentals of evaluating LLMs</li>
+                    <li>Focus on educational implementation using a small dataset</li>
+                    <li>Code examples for loading openly available model weights</li>
+                    <li>Pretraining demands thousands to millions of dollars in computing costs for full-scale GPT-like models</li>
+                </ul>
+
+                <h3>Stage 3: Fine-Tuning</h3>
+                <ul>
+                    <li>Fine-tune a pretrained LLM to follow instructions (answering queries, classifying texts)</li>
+                    <li>These are the most common tasks in real-world applications and research</li>
+                </ul>
+            </div>
+
+            <!-- Summary -->
+            <div class="summary-box section-card" id="summary">
+                <h2>Chapter Summary</h2>
+                <ul>
+                    <li><strong>LLMs have transformed NLP</strong>, which previously relied on explicit rule-based systems and simpler statistical methods. LLMs introduced new deep learning-driven approaches for understanding, generating, and translating human language.</li>
+                    <li><strong>Two-step training</strong>: (1) Pretrained on a large corpus of unlabeled text using next-word prediction, then (2) fine-tuned on a smaller, labeled dataset for specific tasks.</li>
+                    <li><strong>Transformer architecture</strong>: The key idea is an <strong>attention mechanism</strong> that gives the LLM selective access to the whole input sequence when generating output one word at a time.</li>
+                    <li><strong>Encoder + Decoder</strong>: The original transformer has an encoder (parsing text) and decoder (generating text).</li>
+                    <li><strong>Decoder-only for GPT</strong>: LLMs like GPT-3 and ChatGPT only implement decoder modules, simplifying the architecture.</li>
+                    <li><strong>Large datasets are essential</strong>: Billions of words are needed for pretraining LLMs.</li>
+                    <li><strong>Emergent properties</strong>: Although pretrained on next-word prediction, LLMs exhibit capabilities to classify, translate, and summarize texts.</li>
+                    <li><strong>Foundation models</strong>: Once pretrained, can be fine-tuned efficiently for various downstream tasks.</li>
+                    <li><strong>Custom fine-tuning</strong>: LLMs fine-tuned on custom datasets can outperform general LLMs on specific tasks.</li>
+                </ul>
+            </div>
+
+        </main>
+    </div>
+</body>
+</html>

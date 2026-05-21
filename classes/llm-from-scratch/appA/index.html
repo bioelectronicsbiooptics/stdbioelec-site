@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Appendix A: Introduction to PyTorch</title>
+    <style>
+        :root {
+            --primary: #1a365d;
+            --primary-light: #2c5282;
+            --accent: #e53e3e;
+            --bg: #f7fafc;
+            --card-bg: #ffffff;
+            --text: #2d3748;
+            --text-light: #718096;
+            --border: #e2e8f0;
+            --code-bg: #1a202c;
+            --code-text: #e2e8f0;
+            --highlight: #fefcbf;
+            --success: #48bb78;
+            --info: #4299e1;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; }
+        .top-nav { background: var(--primary); color: white; padding: 12px 0; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .top-nav .container { display: flex; justify-content: space-between; align-items: center; }
+        .top-nav a { color: rgba(255,255,255,0.85); text-decoration: none; font-size: 0.9rem; }
+        .top-nav a:hover { color: white; }
+        .nav-links { display: flex; gap: 20px; }
+        .chapter-header { background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%); color: white; padding: 60px 0 40px; }
+        .chapter-header h1 { font-size: 2.5rem; font-weight: 700; margin-bottom: 10px; }
+        .chapter-header .subtitle { font-size: 1.1rem; opacity: 0.85; max-width: 700px; }
+        .chapter-badge { display: inline-block; background: var(--accent); color: white; padding: 4px 16px; border-radius: 20px; font-size: 0.85rem; font-weight: 600; margin-bottom: 16px; }
+        .container { max-width: 1100px; margin: 0 auto; padding: 0 24px; }
+        .content-layout { display: grid; grid-template-columns: 280px 1fr; gap: 40px; margin-top: 40px; }
+        .toc-sidebar { position: sticky; top: 80px; height: fit-content; max-height: calc(100vh - 100px); overflow-y: auto; }
+        .toc-sidebar h3 { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; color: var(--text-light); margin-bottom: 12px; }
+        .toc-sidebar ul { list-style: none; }
+        .toc-sidebar li { margin-bottom: 4px; }
+        .toc-sidebar a { display: block; padding: 6px 12px; color: var(--text-light); text-decoration: none; font-size: 0.88rem; border-left: 3px solid transparent; border-radius: 0 4px 4px 0; transition: all 0.2s; }
+        .toc-sidebar a:hover, .toc-sidebar a.active { color: var(--primary); background: rgba(26,54,93,0.05); border-left-color: var(--primary); }
+        .toc-sidebar a.sub { padding-left: 28px; font-size: 0.82rem; }
+        .main-content { min-width: 0; padding-bottom: 80px; }
+        .section-card { background: var(--card-bg); border-radius: 12px; padding: 32px; margin-bottom: 28px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); border: 1px solid var(--border); }
+        .section-card h2 { font-size: 1.5rem; color: var(--primary); margin-bottom: 20px; padding-bottom: 12px; border-bottom: 2px solid var(--border); }
+        .section-card h3 { font-size: 1.15rem; color: var(--primary-light); margin: 24px 0 12px; }
+        .section-card h4 { font-size: 1rem; color: var(--text); margin: 16px 0 8px; font-weight: 600; }
+        .section-card ul { padding-left: 20px; margin-bottom: 12px; }
+        .section-card li { margin-bottom: 8px; line-height: 1.6; }
+        .section-card p { margin-bottom: 12px; }
+        .figure-box { background: #f0f5ff; border: 1px solid #bee3f8; border-radius: 8px; padding: 20px; margin: 20px 0; }
+        .figure-box .figure-label { font-weight: 700; color: var(--info); font-size: 0.9rem; margin-bottom: 8px; }
+        .figure-box .figure-desc { font-size: 0.95rem; color: var(--text); line-height: 1.6; }
+        .table-box { background: #f0fff4; border: 1px solid #c6f6d5; border-radius: 8px; padding: 20px; margin: 20px 0; overflow-x: auto; }
+        .table-box .table-label { font-weight: 700; color: var(--success); font-size: 0.9rem; margin-bottom: 12px; }
+        .table-box table { width: 100%; border-collapse: collapse; }
+        .table-box th, .table-box td { padding: 10px 14px; text-align: left; border-bottom: 1px solid #c6f6d5; font-size: 0.9rem; }
+        .table-box th { background: #e6ffed; font-weight: 600; color: var(--primary); }
+        .code-block { background: var(--code-bg); color: var(--code-text); border-radius: 8px; padding: 20px; margin: 16px 0; overflow-x: auto; font-family: 'JetBrains Mono', 'Fira Code', monospace; font-size: 0.85rem; line-height: 1.6; }
+        .code-block .code-label { color: #a0aec0; font-size: 0.8rem; margin-bottom: 10px; }
+        .note-box { background: var(--highlight); border-left: 4px solid #d69e2e; border-radius: 0 8px 8px 0; padding: 16px 20px; margin: 16px 0; font-size: 0.92rem; }
+        .note-box strong { color: #975a16; }
+        .key-concept { background: #ebf4ff; border-left: 4px solid var(--info); border-radius: 0 8px 8px 0; padding: 16px 20px; margin: 16px 0; }
+        .key-concept strong { color: var(--primary); }
+        .summary-box { background: linear-gradient(135deg, #ebf4ff 0%, #f0f5ff 100%); border: 2px solid var(--info); border-radius: 12px; padding: 28px; margin: 28px 0; }
+        .summary-box h2 { border-bottom-color: var(--info); }
+        .page-ref { display: inline-block; background: #edf2f7; color: var(--text-light); font-size: 0.75rem; padding: 2px 8px; border-radius: 10px; margin-left: 8px; }
+        @media (max-width: 900px) { .content-layout { grid-template-columns: 1fr; } .toc-sidebar { display: none; } .chapter-header h1 { font-size: 1.8rem; } }
+        @media print { .top-nav, .toc-sidebar { display: none; } .section-card { break-inside: avoid; box-shadow: none; border: 1px solid #ddd; } }
+            /* Book Figure Image */
+        .book-figure { text-align: center; margin: 18px 0 6px; padding: 14px; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 10px; }
+        .book-figure img { max-width: 100%; height: auto; border-radius: 6px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+        .book-figure .book-figure-tag { display: block; font-size: 0.78rem; color: #718096; margin-top: 8px; letter-spacing: 0.5px; text-transform: uppercase; }
+</style>
+</head>
+<body>
+    <nav class="top-nav">
+        <div class="container">
+            <a href="../index.html"><strong>Build a Large Language Model (From Scratch)</strong></a>
+            <div class="nav-links">
+                <a href="../ch07/index.html">Previous</a>
+                <a href="../index.html">Contents</a>
+                <a href="../appB/index.html">Next</a>
+            </div>
+        </div>
+    </nav>
+
+    <header class="chapter-header">
+        <div class="container">
+            <span class="chapter-badge">Appendix A</span>
+            <h1>Introduction to PyTorch</h1>
+            <p class="subtitle">Setting up a deep learning workspace, understanding tensors and automatic differentiation, and implementing neural networks for use in LLMs.</p>
+        </div>
+    </header>
+
+    <div class="container content-layout">
+        <aside class="toc-sidebar">
+            <h3>In This Appendix</h3>
+            <ul>
+                <li><a href="#sec-a-1">A.1 What is PyTorch?</a></li>
+                <li><a href="#sec-a-2">A.2 Understanding Tensors</a></li>
+                <li><a href="#sec-a-3">A.3 Computation Graphs</a></li>
+                <li><a href="#sec-a-4">A.4 Automatic Differentiation</a></li>
+                <li><a href="#sec-a-5">A.5 Multilayer Neural Networks</a></li>
+                <li><a href="#sec-a-6">A.6 Efficient Data Loaders</a></li>
+                <li><a href="#sec-a-7">A.7 Typical Training Loop</a></li>
+                <li><a href="#sec-a-8">A.8 Saving and Loading Models</a></li>
+                <li><a href="#sec-a-9">A.9 GPU Training</a></li>
+                <li><a href="#summary">Summary</a></li>
+            </ul>
+        </aside>
+
+        <main class="main-content">
+
+            <div class="section-card" id="sec-a-1">
+                <h2>A.1 What is PyTorch?</h2>
+                <ul>
+                    <li><strong>PyTorch</strong> is an open-source Python-based deep learning library, most widely used for research since 2019</li>
+                    <li>~40% of Kaggle respondents use PyTorch</li>
+                    <li>Key strength: user-friendly interface without compromising flexibility</li>
+                </ul>
+                <h3>A.1.1 Three Core Components</h3>
+                <div class="figure-box">
+                    <div class="figure-label">Figure A.1 -- PyTorch's Three Main Components</div>
+                    <div class="book-figure">
+                        <img src="../assets/appA/A__image001.png" alt="Figure A.1 -- PyTorch's Three Main Components" loading="lazy">
+                        <span class="book-figure-tag">From the book (Raschka, 2025)</span>
+                    </div>
+                    <div class="figure-desc">1. <strong>Tensor library</strong> -- efficient array computing<br>2. <strong>Automatic differentiation engine</strong> -- computes gradients automatically<br>3. <strong>Deep learning library</strong> -- modular building blocks (pretrained models, loss functions, optimizers)</div>
+                </div>
+                <h3>A.1.2 Defining Deep Learning</h3>
+                <ul>
+                    <li><strong>AI</strong>: computer systems with human-like intelligence</li>
+                    <li><strong>Machine learning</strong>: learning from data without explicit programming</li>
+                    <li><strong>Deep learning</strong>: training deep neural networks with multiple hidden layers</li>
+                    <li><strong>Supervised learning</strong>: training stage (labeled examples) and inference stage (predict new labels)</li>
+                </ul>
+                <h3>A.1.3 Installing PyTorch</h3>
+                <div class="code-block">
+<pre>pip install torch
+# Or specific version:
+pip install torch==2.4.0
+
+# Check version:
+import torch
+torch.__version__  # '2.4.0'
+
+# Check GPU:
+torch.cuda.is_available()  # True
+
+# Apple Silicon:
+torch.backends.mps.is_available()</pre>
+                </div>
+            </div>
+
+            <div class="section-card" id="sec-a-2">
+                <h2>A.2 Understanding Tensors</h2>
+                <p>Tensors generalize vectors and matrices to potentially higher dimensions. Characterized by rank (number of dimensions).</p>
+                <div class="figure-box">
+                    <div class="figure-label">Figure A.6 -- Tensor Ranks</div>
+                    <div class="book-figure">
+                        <img src="../assets/appA/A__image003.png" alt="Figure A.6 -- Tensor Ranks" loading="lazy">
+                        <span class="book-figure-tag">From the book (Raschka, 2025)</span>
+                    </div>
+                    <div class="figure-desc">Scalar = 0D (rank 0), Vector = 1D (rank 1), Matrix = 2D (rank 2). PyTorch tensors support GPU and automatic differentiation.</div>
+                </div>
+                <div class="code-block">
+                    <div class="code-label">Listing A.1: Creating PyTorch tensors</div>
+<pre>tensor0d = torch.tensor(1)              # Scalar
+tensor1d = torch.tensor([1, 2, 3])      # Vector
+tensor2d = torch.tensor([[1, 2], [3, 4]])  # Matrix
+tensor3d = torch.tensor([[[1, 2], [3, 4]],
+                         [[5, 6], [7, 8]]])  # 3D tensor</pre>
+                </div>
+                <h3>A.2.2 Tensor Data Types</h3>
+                <ul>
+                    <li>Default integer: <code>torch.int64</code></li>
+                    <li>Default float: <code>torch.float32</code> (balanced precision and efficiency)</li>
+                    <li>Change type: <code>tensor.to(torch.float32)</code></li>
+                </ul>
+                <h3>A.2.3 Common Operations</h3>
+                <div class="code-block">
+<pre>tensor2d.shape         # torch.Size([2, 3])
+tensor2d.reshape(3, 2) # Reshape
+tensor2d.T             # Transpose
+tensor2d @ tensor2d.T  # Matrix multiplication
+tensor2d.matmul(tensor2d.T)  # Same as @</pre>
+                </div>
+            </div>
+
+            <div class="section-card" id="sec-a-3">
+                <h2>A.3 Seeing Models as Computation Graphs</h2>
+                <p>PyTorch's automatic differentiation engine (<strong>autograd</strong>) computes gradients in dynamic computational graphs.</p>
+                <div class="code-block">
+                    <div class="code-label">Listing A.2: Logistic Regression Forward Pass</div>
+<pre>y = torch.tensor([1.0])       # True label
+x1 = torch.tensor([1.1])      # Input feature
+w1 = torch.tensor([2.2])      # Weight
+b = torch.tensor([0.0])       # Bias
+z = x1 * w1 + b               # Net input
+a = torch.sigmoid(z)           # Activation
+loss = F.binary_cross_entropy(a, y)  # Loss</pre>
+                </div>
+                <div class="figure-box">
+                    <div class="figure-label">Figures A.7-A.8 -- Computation Graph and Backpropagation</div>
+                    <div class="book-figure">
+                        <img src="../assets/appA/A__image005.png" alt="Figures A.7-A.8 -- Computation Graph and Backpropagation" loading="lazy">
+                        <span class="book-figure-tag">From the book (Raschka, 2025)</span>
+                    </div>
+                    <div class="figure-desc">Forward pass: x1 * w1 + b -&gt; sigmoid -&gt; loss. Backward pass computes gradients via chain rule: dL/dw1 = (du/dw1)(dz/du)(da/dz)(dL/da).</div>
+                </div>
+            </div>
+
+            <div class="section-card" id="sec-a-4">
+                <h2>A.4 Automatic Differentiation Made Easy</h2>
+                <div class="code-block">
+                    <div class="code-label">Listing A.3: Computing Gradients via Autograd</div>
+<pre>w1 = torch.tensor([2.2], requires_grad=True)
+b = torch.tensor([0.0], requires_grad=True)
+
+z = x1 * w1 + b
+a = torch.sigmoid(z)
+loss = F.binary_cross_entropy(a, y)
+
+grad_L_w1 = grad(loss, w1, retain_graph=True)  # (tensor([-0.0898]),)
+grad_L_b = grad(loss, b, retain_graph=True)    # (tensor([-0.0817]),)
+
+# Alternative: use .backward()
+loss.backward()
+print(w1.grad)  # tensor([-0.0898])
+print(b.grad)   # tensor([-0.0817])</pre>
+                </div>
+            </div>
+
+            <div class="section-card" id="sec-a-5">
+                <h2>A.5 Implementing Multilayer Neural Networks</h2>
+                <div class="code-block">
+                    <div class="code-label">Listing A.4: Multilayer Perceptron</div>
+<pre>class NeuralNetwork(torch.nn.Module):
+    def __init__(self, num_inputs, num_outputs):
+        super().__init__()
+        self.layers = torch.nn.Sequential(
+            torch.nn.Linear(num_inputs, 30),
+            torch.nn.ReLU(),
+            torch.nn.Linear(30, 20),
+            torch.nn.ReLU(),
+            torch.nn.Linear(20, num_outputs),
+        )
+
+    def forward(self, x):
+        logits = self.layers(x)
+        return logits
+
+model = NeuralNetwork(50, 3)
+# Total trainable parameters: 2,213</pre>
+                </div>
+                <div class="code-block">
+<pre># Forward pass
+X = torch.rand((1, 50))
+out = model(X)  # tensor([[-0.1262, 0.1080, -0.1792]])
+
+# Inference (no gradient tracking)
+with torch.no_grad():
+    out = torch.softmax(model(X), dim=1)
+# tensor([[0.3113, 0.3934, 0.2952]])</pre>
+                </div>
+            </div>
+
+            <div class="section-card" id="sec-a-6">
+                <h2>A.6 Setting Up Efficient Data Loaders</h2>
+                <div class="code-block">
+                    <div class="code-label">Listing A.6: Custom Dataset Class</div>
+<pre>class ToyDataset(Dataset):
+    def __init__(self, X, y):
+        self.features = X
+        self.labels = y
+
+    def __getitem__(self, index):
+        return self.features[index], self.labels[index]
+
+    def __len__(self):
+        return self.labels.shape[0]</pre>
+                </div>
+                <div class="code-block">
+                    <div class="code-label">Listing A.7: Instantiating Data Loaders</div>
+<pre>train_loader = DataLoader(
+    dataset=train_ds, batch_size=2, shuffle=True,
+    num_workers=0
+)
+# drop_last=True prevents smaller last batch
+# num_workers&gt;0 loads data in parallel</pre>
+                </div>
+            </div>
+
+            <div class="section-card" id="sec-a-7">
+                <h2>A.7 A Typical Training Loop</h2>
+                <div class="code-block">
+                    <div class="code-label">Listing A.9: Neural Network Training</div>
+<pre>model = NeuralNetwork(num_inputs=2, num_outputs=2)
+optimizer = torch.optim.SGD(model.parameters(), lr=0.5)
+
+num_epochs = 3
+for epoch in range(num_epochs):
+    model.train()
+    for batch_idx, (features, labels) in enumerate(train_loader):
+        logits = model(features)
+        loss = F.cross_entropy(logits, labels)
+        optimizer.zero_grad()   # Reset gradients
+        loss.backward()         # Compute gradients
+        optimizer.step()        # Update parameters
+    model.eval()
+# Loss reaches 0 after 3 epochs = model converged</pre>
+                </div>
+                <div class="code-block">
+                    <div class="code-label">Listing A.10: Computing Prediction Accuracy</div>
+<pre>def compute_accuracy(model, dataloader):
+    model.eval()
+    correct = 0.0
+    total_examples = 0
+    for idx, (features, labels) in enumerate(dataloader):
+        with torch.no_grad():
+            logits = model(features)
+        predictions = torch.argmax(logits, dim=1)
+        compare = labels == predictions
+        correct += torch.sum(compare)
+        total_examples += len(compare)
+    return (correct / total_examples).item()
+# Training: 1.0, Test: 1.0</pre>
+                </div>
+            </div>
+
+            <div class="section-card" id="sec-a-8">
+                <h2>A.8 Saving and Loading Models</h2>
+                <div class="code-block">
+<pre># Save
+torch.save(model.state_dict(), "model.pth")
+
+# Load
+model = NeuralNetwork(2, 2)
+model.load_state_dict(torch.load("model.pth"))
+# Architecture must match the original saved model exactly</pre>
+                </div>
+            </div>
+
+            <div class="section-card" id="sec-a-9">
+                <h2>A.9 Optimizing Training Performance with GPUs</h2>
+                <h3>A.9.1 GPU Computations</h3>
+                <div class="code-block">
+<pre>tensor_1 = tensor_1.to("cuda")
+tensor_2 = tensor_2.to("cuda")
+print(tensor_1 + tensor_2)
+# tensor([5., 7., 9.], device='cuda:0')
+# All tensors must be on the same device</pre>
+                </div>
+                <h3>A.9.2 Single-GPU Training</h3>
+                <p>Only 3 lines change from CPU training:</p>
+                <div class="code-block">
+<pre>device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+model.to(device)
+# In loop: features, labels = features.to(device), labels.to(device)
+
+# Apple Silicon:
+device = torch.device("mps" if torch.backends.mps.is_available() else "cpu")</pre>
+                </div>
+                <h3>A.9.3 Multi-GPU Training with DDP</h3>
+                <p><strong>DistributedDataParallel (DDP)</strong> splits input data across GPUs. Model is copied to each GPU; each gets a unique minibatch. Forward/backward passes are independent; gradients synced across GPUs.</p>
+                <div class="code-block">
+                    <div class="code-label">Listing A.13: DDP Setup</div>
+<pre>def ddp_setup(rank, world_size):
+    os.environ["MASTER_ADDR"] = "localhost"
+    os.environ["MASTER_PORT"] = "12345"
+    init_process_group(backend="nccl", rank=rank, world_size=world_size)
+    torch.cuda.set_device(rank)
+
+model = DDP(model, device_ids=[rank])
+# Use DistributedSampler for data loading
+# CUDA_VISIBLE_DEVICES=0 restricts to specific GPUs</pre>
+                </div>
+            </div>
+
+            <div class="summary-box section-card" id="summary">
+                <h2>Summary</h2>
+                <ul>
+                    <li>PyTorch has three core components: <strong>tensor library</strong>, <strong>automatic differentiation</strong>, and <strong>deep learning utilities</strong></li>
+                    <li>Tensors are array-like data structures: scalars, vectors, matrices, and higher-dimensional arrays</li>
+                    <li>PyTorch tensors support <strong>GPU execution</strong> for accelerated computation</li>
+                    <li><strong>Autograd</strong> enables convenient training via backpropagation without manual gradient derivation</li>
+                    <li><code>Dataset</code> and <code>DataLoader</code> classes provide efficient data-loading pipelines</li>
+                    <li>Models are easiest to train on CPU or single GPU</li>
+                    <li><strong>DistributedDataParallel</strong> is the simplest way to accelerate training with multiple GPUs</li>
+                </ul>
+            </div>
+
+        </main>
+    </div>
+</body>
+</html>

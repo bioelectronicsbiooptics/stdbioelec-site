@@ -1,0 +1,869 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 3: Coding Attention Mechanisms</title>
+    <style>
+        :root {
+            --primary: #1a365d;
+            --primary-light: #2c5282;
+            --accent: #e53e3e;
+            --bg: #f7fafc;
+            --card-bg: #ffffff;
+            --text: #2d3748;
+            --text-light: #718096;
+            --border: #e2e8f0;
+            --code-bg: #1a202c;
+            --code-text: #e2e8f0;
+            --highlight: #fefcbf;
+            --success: #48bb78;
+            --info: #4299e1;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.7;
+        }
+        .top-nav {
+            background: var(--primary);
+            color: white;
+            padding: 12px 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .top-nav .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .top-nav a { color: rgba(255,255,255,0.85); text-decoration: none; font-size: 0.9rem; }
+        .top-nav a:hover { color: white; }
+        .nav-links { display: flex; gap: 20px; }
+        .chapter-header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            color: white;
+            padding: 60px 0 40px;
+        }
+        .chapter-header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+        .chapter-header .subtitle {
+            font-size: 1.1rem;
+            opacity: 0.85;
+            max-width: 700px;
+        }
+        .chapter-badge {
+            display: inline-block;
+            background: var(--accent);
+            color: white;
+            padding: 4px 16px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 16px;
+        }
+        .container { max-width: 1100px; margin: 0 auto; padding: 0 24px; }
+        .content-layout {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            gap: 40px;
+            margin-top: 40px;
+        }
+        .toc-sidebar {
+            position: sticky;
+            top: 80px;
+            height: fit-content;
+            max-height: calc(100vh - 100px);
+            overflow-y: auto;
+        }
+        .toc-sidebar h3 {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-light);
+            margin-bottom: 12px;
+        }
+        .toc-sidebar ul { list-style: none; }
+        .toc-sidebar li { margin-bottom: 4px; }
+        .toc-sidebar a {
+            display: block;
+            padding: 6px 12px;
+            color: var(--text-light);
+            text-decoration: none;
+            font-size: 0.88rem;
+            border-left: 3px solid transparent;
+            border-radius: 0 4px 4px 0;
+            transition: all 0.2s;
+        }
+        .toc-sidebar a:hover, .toc-sidebar a.active {
+            color: var(--primary);
+            background: rgba(26,54,93,0.05);
+            border-left-color: var(--primary);
+        }
+        .toc-sidebar a.sub { padding-left: 28px; font-size: 0.82rem; }
+        .main-content { min-width: 0; padding-bottom: 80px; }
+        .section-card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 32px;
+            margin-bottom: 28px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+            border: 1px solid var(--border);
+        }
+        .section-card h2 {
+            font-size: 1.5rem;
+            color: var(--primary);
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid var(--border);
+        }
+        .section-card h3 {
+            font-size: 1.15rem;
+            color: var(--primary-light);
+            margin: 24px 0 12px;
+        }
+        .section-card h4 {
+            font-size: 1rem;
+            color: var(--text);
+            margin: 16px 0 8px;
+            font-weight: 600;
+        }
+        .section-card ul { padding-left: 20px; margin-bottom: 12px; }
+        .section-card li { margin-bottom: 8px; line-height: 1.6; }
+        .section-card p { margin-bottom: 12px; }
+        .figure-box {
+            background: #f0f5ff;
+            border: 1px solid #bee3f8;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .figure-box .figure-label {
+            font-weight: 700;
+            color: var(--info);
+            font-size: 0.9rem;
+            margin-bottom: 8px;
+        }
+        .figure-box .figure-desc {
+            font-size: 0.95rem;
+            color: var(--text);
+            line-height: 1.6;
+        }
+        .figure-box .figure-caption {
+            font-size: 0.85rem;
+            color: var(--text-light);
+            font-style: italic;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid #bee3f8;
+        }
+        .diagram-container {
+            text-align: center;
+            margin: 16px 0;
+            padding: 16px;
+            background: white;
+            border-radius: 8px;
+        }
+        .diagram-container svg { max-width: 100%; height: auto; }
+        .table-box {
+            background: #f0fff4;
+            border: 1px solid #c6f6d5;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            overflow-x: auto;
+        }
+        .table-box .table-label {
+            font-weight: 700;
+            color: var(--success);
+            font-size: 0.9rem;
+            margin-bottom: 12px;
+        }
+        .table-box table { width: 100%; border-collapse: collapse; }
+        .table-box th, .table-box td {
+            padding: 10px 14px;
+            text-align: left;
+            border-bottom: 1px solid #c6f6d5;
+            font-size: 0.9rem;
+        }
+        .table-box th {
+            background: #e6ffed;
+            font-weight: 600;
+            color: var(--primary);
+        }
+        .code-block {
+            background: var(--code-bg);
+            color: var(--code-text);
+            border-radius: 8px;
+            padding: 20px;
+            margin: 16px 0;
+            overflow-x: auto;
+            font-family: 'JetBrains Mono', 'Fira Code', monospace;
+            font-size: 0.85rem;
+            line-height: 1.6;
+        }
+        .code-block .code-label {
+            color: #a0aec0;
+            font-size: 0.8rem;
+            margin-bottom: 10px;
+        }
+        .note-box {
+            background: var(--highlight);
+            border-left: 4px solid #d69e2e;
+            border-radius: 0 8px 8px 0;
+            padding: 16px 20px;
+            margin: 16px 0;
+            font-size: 0.92rem;
+        }
+        .note-box strong { color: #975a16; }
+        .key-concept {
+            background: #ebf4ff;
+            border-left: 4px solid var(--info);
+            border-radius: 0 8px 8px 0;
+            padding: 16px 20px;
+            margin: 16px 0;
+        }
+        .key-concept strong { color: var(--primary); }
+        .summary-box {
+            background: linear-gradient(135deg, #ebf4ff 0%, #f0f5ff 100%);
+            border: 2px solid var(--info);
+            border-radius: 12px;
+            padding: 28px;
+            margin: 28px 0;
+        }
+        .summary-box h2 { border-bottom-color: var(--info); }
+        .page-ref {
+            display: inline-block;
+            background: #edf2f7;
+            color: var(--text-light);
+            font-size: 0.75rem;
+            padding: 2px 8px;
+            border-radius: 10px;
+            margin-left: 8px;
+        }
+        @media (max-width: 900px) {
+            .content-layout { grid-template-columns: 1fr; }
+            .toc-sidebar { display: none; }
+            .chapter-header h1 { font-size: 1.8rem; }
+        }
+        @media print {
+            .top-nav, .toc-sidebar { display: none; }
+            .section-card { break-inside: avoid; box-shadow: none; border: 1px solid #ddd; }
+        }
+            /* Book Figure Image */
+        .book-figure { text-align: center; margin: 18px 0 6px; padding: 14px; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 10px; }
+        .book-figure img { max-width: 100%; height: auto; border-radius: 6px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+        .book-figure .book-figure-tag { display: block; font-size: 0.78rem; color: #718096; margin-top: 8px; letter-spacing: 0.5px; text-transform: uppercase; }
+</style>
+</head>
+<body>
+    <nav class="top-nav">
+        <div class="container">
+            <a href="../index.html"><strong>Build a Large Language Model (From Scratch)</strong></a>
+            <div class="nav-links">
+                <a href="../ch02/index.html">Previous</a>
+                <a href="../index.html">Contents</a>
+                <a href="../ch04/index.html">Next</a>
+            </div>
+        </div>
+    </nav>
+
+    <header class="chapter-header">
+        <div class="container">
+            <span class="chapter-badge">Chapter 3</span>
+            <h1>Coding Attention Mechanisms</h1>
+            <p class="subtitle">From simplified self-attention to causal multi-head attention: the core mechanism powering transformer-based LLMs.</p>
+        </div>
+    </header>
+
+    <div class="container content-layout">
+        <aside class="toc-sidebar">
+            <h3>In This Chapter</h3>
+            <ul>
+                <li><a href="#sec-overview">Overview</a></li>
+                <li><a href="#fig-3-2" class="sub">Figure 3.2: Four Attention Variants</a></li>
+                <li><a href="#sec-3-1">3.1 The Problem with Long Sequences</a></li>
+                <li><a href="#fig-3-4" class="sub">Figure 3.4: Encoder-Decoder RNN</a></li>
+                <li><a href="#sec-3-2">3.2 Capturing Data Dependencies</a></li>
+                <li><a href="#fig-3-5" class="sub">Figure 3.5: Bahdanau Attention</a></li>
+                <li><a href="#sec-3-3">3.3 Self-Attention</a></li>
+                <li><a href="#sec-3-3-1" class="sub">3.3.1 Simple Self-Attention</a></li>
+                <li><a href="#sec-3-3-2" class="sub">3.3.2 All Input Tokens</a></li>
+                <li><a href="#sec-3-4">3.4 Trainable Self-Attention</a></li>
+                <li><a href="#sec-3-4-1" class="sub">3.4.1 Step by Step</a></li>
+                <li><a href="#sec-3-4-2" class="sub">3.4.2 Compact Class</a></li>
+                <li><a href="#sec-3-5">3.5 Causal Attention</a></li>
+                <li><a href="#sec-3-5-1" class="sub">3.5.1 Causal Mask</a></li>
+                <li><a href="#sec-3-5-2" class="sub">3.5.2 Dropout</a></li>
+                <li><a href="#sec-3-5-3" class="sub">3.5.3 CausalAttention Class</a></li>
+                <li><a href="#sec-3-6">3.6 Multi-Head Attention</a></li>
+                <li><a href="#sec-3-6-1" class="sub">3.6.1 Stacking Heads</a></li>
+                <li><a href="#sec-3-6-2" class="sub">3.6.2 Efficient Implementation</a></li>
+                <li><a href="#summary">Summary</a></li>
+            </ul>
+        </aside>
+
+        <main class="main-content">
+
+            <!-- Overview -->
+            <div class="section-card" id="sec-overview">
+                <h2>This Chapter Covers</h2>
+                <ul>
+                    <li>The reasons for using attention mechanisms in neural networks</li>
+                    <li>A basic self-attention framework, progressing to an enhanced self-attention mechanism</li>
+                    <li>A causal attention module that allows LLMs to generate one token at a time</li>
+                    <li>Masking randomly selected attention weights with dropout to reduce overfitting</li>
+                    <li>Stacking multiple causal attention modules into a multi-head attention module</li>
+                </ul>
+
+                <div class="figure-box" id="fig-3-1">
+                    <div class="figure-label">Figure 3.1 -- Stage 1 Focus: Attention Mechanisms</div>
+                    <div class="book-figure">
+                        <img src="../assets/ch03/ch03__image001.png" alt="Figure 3.1 -- Stage 1 Focus: Attention Mechanisms" loading="lazy">
+                        <span class="book-figure-tag">From the book (Raschka, 2025)</span>
+                    </div>
+                    <div class="figure-desc">
+                        This chapter focuses on step 2 of stage 1: implementing attention mechanisms, which are an integral part of the LLM architecture. Stage 1 includes: (1) Data preparation &amp; sampling, (2) Attention mechanism (highlighted), (3) LLM architecture.
+                    </div>
+                </div>
+
+                <div class="figure-box" id="fig-3-2">
+                    <div class="figure-label">Figure 3.2 -- Four Attention Mechanisms Coded in This Chapter</div>
+                    <div class="book-figure">
+                        <img src="../assets/ch03/ch03__image003.png" alt="Figure 3.2 -- Four Attention Mechanisms Coded in This Chapter" loading="lazy">
+                        <span class="book-figure-tag">From the book (Raschka, 2025)</span>
+                    </div>
+                    <div class="figure-desc">
+                        The chapter implements four variants arranged as a pipeline: (1) <strong>Simplified self-attention</strong> introduces the broader idea. (2) <strong>Self-attention</strong> with trainable weights forms the basis used in LLMs. (3) <strong>Causal attention</strong> adds a mask allowing the LLM to generate one word at a time. (4) <strong>Multi-head attention</strong> organizes the mechanism into multiple heads to capture various aspects of the input in parallel.
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 3.1 -->
+            <div class="section-card" id="sec-3-1">
+                <h2>3.1 The Problem with Modeling Long Sequences</h2>
+
+                <p>Before diving into self-attention, consider the problem with pre-LLM architectures that do not include attention mechanisms. In language translation, we cannot simply translate word by word due to grammatical differences between languages.</p>
+
+                <div class="figure-box" id="fig-3-3">
+                    <div class="figure-label">Figure 3.3 -- Translation Requires Contextual Understanding</div>
+                    <div class="book-figure">
+                        <img src="../assets/ch03/ch03__image005.png" alt="Figure 3.3 -- Translation Requires Contextual Understanding" loading="lazy">
+                        <span class="book-figure-tag">From the book (Raschka, 2025)</span>
+                    </div>
+                    <div class="figure-desc">
+                        When translating German to English, word-by-word translation results in grammatically incorrect output. The correct translation requires contextual understanding and non-linear word mappings.
+                    </div>
+                </div>
+
+                <h3>Encoder-Decoder Architecture</h3>
+                <ul>
+                    <li>The <strong>encoder</strong> reads and processes the entire text; the <strong>decoder</strong> produces the translated text</li>
+                    <li>Before transformers, <strong>recurrent neural networks (RNNs)</strong> were the most popular encoder-decoder architecture</li>
+                    <li>The encoder processes input sequentially, updating its hidden state at each step</li>
+                    <li>The decoder takes the final hidden state to begin generating the translated sentence, one word at a time</li>
+                </ul>
+
+                <div class="figure-box" id="fig-3-4">
+                    <div class="figure-label">Figure 3.4 -- Encoder-Decoder RNN for Machine Translation</div>
+                    <div class="book-figure">
+                        <img src="../assets/ch03/ch03__image007.png" alt="Figure 3.4 -- Encoder-Decoder RNN for Machine Translation" loading="lazy">
+                        <span class="book-figure-tag">From the book (Raschka, 2025)</span>
+                    </div>
+                    <div class="figure-desc">
+                        The encoder processes German inputs ("Kannst", "du", "mir", ...) into hidden states, with a memory cell memorizing the entire input. The decoder then outputs "Can", "you", "help", etc. The key limitation: the RNN relies solely on the current hidden state during decoding, which can lead to loss of context for long sequences.
+                    </div>
+                </div>
+
+                <div class="key-concept">
+                    <strong>Key Limitation:</strong> The RNN cannot directly access earlier hidden states from the encoder during decoding. It relies solely on the current hidden state, which encapsulates all relevant information. This can lead to a loss of context, especially in complex sentences with long-distance dependencies.
+                </div>
+            </div>
+
+            <!-- Section 3.2 -->
+            <div class="section-card" id="sec-3-2">
+                <h2>3.2 Capturing Data Dependencies with Attention Mechanisms</h2>
+
+                <p>RNNs work fine for short sentences but struggle with longer texts because they must compress the entire encoded input into a single hidden state. In 2014, researchers developed <strong>Bahdanau attention</strong>, which modifies the encoder-decoder RNN so the decoder can selectively access different parts of the input at each decoding step.</p>
+
+                <div class="figure-box" id="fig-3-5">
+                    <div class="figure-label">Figure 3.5 -- Attention Allows Selective Access</div>
+                    <div class="book-figure">
+                        <img src="../assets/ch03/ch03__image009.png" alt="Figure 3.5 -- Attention Allows Selective Access" loading="lazy">
+                        <span class="book-figure-tag">From the book (Raschka, 2025)</span>
+                    </div>
+                    <div class="figure-desc">
+                        The decoder can access all input tokens selectively. Some input tokens are more important than others for generating a given output token, with importance determined by attention weights (shown as lines of varying width).
+                    </div>
+                </div>
+
+                <p>Only three years later, researchers found that RNN architectures are not required and proposed the original <strong>transformer</strong> architecture, including a <strong>self-attention</strong> mechanism inspired by Bahdanau attention.</p>
+
+                <div class="key-concept">
+                    <strong>Self-Attention:</strong> A mechanism that allows each position in the input sequence to consider the relevancy of, or "attend to," all other positions in the same sequence when computing the representation. It is a key component of contemporary LLMs based on the transformer architecture.
+                </div>
+            </div>
+
+            <!-- Section 3.3 -->
+            <div class="section-card" id="sec-3-3">
+                <h2>3.3 Attending to Different Parts of the Input with Self-Attention</h2>
+
+                <div class="note-box">
+                    <strong>The "self" in self-attention:</strong> The "self" refers to the mechanism's ability to compute attention weights by relating different positions within a single input sequence. It assesses and learns relationships between various parts of the input itself (e.g., words in a sentence), in contrast to traditional attention where focus is on relationships between two different sequences.
+                </div>
+
+                <h3 id="sec-3-3-1">3.3.1 A Simple Self-Attention Mechanism without Trainable Weights</h3>
+
+                <div class="figure-box" id="fig-3-7">
+                    <div class="figure-label">Figure 3.7 -- Context Vectors from Self-Attention</div>
+                    <div class="book-figure">
+                        <img src="../assets/ch03/ch03__image011.png" alt="Figure 3.7 -- Context Vectors from Self-Attention" loading="lazy">
+                        <span class="book-figure-tag">From the book (Raschka, 2025)</span>
+                    </div>
+                    <div class="figure-desc">
+                        The goal of self-attention is to compute a <strong>context vector</strong> for each input element that combines information from all other inputs. For computing z<sup>(2)</sup>, the attention weights are calculated with respect to input x<sup>(2)</sup> ("journey") and all other inputs. Context vectors are enriched embeddings containing information about the current element and its relationships to all others.
+                    </div>
+                </div>
+
+                <div class="code-block">
+                    <div class="code-label">Setting up the input embeddings</div>
+<pre>import torch
+inputs = torch.tensor(
+    [[0.43, 0.15, 0.89],  # Your    (x^1)
+     [0.55, 0.87, 0.66],  # journey (x^2)
+     [0.57, 0.85, 0.64],  # starts  (x^3)
+     [0.22, 0.58, 0.33],  # with    (x^4)
+     [0.77, 0.25, 0.10],  # one     (x^5)
+     [0.05, 0.80, 0.55]]  # step    (x^6)
+)</pre>
+                </div>
+
+                <h4>Step 1: Compute Attention Scores (Dot Products)</h4>
+                <div class="code-block">
+<pre>query = inputs[1]  # The second input token serves as the query
+attn_scores_2 = torch.empty(inputs.shape[0])
+for i, x_i in enumerate(inputs):
+    attn_scores_2[i] = torch.dot(x_i, query)
+print(attn_scores_2)
+# tensor([0.9544, 1.4950, 1.4754, 0.8434, 0.7070, 1.0865])</pre>
+                </div>
+
+                <div class="note-box">
+                    <strong>Understanding dot products:</strong> A dot product multiplies two vectors element-wise and sums the products. It is also a measure of similarity -- a higher dot product indicates greater alignment between vectors. In self-attention, the dot product determines how much each element "attends to" any other element.
+                </div>
+
+                <h4>Step 2: Normalize to Obtain Attention Weights</h4>
+                <div class="code-block">
+<pre># Using softmax for normalization (preferred in practice)
+attn_weights_2 = torch.softmax(attn_scores_2, dim=0)
+print("Attention weights:", attn_weights_2)
+# tensor([0.1385, 0.2379, 0.2333, 0.1240, 0.1082, 0.1581])
+print("Sum:", attn_weights_2.sum())  # tensor(1.)</pre>
+                </div>
+
+                <h4>Step 3: Compute the Context Vector</h4>
+                <div class="code-block">
+<pre>query = inputs[1]
+context_vec_2 = torch.zeros(query.shape)
+for i, x_i in enumerate(inputs):
+    context_vec_2 += attn_weights_2[i]*x_i
+print(context_vec_2)
+# tensor([0.4419, 0.6515, 0.5683])</pre>
+                </div>
+
+                <h3 id="sec-3-3-2">3.3.2 Computing Attention Weights for All Input Tokens</h3>
+
+                <p>Now we extend the computation to calculate attention weights and context vectors for all inputs, using efficient matrix multiplication:</p>
+
+                <div class="code-block">
+                    <div class="code-label">Computing all attention scores and context vectors</div>
+<pre># Step 1: All attention scores via matrix multiplication
+attn_scores = inputs @ inputs.T
+
+# Step 2: Normalize each row
+attn_weights = torch.softmax(attn_scores, dim=-1)
+
+# Step 3: All context vectors
+all_context_vecs = attn_weights @ inputs
+print(all_context_vecs)
+# tensor([[0.4421, 0.5931, 0.5790],
+#         [0.4419, 0.6515, 0.5683],
+#         [0.4431, 0.6496, 0.5671],
+#         [0.4304, 0.6298, 0.5510],
+#         [0.4671, 0.5910, 0.5266],
+#         [0.4177, 0.6503, 0.5645]])</pre>
+                </div>
+            </div>
+
+            <!-- Section 3.4 -->
+            <div class="section-card" id="sec-3-4">
+                <h2>3.4 Implementing Self-Attention with Trainable Weights</h2>
+
+                <p>The self-attention mechanism used in LLMs is also called <strong>scaled dot-product attention</strong>. The most notable difference from the simplified version is the introduction of <strong>weight matrices</strong> (W<sub>q</sub>, W<sub>k</sub>, W<sub>v</sub>) that are updated during model training. These matrices project embedded input tokens into query, key, and value vectors.</p>
+
+                <h3 id="sec-3-4-1">3.4.1 Computing the Attention Weights Step by Step</h3>
+
+                <div class="figure-box" id="fig-3-14">
+                    <div class="figure-label">Figure 3.14 -- Computing Query, Key, and Value Vectors</div>
+                    <div class="book-figure">
+                        <img src="../assets/ch03/ch03__image013.png" alt="Figure 3.14 -- Computing Query, Key, and Value Vectors" loading="lazy">
+                        <span class="book-figure-tag">From the book (Raschka, 2025)</span>
+                    </div>
+                    <div class="figure-desc">
+                        Each input x<sup>(i)</sup> is multiplied by weight matrices W<sub>k</sub>, W<sub>q</sub>, W<sub>v</sub> to produce key k<sup>(i)</sup>, query q<sup>(i)</sup>, and value v<sup>(i)</sup> vectors.
+                    </div>
+                </div>
+
+                <div class="code-block">
+                    <div class="code-label">Setting up and computing Q, K, V</div>
+<pre>x_2 = inputs[1]            # The second input element
+d_in = inputs.shape[1]     # Input embedding size, d=3
+d_out = 2                  # Output embedding size
+
+torch.manual_seed(123)
+W_query = torch.nn.Parameter(torch.rand(d_in, d_out), requires_grad=False)
+W_key   = torch.nn.Parameter(torch.rand(d_in, d_out), requires_grad=False)
+W_value = torch.nn.Parameter(torch.rand(d_in, d_out), requires_grad=False)
+
+query_2 = x_2 @ W_query   # tensor([0.4306, 1.4551])
+keys = inputs @ W_key      # Shape: [6, 2]
+values = inputs @ W_value  # Shape: [6, 2]</pre>
+                </div>
+
+                <div class="note-box">
+                    <strong>Weight parameters vs. attention weights:</strong> "Weight parameters" are the fundamental, learned coefficients that define the network's connections (W<sub>q</sub>, W<sub>k</sub>, W<sub>v</sub>). "Attention weights" are dynamic, context-specific values that determine how much each input element focuses on every other element.
+                </div>
+
+                <h4>Scaled Attention Scores</h4>
+                <div class="code-block">
+<pre>attn_scores_2 = query_2 @ keys.T
+# tensor([1.2705, 1.8524, 1.8111, 1.0795, 0.5577, 1.5440])
+
+d_k = keys.shape[-1]
+attn_weights_2 = torch.softmax(attn_scores_2 / d_k**0.5, dim=-1)
+# tensor([0.1500, 0.2264, 0.2199, 0.1311, 0.0906, 0.1820])</pre>
+                </div>
+
+                <div class="key-concept">
+                    <strong>Why scale by sqrt(d<sub>k</sub>)?</strong> For large embedding dimensions (typically &gt;1,000 in GPT-like LLMs), large dot products cause softmax to behave like a step function, resulting in very small gradients. Scaling by the square root of the embedding dimension prevents this -- hence the name <strong>scaled dot-product attention</strong>.
+                </div>
+
+                <h4>Computing the Context Vector</h4>
+                <div class="code-block">
+<pre>context_vec_2 = attn_weights_2 @ values
+print(context_vec_2)
+# tensor([0.3061, 0.8210])</pre>
+                </div>
+
+                <div class="note-box">
+                    <strong>Why query, key, and value?</strong> These terms are borrowed from information retrieval. A <strong>query</strong> is a search query (current focus item). <strong>Keys</strong> are used for indexing and matching. <strong>Values</strong> represent the actual content. The model finds which keys match the query, then retrieves the corresponding values.
+                </div>
+
+                <h3 id="sec-3-4-2">3.4.2 Implementing a Compact Self-Attention Python Class</h3>
+
+                <div class="code-block">
+                    <div class="code-label">Listing 3.1: A compact self-attention class</div>
+<pre>import torch.nn as nn
+
+class SelfAttention_v1(nn.Module):
+    def __init__(self, d_in, d_out):
+        super().__init__()
+        self.W_query = nn.Parameter(torch.rand(d_in, d_out))
+        self.W_key   = nn.Parameter(torch.rand(d_in, d_out))
+        self.W_value = nn.Parameter(torch.rand(d_in, d_out))
+
+    def forward(self, x):
+        keys = x @ self.W_key
+        queries = x @ self.W_query
+        values = x @ self.W_value
+        attn_scores = queries @ keys.T
+        attn_weights = torch.softmax(
+            attn_scores / keys.shape[-1]**0.5, dim=-1)
+        context_vec = attn_weights @ values
+        return context_vec</pre>
+                </div>
+
+                <div class="code-block">
+                    <div class="code-label">Listing 3.2: Improved version using nn.Linear layers</div>
+<pre>class SelfAttention_v2(nn.Module):
+    def __init__(self, d_in, d_out, qkv_bias=False):
+        super().__init__()
+        self.W_query = nn.Linear(d_in, d_out, bias=qkv_bias)
+        self.W_key   = nn.Linear(d_in, d_out, bias=qkv_bias)
+        self.W_value = nn.Linear(d_in, d_out, bias=qkv_bias)
+
+    def forward(self, x):
+        keys = self.W_key(x)
+        queries = self.W_query(x)
+        values = self.W_value(x)
+        attn_scores = queries @ keys.T
+        attn_weights = torch.softmax(
+            attn_scores / keys.shape[-1]**0.5, dim=-1)
+        context_vec = attn_weights @ values
+        return context_vec</pre>
+                </div>
+
+                <p>Using <code>nn.Linear</code> instead of <code>nn.Parameter(torch.rand(...))</code> provides an optimized weight initialization scheme, contributing to more stable and effective model training.</p>
+            </div>
+
+            <!-- Section 3.5 -->
+            <div class="section-card" id="sec-3-5">
+                <h2>3.5 Hiding Future Words with Causal Attention</h2>
+
+                <p><strong>Causal attention</strong> (also known as <strong>masked attention</strong>) restricts a model to only consider previous and current inputs when processing any given token. This is crucial for language modeling, where each word prediction should only depend on previous words.</p>
+
+                <h3 id="sec-3-5-1">3.5.1 Applying a Causal Attention Mask</h3>
+
+                <div class="figure-box" id="fig-3-19">
+                    <div class="figure-label">Figure 3.19 -- Causal Attention Masking</div>
+                    <div class="book-figure">
+                        <img src="../assets/ch03/ch03__image015.png" alt="Figure 3.19 -- Causal Attention Masking" loading="lazy">
+                        <span class="book-figure-tag">From the book (Raschka, 2025)</span>
+                    </div>
+                    <div class="figure-desc">
+                        We mask out attention weights above the diagonal so that for a given input, the LLM cannot access future tokens. For example, for "journey" (row 2), only the attention weights for "Your" and "journey" are kept.
+                    </div>
+                </div>
+
+                <h4>The Efficient Approach: Mask Before Softmax</h4>
+                <div class="code-block">
+                    <div class="code-label">Masking with negative infinity before softmax</div>
+<pre>mask = torch.triu(torch.ones(context_length, context_length), diagonal=1)
+masked = attn_scores.masked_fill(mask.bool(), -torch.inf)
+
+attn_weights = torch.softmax(masked / keys.shape[-1]**0.5, dim=1)
+print(attn_weights)
+# tensor([[1.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000],
+#         [0.5517, 0.4483, 0.0000, 0.0000, 0.0000, 0.0000],
+#         [0.3800, 0.3097, 0.3103, 0.0000, 0.0000, 0.0000],
+#         [0.2758, 0.2460, 0.2462, 0.2319, 0.0000, 0.0000],
+#         [0.2175, 0.1983, 0.1984, 0.1888, 0.1971, 0.0000],
+#         [0.1935, 0.1663, 0.1666, 0.1542, 0.1666, 0.1529]])</pre>
+                </div>
+
+                <div class="note-box">
+                    <strong>No information leakage:</strong> Mathematically, e<sup>-inf</sup> approaches 0. After masking with -inf and applying softmax, the distribution of attention weights is as if it was calculated only among the unmasked positions to begin with. No information leaks from future tokens.
+                </div>
+
+                <h3 id="sec-3-5-2">3.5.2 Masking Additional Attention Weights with Dropout</h3>
+
+                <p><strong>Dropout</strong> randomly sets hidden layer units to zero during training, preventing overfitting. In the transformer architecture, dropout is typically applied after computing the attention weights.</p>
+
+                <div class="figure-box" id="fig-3-22">
+                    <div class="figure-label">Figure 3.22 -- Causal Mask + Dropout</div>
+                    <div class="book-figure">
+                        <img src="../assets/ch03/ch03__image017.png" alt="Figure 3.22 -- Causal Mask + Dropout" loading="lazy">
+                        <span class="book-figure-tag">From the book (Raschka, 2025)</span>
+                    </div>
+                    <div class="figure-desc">
+                        The causal attention mask (lower triangular) is combined with a dropout mask that randomly zeros out additional attention weights. Remaining values are scaled up to maintain the overall balance (e.g., by a factor of 1/0.5 = 2 for 50% dropout).
+                    </div>
+                </div>
+
+                <h3 id="sec-3-5-3">3.5.3 Implementing a Compact Causal Attention Class</h3>
+
+                <div class="code-block">
+                    <div class="code-label">Listing 3.3: A compact causal attention class</div>
+<pre>class CausalAttention(nn.Module):
+    def __init__(self, d_in, d_out, context_length,
+                 dropout, qkv_bias=False):
+        super().__init__()
+        self.d_out = d_out
+        self.W_query = nn.Linear(d_in, d_out, bias=qkv_bias)
+        self.W_key   = nn.Linear(d_in, d_out, bias=qkv_bias)
+        self.W_value = nn.Linear(d_in, d_out, bias=qkv_bias)
+        self.dropout = nn.Dropout(dropout)
+        self.register_buffer(
+            'mask',
+            torch.triu(torch.ones(context_length, context_length),
+                       diagonal=1)
+        )
+
+    def forward(self, x):
+        b, num_tokens, d_in = x.shape
+        keys = self.W_key(x)
+        queries = self.W_query(x)
+        values = self.W_value(x)
+
+        attn_scores = queries @ keys.transpose(1, 2)
+        attn_scores.masked_fill_(
+            self.mask.bool()[:num_tokens, :num_tokens], -torch.inf)
+        attn_weights = torch.softmax(
+            attn_scores / keys.shape[-1]**0.5, dim=-1)
+        attn_weights = self.dropout(attn_weights)
+
+        context_vec = attn_weights @ values
+        return context_vec</pre>
+                </div>
+
+                <p>The <code>register_buffer</code> call ensures the mask tensor is automatically moved to the appropriate device (CPU or GPU) along with the model, avoiding device mismatch errors.</p>
+
+                <div class="code-block">
+<pre>torch.manual_seed(123)
+context_length = batch.shape[1]
+ca = CausalAttention(d_in, d_out, context_length, 0.0)
+context_vecs = ca(batch)
+print("context_vecs.shape:", context_vecs.shape)
+# context_vecs.shape: torch.Size([2, 6, 2])</pre>
+                </div>
+            </div>
+
+            <!-- Section 3.6 -->
+            <div class="section-card" id="sec-3-6">
+                <h2>3.6 Extending Single-Head Attention to Multi-Head Attention</h2>
+
+                <p><strong>Multi-head attention</strong> divides the attention mechanism into multiple "heads," each operating independently. Each head learns different aspects of the data, allowing the model to simultaneously attend to information from different representation subspaces.</p>
+
+                <h3 id="sec-3-6-1">3.6.1 Stacking Multiple Single-Head Attention Layers</h3>
+
+                <div class="figure-box" id="fig-3-24">
+                    <div class="figure-label">Figure 3.24 -- Multi-Head Attention with Two Heads</div>
+                    <div class="book-figure">
+                        <img src="../assets/ch03/ch03__image019.png" alt="Figure 3.24 -- Multi-Head Attention with Two Heads" loading="lazy">
+                        <span class="book-figure-tag">From the book (Raschka, 2025)</span>
+                    </div>
+                    <div class="figure-desc">
+                        Instead of a single set of weight matrices (W<sub>v</sub>, W<sub>q</sub>, W<sub>k</sub>), with two heads we have two sets: W<sub>v1</sub>, W<sub>v2</sub>, etc. Each head produces its own context vectors Z<sub>1</sub> and Z<sub>2</sub>, which are concatenated into a combined context vector Z.
+                    </div>
+                </div>
+
+                <div class="code-block">
+                    <div class="code-label">Listing 3.4: A wrapper class for multi-head attention</div>
+<pre>class MultiHeadAttentionWrapper(nn.Module):
+    def __init__(self, d_in, d_out, context_length,
+                 dropout, num_heads, qkv_bias=False):
+        super().__init__()
+        self.heads = nn.ModuleList(
+            [CausalAttention(
+                d_in, d_out, context_length, dropout, qkv_bias)
+            for _ in range(num_heads)]
+        )
+
+    def forward(self, x):
+        return torch.cat([head(x) for head in self.heads], dim=-1)</pre>
+                </div>
+
+                <div class="code-block">
+<pre>torch.manual_seed(123)
+context_length = batch.shape[1]
+d_in, d_out = 3, 2
+mha = MultiHeadAttentionWrapper(
+    d_in, d_out, context_length, 0.0, num_heads=2)
+context_vecs = mha(batch)
+print("context_vecs.shape:", context_vecs.shape)
+# context_vecs.shape: torch.Size([2, 6, 4])
+# -- 2 heads x d_out=2 = 4-dimensional output</pre>
+                </div>
+
+                <h3 id="sec-3-6-2">3.6.2 Implementing Multi-Head Attention with Weight Splits</h3>
+
+                <p>A more efficient approach: instead of stacking separate <code>CausalAttention</code> objects, use a single <code>MultiHeadAttention</code> class that starts with multi-head projections and internally splits into individual attention heads via tensor reshaping.</p>
+
+                <div class="code-block">
+                    <div class="code-label">Listing 3.5: An efficient multi-head attention class</div>
+<pre>class MultiHeadAttention(nn.Module):
+    def __init__(self, d_in, d_out,
+                 context_length, dropout, num_heads, qkv_bias=False):
+        super().__init__()
+        assert (d_out % num_heads == 0), \
+            "d_out must be divisible by num_heads"
+
+        self.d_out = d_out
+        self.num_heads = num_heads
+        self.head_dim = d_out // num_heads
+        self.W_query = nn.Linear(d_in, d_out, bias=qkv_bias)
+        self.W_key = nn.Linear(d_in, d_out, bias=qkv_bias)
+        self.W_value = nn.Linear(d_in, d_out, bias=qkv_bias)
+        self.out_proj = nn.Linear(d_out, d_out)
+        self.dropout = nn.Dropout(dropout)
+        self.register_buffer(
+            "mask",
+            torch.triu(torch.ones(context_length, context_length),
+                        diagonal=1)
+        )
+
+    def forward(self, x):
+        b, num_tokens, d_in = x.shape
+        keys = self.W_key(x)
+        queries = self.W_query(x)
+        values = self.W_value(x)
+
+        # Split into heads: (b, n, d_out) -&gt; (b, n, num_heads, head_dim)
+        keys = keys.view(b, num_tokens, self.num_heads, self.head_dim)
+        values = values.view(b, num_tokens, self.num_heads, self.head_dim)
+        queries = queries.view(
+            b, num_tokens, self.num_heads, self.head_dim)
+
+        # Transpose: (b, num_heads, num_tokens, head_dim)
+        keys = keys.transpose(1, 2)
+        queries = queries.transpose(1, 2)
+        values = values.transpose(1, 2)
+
+        attn_scores = queries @ keys.transpose(2, 3)
+        mask_bool = self.mask.bool()[:num_tokens, :num_tokens]
+        attn_scores.masked_fill_(mask_bool, -torch.inf)
+
+        attn_weights = torch.softmax(
+            attn_scores / keys.shape[-1]**0.5, dim=-1)
+        attn_weights = self.dropout(attn_weights)
+
+        context_vec = (attn_weights @ values).transpose(1, 2)
+        context_vec = context_vec.contiguous().view(
+            b, num_tokens, self.d_out)
+        context_vec = self.out_proj(context_vec)
+        return context_vec</pre>
+                </div>
+
+                <div class="figure-box" id="fig-3-26">
+                    <div class="figure-label">Figure 3.26 -- Wrapper vs. Efficient Multi-Head Attention</div>
+                    <div class="book-figure">
+                        <img src="../assets/ch03/ch03__image021.png" alt="Figure 3.26 -- Wrapper vs. Efficient Multi-Head Attention" loading="lazy">
+                        <span class="book-figure-tag">From the book (Raschka, 2025)</span>
+                    </div>
+                    <div class="figure-desc">
+                        <strong>Wrapper approach:</strong> Initialize separate W<sub>q1</sub>, W<sub>q2</sub> and compute Q<sub>1</sub>, Q<sub>2</sub> separately. <strong>Efficient approach:</strong> Initialize one larger W<sub>q</sub>, perform one matrix multiplication, then split the result into Q<sub>1</sub> and Q<sub>2</sub> via tensor reshaping.
+                    </div>
+                </div>
+
+                <div class="code-block">
+<pre>torch.manual_seed(123)
+batch_size, context_length, d_in = batch.shape
+d_out = 2
+mha = MultiHeadAttention(d_in, d_out, context_length, 0.0, num_heads=2)
+context_vecs = mha(batch)
+print("context_vecs.shape:", context_vecs.shape)
+# context_vecs.shape: torch.Size([2, 6, 2])</pre>
+                </div>
+
+                <div class="key-concept">
+                    <strong>GPT-2 Scale:</strong> The smallest GPT-2 model (117M parameters) has 12 attention heads and a context vector embedding size of 768. The largest (1.5B parameters) has 25 heads and embedding size 1,600. The embedding sizes of token inputs and context embeddings are the same in GPT models (d<sub>in</sub> = d<sub>out</sub>).
+                </div>
+            </div>
+
+            <!-- Summary -->
+            <div class="summary-box section-card" id="summary">
+                <h2>Summary</h2>
+                <ul>
+                    <li><strong>Attention mechanisms</strong> transform input elements into enhanced context vector representations that incorporate information about all inputs.</li>
+                    <li>A <strong>self-attention</strong> mechanism computes the context vector representation as a weighted sum over the inputs.</li>
+                    <li>In a simplified attention mechanism, the attention weights are computed via <strong>dot products</strong>.</li>
+                    <li><strong>Matrix multiplications</strong> replace nested for loops for efficient and compact computation.</li>
+                    <li>In <strong>scaled dot-product attention</strong> (used in LLMs), trainable weight matrices compute intermediate transformations: queries, keys, and values.</li>
+                    <li><strong>Causal attention masks</strong> prevent the LLM from accessing future tokens when reading text left to right.</li>
+                    <li><strong>Dropout masks</strong> are added to zero-out attention weights and reduce overfitting.</li>
+                    <li>The attention modules in transformer-based LLMs involve <strong>multiple instances of causal attention (multi-head attention)</strong>.</li>
+                    <li>A more efficient way of creating multi-head attention modules involves <strong>batched matrix multiplications</strong> with tensor reshaping.</li>
+                </ul>
+            </div>
+
+        </main>
+    </div>
+</body>
+</html>

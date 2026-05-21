@@ -183,6 +183,12 @@ h1 {
   background: rgba(255, 255, 255, 0.08);
 }
 
+main .button.secondary {
+  background: var(--white);
+  color: var(--ink);
+  border-color: var(--line);
+}
+
 .logo-panel {
   background: rgba(255, 255, 255, 0.08);
   border: 1px solid rgba(255, 255, 255, 0.16);
@@ -279,6 +285,61 @@ section {
 
 .resource-grid {
   grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.module-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.module-card {
+  display: block;
+  min-height: 160px;
+  padding: 18px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--white);
+  color: inherit;
+  text-decoration: none;
+  transition: border-color 0.2s ease, transform 0.2s ease;
+}
+
+.module-card:hover {
+  border-color: var(--teal);
+  transform: translateY(-2px);
+}
+
+.module-card span {
+  display: inline-flex;
+  margin-bottom: 12px;
+  color: var(--gold);
+  font-size: 12px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.module-card b {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 17px;
+  line-height: 1.25;
+}
+
+.module-card p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+.featured-module {
+  background: var(--ink);
+  color: var(--white);
+}
+
+.featured-module p {
+  color: #c9d9e1;
 }
 
 .card,
@@ -511,6 +572,7 @@ footer {
   .paper-grid,
   .link-grid,
   .class-grid,
+  .module-grid,
   .resource-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -535,6 +597,7 @@ footer {
   .paper-grid,
   .link-grid,
   .class-grid,
+  .module-grid,
   .resource-grid,
   .note {
     grid-template-columns: 1fr;

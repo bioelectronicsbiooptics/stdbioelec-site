@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Build a Large Language Model (From Scratch) - Complete Notes</title>
+    <style>
+        :root {
+            --primary: #1a365d;
+            --primary-light: #2c5282;
+            --accent: #e53e3e;
+            --bg: #f7fafc;
+            --card-bg: #ffffff;
+            --text: #2d3748;
+            --text-light: #718096;
+            --border: #e2e8f0;
+            --info: #4299e1;
+            --success: #48bb78;
+            --warning: #ed8936;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; }
+        .hero {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 50%, #2b6cb0 100%);
+            color: white; padding: 80px 0 60px; text-align: center;
+        }
+        .hero h1 { font-size: 3rem; font-weight: 700; margin-bottom: 12px; }
+        .hero .subtitle { font-size: 1.2rem; opacity: 0.85; max-width: 700px; margin: 0 auto 24px; }
+        .hero .author { font-size: 1rem; opacity: 0.7; }
+        .badge { display: inline-block; background: var(--accent); color: white; padding: 4px 16px; border-radius: 20px; font-size: 0.85rem; font-weight: 600; margin-bottom: 20px; }
+        .container { max-width: 1100px; margin: 0 auto; padding: 0 24px; }
+        .stage-section { margin: 48px 0; }
+        .stage-header { display: flex; align-items: center; gap: 16px; margin-bottom: 24px; }
+        .stage-num { background: var(--primary); color: white; width: 48px; height: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; font-weight: 700; flex-shrink: 0; }
+        .stage-num.s2 { background: var(--info); }
+        .stage-num.s3 { background: var(--success); }
+        .stage-title { font-size: 1.4rem; font-weight: 700; color: var(--primary); }
+        .stage-desc { font-size: 0.9rem; color: var(--text-light); }
+        .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px; }
+        .card {
+            background: var(--card-bg); border-radius: 12px; padding: 24px; border: 1px solid var(--border);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.06); transition: transform 0.2s, box-shadow 0.2s;
+            text-decoration: none; color: inherit; display: block;
+        }
+        .card:hover { transform: translateY(-4px); box-shadow: 0 8px 24px rgba(0,0,0,0.1); }
+        .card-badge { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+        .card-badge.ch { color: var(--primary); }
+        .card-badge.app { color: var(--warning); }
+        .card h3 { font-size: 1.15rem; color: var(--primary); margin-bottom: 8px; }
+        .card p { font-size: 0.9rem; color: var(--text-light); line-height: 1.5; }
+        .card .topics { margin-top: 12px; display: flex; flex-wrap: wrap; gap: 6px; }
+        .card .topic-tag { background: #edf2f7; color: var(--text-light); font-size: 0.75rem; padding: 3px 10px; border-radius: 12px; }
+        .pipeline { background: var(--card-bg); border-radius: 12px; padding: 32px; margin: 48px 0; border: 1px solid var(--border); }
+        .pipeline h2 { text-align: center; color: var(--primary); margin-bottom: 24px; }
+        .pipeline-flow { display: flex; justify-content: center; align-items: center; gap: 12px; flex-wrap: wrap; }
+        .pipeline-box { background: #ebf4ff; border: 2px solid var(--info); border-radius: 8px; padding: 12px 20px; text-align: center; min-width: 140px; }
+        .pipeline-box.active { background: var(--primary); color: white; border-color: var(--primary); }
+        .pipeline-arrow { font-size: 1.5rem; color: var(--text-light); }
+        .appendix-section { margin: 48px 0; }
+        .appendix-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px; }
+        .app-card { background: #fffbeb; border: 1px solid #fbd38d; border-radius: 8px; padding: 16px; text-decoration: none; color: inherit; display: block; transition: transform 0.2s; }
+        .app-card:hover { transform: translateY(-2px); }
+        .app-card h4 { color: var(--primary); font-size: 0.95rem; margin-bottom: 6px; }
+        .app-card p { font-size: 0.8rem; color: var(--text-light); }
+        .footer { background: var(--primary); color: rgba(255,255,255,0.7); padding: 24px 0; text-align: center; font-size: 0.85rem; margin-top: 60px; }
+        @media (max-width: 768px) { .hero h1 { font-size: 2rem; } .cards { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+    <div class="hero">
+        <div class="container">
+            <span class="badge">Complete Study Notes &middot; v2 (Illustrated)</span>
+            <h1>Build a Large Language Model<br>(From Scratch)</h1>
+            <p class="subtitle">Comprehensive chapter-by-chapter notes covering all Figures, Tables, code listings, and key concepts from Sebastian Raschka's book. <strong>v2 adds 78 book figure images across chapters and appendices.</strong></p>
+            <p class="author">Sebastian Raschka | Manning Publications | 2025</p>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Pipeline Overview -->
+        <div class="pipeline">
+            <h2>LLM Development Pipeline</h2>
+            <div class="pipeline-flow">
+                <div class="pipeline-box">Data Prep<br><small>Ch 2</small></div>
+                <div class="pipeline-arrow">&rarr;</div>
+                <div class="pipeline-box">Attention<br><small>Ch 3</small></div>
+                <div class="pipeline-arrow">&rarr;</div>
+                <div class="pipeline-box">Architecture<br><small>Ch 4</small></div>
+                <div class="pipeline-arrow">&rarr;</div>
+                <div class="pipeline-box active">Pretraining<br><small>Ch 5</small></div>
+                <div class="pipeline-arrow">&rarr;</div>
+                <div class="pipeline-box">Classification<br><small>Ch 6</small></div>
+                <div class="pipeline-arrow">&rarr;</div>
+                <div class="pipeline-box">Instructions<br><small>Ch 7</small></div>
+            </div>
+        </div>
+
+        <!-- Stage 1 -->
+        <div class="stage-section">
+            <div class="stage-header">
+                <div class="stage-num">1</div>
+                <div>
+                    <div class="stage-title">Stage 1: Building an LLM</div>
+                    <div class="stage-desc">Implement data sampling, attention mechanisms, and the LLM architecture</div>
+                </div>
+            </div>
+            <div class="cards">
+                <a href="ch01/index.html" class="card">
+                    <div class="card-badge ch">Chapter 1</div>
+                    <h3>Understanding Large Language Models</h3>
+                    <p>High-level concepts behind LLMs, the transformer architecture, and a plan for building an LLM from scratch.</p>
+                    <div class="topics">
+                        <span class="topic-tag">LLM Overview</span>
+                        <span class="topic-tag">Transformer</span>
+                        <span class="topic-tag">GPT Architecture</span>
+                        <span class="topic-tag">Pretraining vs Fine-tuning</span>
+                    </div>
+                </a>
+                <a href="ch02/index.html" class="card">
+                    <div class="card-badge ch">Chapter 2</div>
+                    <h3>Working with Text Data</h3>
+                    <p>Preparing text for LLM training: tokenization, BPE, data sampling, token embeddings, and positional encoding.</p>
+                    <div class="topics">
+                        <span class="topic-tag">Tokenization</span>
+                        <span class="topic-tag">BPE</span>
+                        <span class="topic-tag">Embeddings</span>
+                        <span class="topic-tag">Positional Encoding</span>
+                    </div>
+                </a>
+                <a href="ch03/index.html" class="card">
+                    <div class="card-badge ch">Chapter 3</div>
+                    <h3>Coding Attention Mechanisms</h3>
+                    <p>Self-attention, scaled dot-product attention, causal masks, dropout, and multi-head attention.</p>
+                    <div class="topics">
+                        <span class="topic-tag">Self-Attention</span>
+                        <span class="topic-tag">Causal Mask</span>
+                        <span class="topic-tag">Multi-Head</span>
+                        <span class="topic-tag">Q/K/V</span>
+                    </div>
+                </a>
+                <a href="ch04/index.html" class="card">
+                    <div class="card-badge ch">Chapter 4</div>
+                    <h3>Implementing a GPT Model from Scratch</h3>
+                    <p>Layer normalization, GELU, feed forward networks, shortcut connections, transformer blocks, and text generation.</p>
+                    <div class="topics">
+                        <span class="topic-tag">LayerNorm</span>
+                        <span class="topic-tag">GELU</span>
+                        <span class="topic-tag">Transformer Block</span>
+                        <span class="topic-tag">GPT Model</span>
+                    </div>
+                </a>
+            </div>
+        </div>
+
+        <!-- Stage 2 -->
+        <div class="stage-section">
+            <div class="stage-header">
+                <div class="stage-num s2">2</div>
+                <div>
+                    <div class="stage-title">Stage 2: Foundation Model</div>
+                    <div class="stage-desc">Pretrain the LLM on unlabeled data to obtain a foundation model</div>
+                </div>
+            </div>
+            <div class="cards">
+                <a href="ch05/index.html" class="card">
+                    <div class="card-badge ch">Chapter 5</div>
+                    <h3>Pretraining on Unlabeled Data</h3>
+                    <p>Text generation loss, training loop, temperature scaling, top-k sampling, weight saving/loading, and OpenAI pretrained weights.</p>
+                    <div class="topics">
+                        <span class="topic-tag">Cross-Entropy</span>
+                        <span class="topic-tag">Training Loop</span>
+                        <span class="topic-tag">Temperature</span>
+                        <span class="topic-tag">Top-k</span>
+                        <span class="topic-tag">Pretrained Weights</span>
+                    </div>
+                </a>
+            </div>
+        </div>
+
+        <!-- Stage 3 -->
+        <div class="stage-section">
+            <div class="stage-header">
+                <div class="stage-num s3">3</div>
+                <div>
+                    <div class="stage-title">Stage 3: Fine-tuning</div>
+                    <div class="stage-desc">Fine-tune the foundation model for classification and instruction following</div>
+                </div>
+            </div>
+            <div class="cards">
+                <a href="ch06/index.html" class="card">
+                    <div class="card-badge ch">Chapter 6</div>
+                    <h3>Fine-tuning for Classification</h3>
+                    <p>Spam classification, dataset preparation, classification head, loss calculation, and model evaluation.</p>
+                    <div class="topics">
+                        <span class="topic-tag">Classification</span>
+                        <span class="topic-tag">Spam Detection</span>
+                        <span class="topic-tag">Fine-tuning</span>
+                        <span class="topic-tag">Accuracy</span>
+                    </div>
+                </a>
+                <a href="ch07/index.html" class="card">
+                    <div class="card-badge ch">Chapter 7</div>
+                    <h3>Fine-tuning to Follow Instructions</h3>
+                    <p>Instruction datasets, custom collate functions, Alpaca format, response extraction, and LLM-based evaluation.</p>
+                    <div class="topics">
+                        <span class="topic-tag">Instruction Tuning</span>
+                        <span class="topic-tag">Alpaca Format</span>
+                        <span class="topic-tag">Ollama</span>
+                        <span class="topic-tag">Evaluation</span>
+                    </div>
+                </a>
+            </div>
+        </div>
+
+        <!-- Appendices -->
+        <div class="appendix-section">
+            <h2 style="color: var(--primary); margin-bottom: 20px;">Appendices</h2>
+            <div class="appendix-grid">
+                <a href="appA/index.html" class="app-card">
+                    <h4>Appendix A</h4>
+                    <p>Introduction to PyTorch</p>
+                </a>
+                <a href="appB/index.html" class="app-card">
+                    <h4>Appendix B</h4>
+                    <p>References & Further Reading</p>
+                </a>
+                <a href="appC/index.html" class="app-card">
+                    <h4>Appendix C</h4>
+                    <p>Exercise Solutions</p>
+                </a>
+                <a href="appD/index.html" class="app-card">
+                    <h4>Appendix D</h4>
+                    <p>Training Loop Enhancements</p>
+                </a>
+                <a href="appE/index.html" class="app-card">
+                    <h4>Appendix E</h4>
+                    <p>LoRA Fine-tuning</p>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">
+        <div class="container">
+            <p>Notes from "Build a Large Language Model (From Scratch)" by Sebastian Raschka | Manning Publications 2025</p>
+        </div>
+    </div>
+</body>
+</html>

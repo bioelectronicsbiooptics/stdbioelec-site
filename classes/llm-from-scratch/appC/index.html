@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Appendix C: Exercise Solutions</title>
+    <style>
+        :root {
+            --primary: #1a365d; --primary-light: #2c5282; --accent: #e53e3e; --bg: #f7fafc;
+            --card-bg: #ffffff; --text: #2d3748; --text-light: #718096; --border: #e2e8f0;
+            --code-bg: #1a202c; --code-text: #e2e8f0; --highlight: #fefcbf; --success: #48bb78; --info: #4299e1;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; }
+        .top-nav { background: var(--primary); color: white; padding: 12px 0; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .top-nav .container { display: flex; justify-content: space-between; align-items: center; }
+        .top-nav a { color: rgba(255,255,255,0.85); text-decoration: none; font-size: 0.9rem; }
+        .top-nav a:hover { color: white; }
+        .nav-links { display: flex; gap: 20px; }
+        .chapter-header { background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%); color: white; padding: 60px 0 40px; }
+        .chapter-header h1 { font-size: 2.5rem; font-weight: 700; margin-bottom: 10px; }
+        .chapter-header .subtitle { font-size: 1.1rem; opacity: 0.85; max-width: 700px; }
+        .chapter-badge { display: inline-block; background: var(--accent); color: white; padding: 4px 16px; border-radius: 20px; font-size: 0.85rem; font-weight: 600; margin-bottom: 16px; }
+        .container { max-width: 1100px; margin: 0 auto; padding: 0 24px; }
+        .content-layout { display: grid; grid-template-columns: 280px 1fr; gap: 40px; margin-top: 40px; }
+        .toc-sidebar { position: sticky; top: 80px; height: fit-content; max-height: calc(100vh - 100px); overflow-y: auto; }
+        .toc-sidebar h3 { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; color: var(--text-light); margin-bottom: 12px; }
+        .toc-sidebar ul { list-style: none; }
+        .toc-sidebar li { margin-bottom: 4px; }
+        .toc-sidebar a { display: block; padding: 6px 12px; color: var(--text-light); text-decoration: none; font-size: 0.88rem; border-left: 3px solid transparent; border-radius: 0 4px 4px 0; transition: all 0.2s; }
+        .toc-sidebar a:hover, .toc-sidebar a.active { color: var(--primary); background: rgba(26,54,93,0.05); border-left-color: var(--primary); }
+        .main-content { min-width: 0; padding-bottom: 80px; }
+        .section-card { background: var(--card-bg); border-radius: 12px; padding: 32px; margin-bottom: 28px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); border: 1px solid var(--border); }
+        .section-card h2 { font-size: 1.5rem; color: var(--primary); margin-bottom: 20px; padding-bottom: 12px; border-bottom: 2px solid var(--border); }
+        .section-card h3 { font-size: 1.15rem; color: var(--primary-light); margin: 24px 0 12px; }
+        .section-card ul { padding-left: 20px; margin-bottom: 12px; }
+        .section-card li { margin-bottom: 8px; line-height: 1.6; }
+        .section-card p { margin-bottom: 12px; }
+        .code-block { background: var(--code-bg); color: var(--code-text); border-radius: 8px; padding: 20px; margin: 16px 0; overflow-x: auto; font-family: 'JetBrains Mono', 'Fira Code', monospace; font-size: 0.85rem; line-height: 1.6; }
+        .code-block .code-label { color: #a0aec0; font-size: 0.8rem; margin-bottom: 10px; }
+        .note-box { background: var(--highlight); border-left: 4px solid #d69e2e; border-radius: 0 8px 8px 0; padding: 16px 20px; margin: 16px 0; font-size: 0.92rem; }
+        .note-box strong { color: #975a16; }
+        @media (max-width: 900px) { .content-layout { grid-template-columns: 1fr; } .toc-sidebar { display: none; } .chapter-header h1 { font-size: 1.8rem; } }
+        @media print { .top-nav, .toc-sidebar { display: none; } .section-card { break-inside: avoid; box-shadow: none; border: 1px solid #ddd; } }
+    </style>
+</head>
+<body>
+    <nav class="top-nav">
+        <div class="container">
+            <a href="../index.html"><strong>Build a Large Language Model (From Scratch)</strong></a>
+            <div class="nav-links">
+                <a href="../appB/index.html">Previous</a>
+                <a href="../index.html">Contents</a>
+                <a href="../appD/index.html">Next</a>
+            </div>
+        </div>
+    </nav>
+
+    <header class="chapter-header">
+        <div class="container">
+            <span class="chapter-badge">Appendix C</span>
+            <h1>Exercise Solutions</h1>
+            <p class="subtitle">Complete code examples and solutions for exercises from each chapter. Full code at github.com/rasbt/LLMs-from-scratch.</p>
+        </div>
+    </header>
+
+    <div class="container content-layout">
+        <aside class="toc-sidebar">
+            <h3>By Chapter</h3>
+            <ul>
+                <li><a href="#sol-ch2">Chapter 2</a></li>
+                <li><a href="#sol-ch3">Chapter 3</a></li>
+                <li><a href="#sol-ch4">Chapter 4</a></li>
+                <li><a href="#sol-ch5">Chapter 5</a></li>
+                <li><a href="#sol-ch6">Chapter 6</a></li>
+                <li><a href="#sol-ch7">Chapter 7</a></li>
+                <li><a href="#sol-appa">Appendix A</a></li>
+            </ul>
+        </aside>
+
+        <main class="main-content">
+            <div class="section-card" id="sol-ch2">
+                <h2>Chapter 2</h2>
+                <h3>Exercise 2.1</h3>
+                <p>Obtain individual token IDs and reassemble:</p>
+                <div class="code-block">
+<pre>print(tokenizer.encode("Ak"))  # [33901]
+print(tokenizer.encode("w"))   # [86]
+
+print(tokenizer.decode([33901, 86, 343, 86, 220, 959]))
+# 'Akwirw ier'</pre>
+                </div>
+                <h3>Exercise 2.2</h3>
+                <p>Data loaders with different <code>max_length</code> and <code>stride</code> settings:</p>
+                <div class="code-block">
+<pre># max_length=2, stride=2:
+dataloader = create_dataloader(raw_text, batch_size=4, max_length=2, stride=2)
+# tensor([[40, 367], [2885, 1464], [1807, 3619], [402, 271]])
+
+# max_length=8, stride=2:
+dataloader = create_dataloader(raw_text, batch_size=4, max_length=8, stride=2)</pre>
+                </div>
+            </div>
+
+            <div class="section-card" id="sol-ch3">
+                <h2>Chapter 3</h2>
+                <h3>Exercise 3.1</h3>
+                <p>Correct weight assignment (transposing weights):</p>
+                <div class="code-block">
+<pre>sa_v1.W_query = torch.nn.Parameter(sa_v2.W_query.weight.T)
+sa_v1.W_key = torch.nn.Parameter(sa_v2.W_key.weight.T)
+sa_v1.W_value = torch.nn.Parameter(sa_v2.W_value.weight.T)</pre>
+                </div>
+                <h3>Exercise 3.2</h3>
+                <p>For output dimension of 2, change <code>d_out</code> to 1:</p>
+                <div class="code-block">
+<pre>d_out = 1
+mha = MultiHeadAttentionWrapper(d_in, d_out, block_size, 0.0, num_heads=2)</pre>
+                </div>
+                <h3>Exercise 3.3</h3>
+                <p>Smallest GPT-2 model: <code>block_size=1024, d_in=d_out=768, num_heads=12</code></p>
+            </div>
+
+            <div class="section-card" id="sol-ch4">
+                <h2>Chapter 4</h2>
+                <h3>Exercise 4.1</h3>
+                <p>Feed forward module has approximately <strong>twice as many parameters</strong> as attention:</p>
+                <div class="code-block">
+<pre># Feed forward: 4,722,432 parameters
+# Attention: 2,360,064 parameters</pre>
+                </div>
+                <h3>Exercise 4.2</h3>
+                <p>GPT-2 XL configuration:</p>
+                <div class="code-block">
+<pre>GPT_CONFIG["emb_dim"] = 1600
+GPT_CONFIG["n_layers"] = 48
+GPT_CONFIG["n_heads"] = 25
+# Total parameters: 1,637,792,000 (~6247.68 MB)</pre>
+                </div>
+                <h3>Exercise 4.3</h3>
+                <p>Three distinct dropout layers: embedding layer, shortcut connections, multi-head attention. Can configure separate dropout rates for each.</p>
+            </div>
+
+            <div class="section-card" id="sol-ch5">
+                <h2>Chapter 5</h2>
+                <h3>Exercise 5.1</h3>
+                <p>"pizza" sampled 0x at temperature 0 or 0.1; sampled 32x at temperature 5. Estimated probability: 3.2%. Actual: 4.3%.</p>
+                <h3>Exercise 5.2</h3>
+                <ul>
+                    <li>Low top-k (&lt;10) + temperature &lt;1: deterministic, coherent (formal documents, code)</li>
+                    <li>High top-k (20-40) + temperature &gt;1: creative, diverse (brainstorming, fiction)</li>
+                </ul>
+                <h3>Exercise 5.3</h3>
+                <p>Two ways to force deterministic behavior: (1) <code>top_k=None</code> with no temperature scaling; (2) <code>top_k=1</code>.</p>
+                <h3>Exercise 5.4</h3>
+                <div class="code-block">
+<pre>checkpoint = torch.load("model_and_optimizer.pth")
+model = GPTModel(GPT_CONFIG_124M)
+model.load_state_dict(checkpoint["model_state_dict"])
+optimizer = torch.optim.AdamW(model.parameters(), lr=5e-4, weight_decay=0.1)
+optimizer.load_state_dict(checkpoint["optimizer_state_dict"])</pre>
+                </div>
+                <h3>Exercise 5.5</h3>
+                <p>124M parameter model losses: Training <strong>3.755</strong>, Validation <strong>3.560</strong>. Both in same ballpark (no overfitting).</p>
+                <h3>Exercise 5.6</h3>
+                <div class="code-block">
+<pre>hparams, params = download_and_load_gpt2(model_size="1558M", models_dir="gpt2")
+model_name = "gpt2-xl (1558M)"</pre>
+                </div>
+            </div>
+
+            <div class="section-card" id="sol-ch6">
+                <h2>Chapter 6</h2>
+                <h3>Exercise 6.1</h3>
+                <p>Padding to max length (1024): test accuracy drops to <strong>78.33%</strong> (vs. 95.67%).</p>
+                <h3>Exercise 6.2</h3>
+                <p>Fine-tune entire model (remove freezing): test accuracy improves to <strong>96.67%</strong> (vs. 95.67%).</p>
+                <h3>Exercise 6.3</h3>
+                <p>Fine-tune first output token instead of last: test accuracy drops to <strong>75.00%</strong> (vs. 95.67%).</p>
+            </div>
+
+            <div class="section-card" id="sol-ch7">
+                <h2>Chapter 7</h2>
+                <h3>Exercise 7.1</h3>
+                <p>Phi-3 prompt format with modified <code>format_input</code>. Fine-tuning ~17% faster; score ~50.</p>
+                <h3>Exercise 7.2</h3>
+                <p>Mask instructions in targets: set <code>targets[:instruction_length-1] = -100</code>. Performance slightly worse (~4 points), consistent with the paper.</p>
+                <h3>Exercise 7.3</h3>
+                <p>Fine-tune on Stanford Alpaca (52,000 entries -- 50x more data). GPU recommended.</p>
+                <h3>Exercise 7.4</h3>
+                <p>Instruction fine-tune with LoRA (rank=16, alpha=16). On Nvidia L4: ~28% faster (1.30 min vs 1.80 min). Score ~50.</p>
+            </div>
+
+            <div class="section-card" id="sol-appa">
+                <h2>Appendix A</h2>
+                <h3>Exercise A.3</h3>
+                <p>Network has 2 inputs, 2 outputs, hidden layers (30, 20):</p>
+                <div class="code-block">
+<pre>model = NeuralNetwork(2, 2)
+num_params = sum(p.numel() for p in model.parameters() if p.requires_grad)
+# 752
+# Manual: 2x30+30 + 30x20+20 + 20x2+2 = 752</pre>
+                </div>
+                <h3>Exercise A.4</h3>
+                <p>GPU speedup on V100:</p>
+                <div class="code-block">
+<pre>a = torch.rand(100, 200)
+b = torch.rand(200, 300)
+# CPU: 63.8 us +/- 8.7 us
+a, b = a.to("cuda"), b.to("cuda")
+# GPU: 13.8 us +/- 425 ns  (~4x faster)</pre>
+                </div>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

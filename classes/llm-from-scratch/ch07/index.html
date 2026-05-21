@@ -1,0 +1,946 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 7: Fine-Tuning to Follow Instructions</title>
+    <style>
+        :root {
+            --primary: #1a365d;
+            --primary-light: #2c5282;
+            --accent: #e53e3e;
+            --bg: #f7fafc;
+            --card-bg: #ffffff;
+            --text: #2d3748;
+            --text-light: #718096;
+            --border: #e2e8f0;
+            --code-bg: #1a202c;
+            --code-text: #e2e8f0;
+            --highlight: #fefcbf;
+            --success: #48bb78;
+            --info: #4299e1;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.7;
+        }
+        /* Navigation */
+        .top-nav {
+            background: var(--primary);
+            color: white;
+            padding: 12px 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .top-nav .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .top-nav a { color: rgba(255,255,255,0.85); text-decoration: none; font-size: 0.9rem; }
+        .top-nav a:hover { color: white; }
+        .nav-links { display: flex; gap: 20px; }
+        /* Header */
+        .chapter-header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            color: white;
+            padding: 60px 0 40px;
+        }
+        .chapter-header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+        .chapter-header .subtitle {
+            font-size: 1.1rem;
+            opacity: 0.85;
+            max-width: 700px;
+        }
+        .chapter-badge {
+            display: inline-block;
+            background: var(--accent);
+            color: white;
+            padding: 4px 16px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 16px;
+        }
+        /* Container */
+        .container { max-width: 1100px; margin: 0 auto; padding: 0 24px; }
+        /* TOC Sidebar */
+        .content-layout {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            gap: 40px;
+            margin-top: 40px;
+        }
+        .toc-sidebar {
+            position: sticky;
+            top: 80px;
+            height: fit-content;
+            max-height: calc(100vh - 100px);
+            overflow-y: auto;
+        }
+        .toc-sidebar h3 {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-light);
+            margin-bottom: 12px;
+        }
+        .toc-sidebar ul { list-style: none; }
+        .toc-sidebar li { margin-bottom: 4px; }
+        .toc-sidebar a {
+            display: block;
+            padding: 6px 12px;
+            color: var(--text-light);
+            text-decoration: none;
+            font-size: 0.88rem;
+            border-left: 3px solid transparent;
+            border-radius: 0 4px 4px 0;
+            transition: all 0.2s;
+        }
+        .toc-sidebar a:hover, .toc-sidebar a.active {
+            color: var(--primary);
+            background: rgba(26,54,93,0.05);
+            border-left-color: var(--primary);
+        }
+        .toc-sidebar a.sub { padding-left: 28px; font-size: 0.82rem; }
+        /* Main Content */
+        .main-content { min-width: 0; padding-bottom: 80px; }
+        /* Section Cards */
+        .section-card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 32px;
+            margin-bottom: 28px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+            border: 1px solid var(--border);
+        }
+        .section-card h2 {
+            font-size: 1.5rem;
+            color: var(--primary);
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid var(--border);
+        }
+        .section-card h3 {
+            font-size: 1.15rem;
+            color: var(--primary-light);
+            margin: 24px 0 12px;
+        }
+        .section-card h4 {
+            font-size: 1rem;
+            color: var(--text);
+            margin: 16px 0 8px;
+            font-weight: 600;
+        }
+        .section-card ul {
+            padding-left: 20px;
+            margin-bottom: 12px;
+        }
+        .section-card li {
+            margin-bottom: 8px;
+            line-height: 1.6;
+        }
+        .section-card p { margin-bottom: 12px; }
+        /* Figure Box */
+        .figure-box {
+            background: #f0f5ff;
+            border: 1px solid #bee3f8;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .figure-box .figure-label {
+            font-weight: 700;
+            color: var(--info);
+            font-size: 0.9rem;
+            margin-bottom: 8px;
+        }
+        .figure-box .figure-desc {
+            font-size: 0.95rem;
+            color: var(--text);
+            line-height: 1.6;
+        }
+        .figure-box .figure-caption {
+            font-size: 0.85rem;
+            color: var(--text-light);
+            font-style: italic;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid #bee3f8;
+        }
+        /* SVG Diagram */
+        .diagram-container {
+            text-align: center;
+            margin: 16px 0;
+            padding: 16px;
+            background: white;
+            border-radius: 8px;
+        }
+        .diagram-container svg {
+            max-width: 100%;
+            height: auto;
+        }
+        /* Table */
+        .table-box {
+            background: #f0fff4;
+            border: 1px solid #c6f6d5;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            overflow-x: auto;
+        }
+        .table-box .table-label {
+            font-weight: 700;
+            color: var(--success);
+            font-size: 0.9rem;
+            margin-bottom: 12px;
+        }
+        .table-box table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .table-box th, .table-box td {
+            padding: 10px 14px;
+            text-align: left;
+            border-bottom: 1px solid #c6f6d5;
+            font-size: 0.9rem;
+        }
+        .table-box th {
+            background: #e6ffed;
+            font-weight: 600;
+            color: var(--primary);
+        }
+        /* Code Block */
+        .code-block {
+            background: var(--code-bg);
+            color: var(--code-text);
+            border-radius: 8px;
+            padding: 20px;
+            margin: 16px 0;
+            overflow-x: auto;
+            font-family: 'JetBrains Mono', 'Fira Code', monospace;
+            font-size: 0.85rem;
+            line-height: 1.6;
+        }
+        .code-block .code-label {
+            color: #a0aec0;
+            font-size: 0.8rem;
+            margin-bottom: 10px;
+        }
+        /* Note/Tip Box */
+        .note-box {
+            background: var(--highlight);
+            border-left: 4px solid #d69e2e;
+            border-radius: 0 8px 8px 0;
+            padding: 16px 20px;
+            margin: 16px 0;
+            font-size: 0.92rem;
+        }
+        .note-box strong { color: #975a16; }
+        /* Key Concept */
+        .key-concept {
+            background: #ebf4ff;
+            border-left: 4px solid var(--info);
+            border-radius: 0 8px 8px 0;
+            padding: 16px 20px;
+            margin: 16px 0;
+        }
+        .key-concept strong { color: var(--primary); }
+        /* Summary Box */
+        .summary-box {
+            background: linear-gradient(135deg, #ebf4ff 0%, #f0f5ff 100%);
+            border: 2px solid var(--info);
+            border-radius: 12px;
+            padding: 28px;
+            margin: 28px 0;
+        }
+        .summary-box h2 { border-bottom-color: var(--info); }
+        /* Page Reference */
+        .page-ref {
+            display: inline-block;
+            background: #edf2f7;
+            color: var(--text-light);
+            font-size: 0.75rem;
+            padding: 2px 8px;
+            border-radius: 10px;
+            margin-left: 8px;
+        }
+        /* Exercise Box */
+        .exercise-box {
+            background: #fff5f5;
+            border: 1px solid #feb2b2;
+            border-left: 4px solid var(--accent);
+            border-radius: 0 8px 8px 0;
+            padding: 16px 20px;
+            margin: 16px 0;
+        }
+        .exercise-box strong { color: var(--accent); }
+        /* Responsive */
+        @media (max-width: 900px) {
+            .content-layout {
+                grid-template-columns: 1fr;
+            }
+            .toc-sidebar { display: none; }
+            .chapter-header h1 { font-size: 1.8rem; }
+        }
+        /* Print */
+        @media print {
+            .top-nav, .toc-sidebar { display: none; }
+            .section-card { break-inside: avoid; box-shadow: none; border: 1px solid #ddd; }
+        }
+            /* Book Figure Image */
+        .book-figure { text-align: center; margin: 18px 0 6px; padding: 14px; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 10px; }
+        .book-figure img { max-width: 100%; height: auto; border-radius: 6px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+        .book-figure .book-figure-tag { display: block; font-size: 0.78rem; color: #718096; margin-top: 8px; letter-spacing: 0.5px; text-transform: uppercase; }
+</style>
+</head>
+<body>
+    <nav class="top-nav">
+        <div class="container">
+            <a href="../index.html"><strong>Build a Large Language Model (From Scratch)</strong></a>
+            <div class="nav-links">
+                <a href="../ch06/index.html">Previous</a>
+                <a href="../index.html">Contents</a>
+                <a href="../appA/index.html">Next</a>
+            </div>
+        </div>
+    </nav>
+
+    <header class="chapter-header">
+        <div class="container">
+            <span class="chapter-badge">Chapter 7</span>
+            <h1>Fine-Tuning to Follow Instructions</h1>
+            <p class="subtitle">Implementing supervised instruction fine-tuning to transform a pretrained LLM into an instruction-following personal assistant, complete with automated evaluation using Ollama and Llama 3.</p>
+        </div>
+    </header>
+
+    <div class="container content-layout">
+        <aside class="toc-sidebar">
+            <h3>In This Chapter</h3>
+            <ul>
+                <li><a href="#overview">Overview</a></li>
+                <li><a href="#s71">7.1 Introduction to Instruction Fine-tuning</a></li>
+                <li><a href="#s72">7.2 Preparing a Dataset</a></li>
+                <li><a class="sub" href="#s72-download">Downloading the Dataset</a></li>
+                <li><a class="sub" href="#s72-prompt">Prompt Styles</a></li>
+                <li><a class="sub" href="#s72-partition">Partitioning</a></li>
+                <li><a href="#s73">7.3 Organizing Data into Batches</a></li>
+                <li><a class="sub" href="#s73-batching">5-Step Batching Process</a></li>
+                <li><a class="sub" href="#s73-collate">Custom Collate Function</a></li>
+                <li><a class="sub" href="#s73-masking">Instruction Masking</a></li>
+                <li><a href="#s74">7.4 Creating Data Loaders</a></li>
+                <li><a href="#s75">7.5 Loading a Pretrained LLM</a></li>
+                <li><a href="#s76">7.6 Fine-tuning the LLM</a></li>
+                <li><a href="#s77">7.7 Extracting and Saving Responses</a></li>
+                <li><a href="#s78">7.8 Evaluating the Fine-tuned LLM</a></li>
+                <li><a class="sub" href="#s78-ollama">Using Ollama &amp; Llama 3</a></li>
+                <li><a class="sub" href="#s78-scores">Scoring Responses</a></li>
+                <li><a href="#s79">7.9 Conclusions</a></li>
+                <li><a href="#summary">Summary</a></li>
+            </ul>
+        </aside>
+        <main class="main-content">
+
+            <!-- Overview -->
+            <section class="section-card" id="overview">
+                <h2>Overview <span class="page-ref">p. 204</span></h2>
+                <ul>
+                    <li>Previously: implemented LLM architecture, carried out pretraining, imported pretrained weights</li>
+                    <li>Chapter 6: fine-tuned the LLM for classification (spam vs. non-spam)</li>
+                    <li>This chapter: fine-tune the LLM to <strong>follow human instructions</strong></li>
+                    <li>Instruction fine-tuning is the key technique behind chatbots, personal assistants, and conversational AI</li>
+                </ul>
+                <div class="figure-box">
+                    <div class="figure-label">Figure 7.1 -- Three Main Stages of Coding an LLM <span class="page-ref">p. 205</span></div>
+                    <div class="book-figure">
+                        <img src="../assets/ch07/ch07__image001.png" alt="Figure 7.1 -- Three Main Stages of Coding an LLM p. 205" loading="lazy">
+                        <span class="book-figure-tag">From the book (Raschka, 2025)</span>
+                    </div>
+                    <div class="diagram-container">
+                        <svg viewBox="0 0 800 320" xmlns="http://www.w3.org/2000/svg">
+                            <!-- Stage 1 -->
+                            <rect x="10" y="20" width="240" height="100" rx="8" fill="#ebf4ff" stroke="#4299e1" stroke-width="1.5"/>
+                            <text x="130" y="45" text-anchor="middle" font-size="13" font-weight="bold" fill="#1a365d">STAGE 1: Building an LLM</text>
+                            <rect x="25" y="58" width="65" height="24" rx="4" fill="#fff" stroke="#bee3f8"/>
+                            <text x="57" y="74" text-anchor="middle" font-size="9" fill="#2d3748">1) Data prep</text>
+                            <rect x="97" y="58" width="65" height="24" rx="4" fill="#fff" stroke="#bee3f8"/>
+                            <text x="129" y="74" text-anchor="middle" font-size="9" fill="#2d3748">2) Attention</text>
+                            <rect x="169" y="58" width="65" height="24" rx="4" fill="#fff" stroke="#bee3f8"/>
+                            <text x="201" y="74" text-anchor="middle" font-size="9" fill="#2d3748">3) LLM arch</text>
+                            <text x="130" y="104" text-anchor="middle" font-size="10" fill="#718096">Chapters 2-4</text>
+                            <!-- Arrow -->
+                            <line x1="250" y1="70" x2="280" y2="70" stroke="#718096" stroke-width="2" marker-end="url(#arrowhead)"/>
+                            <!-- Stage 2 -->
+                            <rect x="280" y="20" width="240" height="100" rx="8" fill="#ebf4ff" stroke="#4299e1" stroke-width="1.5"/>
+                            <text x="400" y="45" text-anchor="middle" font-size="13" font-weight="bold" fill="#1a365d">STAGE 2: Foundation Model</text>
+                            <rect x="295" y="58" width="65" height="24" rx="4" fill="#fff" stroke="#bee3f8"/>
+                            <text x="327" y="74" text-anchor="middle" font-size="9" fill="#2d3748">5) Training</text>
+                            <rect x="367" y="58" width="65" height="24" rx="4" fill="#fff" stroke="#bee3f8"/>
+                            <text x="399" y="74" text-anchor="middle" font-size="9" fill="#2d3748">6) Evaluate</text>
+                            <rect x="439" y="58" width="65" height="24" rx="4" fill="#fff" stroke="#bee3f8"/>
+                            <text x="471" y="74" text-anchor="middle" font-size="9" fill="#2d3748">7) Load wts</text>
+                            <text x="400" y="104" text-anchor="middle" font-size="10" fill="#718096">Chapter 5</text>
+                            <!-- Arrow -->
+                            <line x1="520" y1="70" x2="550" y2="70" stroke="#718096" stroke-width="2" marker-end="url(#arrowhead)"/>
+                            <!-- Stage 3 -->
+                            <rect x="550" y="10" width="240" height="180" rx="8" fill="#ebf4ff" stroke="#4299e1" stroke-width="1.5"/>
+                            <text x="670" y="35" text-anchor="middle" font-size="13" font-weight="bold" fill="#1a365d">STAGE 3: Fine-tuning</text>
+                            <!-- Classification -->
+                            <rect x="565" y="50" width="95" height="30" rx="4" fill="#fff" stroke="#bee3f8"/>
+                            <text x="612" y="70" text-anchor="middle" font-size="9" fill="#2d3748">8) Classifier</text>
+                            <text x="612" y="100" text-anchor="middle" font-size="9" fill="#718096">Ch 6</text>
+                            <!-- Instruction (highlighted) -->
+                            <rect x="680" y="50" width="95" height="30" rx="4" fill="#c6f6d5" stroke="#48bb78" stroke-width="2"/>
+                            <text x="727" y="70" text-anchor="middle" font-size="9" font-weight="bold" fill="#1a365d">9) Instructions</text>
+                            <text x="727" y="100" text-anchor="middle" font-size="9" font-weight="bold" fill="#e53e3e">Ch 7 (This chapter)</text>
+                            <!-- Instruction dataset -->
+                            <rect x="665" y="120" width="110" height="28" rx="4" fill="#fefcbf" stroke="#d69e2e"/>
+                            <text x="720" y="139" text-anchor="middle" font-size="9" fill="#975a16">Instruction Dataset</text>
+                            <line x1="720" y1="148" x2="720" y2="160" stroke="#d69e2e" stroke-width="1.5"/>
+                            <rect x="665" y="160" width="110" height="22" rx="4" fill="#fff5f5" stroke="#e53e3e"/>
+                            <text x="720" y="175" text-anchor="middle" font-size="9" fill="#e53e3e">Personal Assistant</text>
+                            <!-- Arrow marker -->
+                            <defs>
+                                <marker id="arrowhead" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+                                    <polygon points="0 0, 8 3, 0 6" fill="#718096"/>
+                                </marker>
+                            </defs>
+                        </svg>
+                    </div>
+                    <div class="figure-caption">This chapter focuses on step 9 of stage 3: fine-tuning a pretrained LLM to follow human instructions using an instruction dataset to create a personal assistant.</div>
+                </div>
+            </section>
+
+            <!-- 7.1 -->
+            <section class="section-card" id="s71">
+                <h2>7.1 Introduction to Instruction Fine-Tuning <span class="page-ref">p. 205</span></h2>
+                <ul>
+                    <li>Pretraining teaches an LLM to generate one word at a time -- resulting in <strong>text completion</strong> capability</li>
+                    <li>Pretrained LLMs often struggle with specific instructions (e.g., "Fix the grammar" or "Convert to passive voice")</li>
+                    <li><strong>Instruction fine-tuning</strong> (supervised instruction fine-tuning) improves the LLM's ability to follow instructions and generate desired responses</li>
+                </ul>
+                <div class="figure-box">
+                    <div class="figure-label">Figure 7.2 -- Instruction-Response Examples <span class="page-ref">p. 206</span></div>
+                    <div class="book-figure">
+                        <img src="../assets/ch07/ch07__image003.png" alt="Figure 7.2 -- Instruction-Response Examples p. 206" loading="lazy">
+                        <span class="book-figure-tag">From the book (Raschka, 2025)</span>
+                    </div>
+                    <div class="figure-desc">
+                        <strong>Instruction:</strong> "Convert 45 kilometers to meters." &rarr; <strong>Response:</strong> "45 kilometers is 45000 meters."<br>
+                        <strong>Instruction:</strong> "Provide a synonym for 'bright.'" &rarr; <strong>Response:</strong> "A synonym for 'bright' is 'radiant.'"<br>
+                        <strong>Instruction:</strong> "Edit the following sentence to remove all passive voice..." &rarr; <strong>Response:</strong> "The artist composed the song."
+                    </div>
+                </div>
+                <div class="figure-box">
+                    <div class="figure-label">Figure 7.3 -- Three-Stage Process for Instruction Fine-Tuning <span class="page-ref">p. 206</span></div>
+                    <div class="book-figure">
+                        <img src="../assets/ch07/ch07__image005.png" alt="Figure 7.3 -- Three-Stage Process for Instruction Fine-Tuning p. 206" loading="lazy">
+                        <span class="book-figure-tag">From the book (Raschka, 2025)</span>
+                    </div>
+                    <div class="diagram-container">
+                        <svg viewBox="0 0 750 280" xmlns="http://www.w3.org/2000/svg">
+                            <!-- Stage 1 -->
+                            <text x="60" y="30" font-size="12" font-weight="bold" fill="#1a365d">Stage 1: Preparing the dataset</text>
+                            <rect x="20" y="40" width="120" height="35" rx="6" fill="#bee3f8" stroke="#4299e1"/>
+                            <text x="80" y="62" text-anchor="middle" font-size="10" fill="#1a365d">1) Download &amp; format</text>
+                            <rect x="160" y="40" width="120" height="35" rx="6" fill="#bee3f8" stroke="#4299e1"/>
+                            <text x="220" y="62" text-anchor="middle" font-size="10" fill="#1a365d">2) Batch dataset</text>
+                            <rect x="300" y="40" width="120" height="35" rx="6" fill="#bee3f8" stroke="#4299e1"/>
+                            <text x="360" y="62" text-anchor="middle" font-size="10" fill="#1a365d">3) Create loaders</text>
+                            <line x1="140" y1="57" x2="160" y2="57" stroke="#718096" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+                            <line x1="280" y1="57" x2="300" y2="57" stroke="#718096" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+                            <!-- Stage 2 -->
+                            <text x="60" y="120" font-size="12" font-weight="bold" fill="#1a365d">Stage 2: Fine-tuning the LLM</text>
+                            <rect x="20" y="130" width="120" height="35" rx="6" fill="#bee3f8" stroke="#4299e1"/>
+                            <text x="80" y="152" text-anchor="middle" font-size="10" fill="#1a365d">4) Load pretrained</text>
+                            <rect x="160" y="130" width="130" height="35" rx="6" fill="#bee3f8" stroke="#4299e1"/>
+                            <text x="225" y="152" text-anchor="middle" font-size="10" fill="#1a365d">5) Fine-tune LLM</text>
+                            <rect x="310" y="130" width="120" height="35" rx="6" fill="#bee3f8" stroke="#4299e1"/>
+                            <text x="370" y="152" text-anchor="middle" font-size="10" fill="#1a365d">6) Inspect loss</text>
+                            <line x1="140" y1="147" x2="160" y2="147" stroke="#718096" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+                            <line x1="290" y1="147" x2="310" y2="147" stroke="#718096" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+                            <!-- Stage 3 -->
+                            <text x="60" y="210" font-size="12" font-weight="bold" fill="#1a365d">Stage 3: Evaluating the LLM</text>
+                            <rect x="20" y="220" width="120" height="35" rx="6" fill="#bee3f8" stroke="#4299e1"/>
+                            <text x="80" y="242" text-anchor="middle" font-size="10" fill="#1a365d">7) Extract responses</text>
+                            <rect x="160" y="220" width="130" height="35" rx="6" fill="#bee3f8" stroke="#4299e1"/>
+                            <text x="225" y="242" text-anchor="middle" font-size="10" fill="#1a365d">8) Qualitative eval</text>
+                            <rect x="310" y="220" width="120" height="35" rx="6" fill="#bee3f8" stroke="#4299e1"/>
+                            <text x="370" y="242" text-anchor="middle" font-size="10" fill="#1a365d">9) Score responses</text>
+                            <line x1="140" y1="237" x2="160" y2="237" stroke="#718096" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+                            <line x1="290" y1="237" x2="310" y2="237" stroke="#718096" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+                            <!-- Vertical arrows -->
+                            <line x1="220" y1="75" x2="220" y2="130" stroke="#718096" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+                            <line x1="220" y1="165" x2="220" y2="220" stroke="#718096" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+                        </svg>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 7.2 -->
+            <section class="section-card" id="s72">
+                <h2>7.2 Preparing a Dataset for Supervised Instruction Fine-Tuning <span class="page-ref">p. 207</span></h2>
+
+                <h3 id="s72-download">Downloading the Dataset</h3>
+                <ul>
+                    <li>Dataset: 1,100 instruction-response pairs in JSON format (204 KB)</li>
+                    <li>Each entry has keys: <code>instruction</code>, <code>input</code>, <code>output</code></li>
+                    <li>The <code>input</code> field may occasionally be empty</li>
+                </ul>
+
+                <div class="code-block">
+                    <div class="code-label">Listing 7.1 -- Downloading the dataset</div>
+<pre>import json, os, urllib.request
+
+def download_and_load_file(file_path, url):
+    if not os.path.exists(file_path):
+        with urllib.request.urlopen(url) as response:
+            text_data = response.read().decode("utf-8")
+        with open(file_path, "w", encoding="utf-8") as file:
+            file.write(text_data)
+    else:
+        with open(file_path, "r", encoding="utf-8") as file:
+            text_data = file.read()
+    with open(file_path, "r") as file:
+        data = json.load(file)
+    return data
+
+file_path = "instruction-data.json"
+url = ("https://raw.githubusercontent.com/rasbt/LLMs-from-scratch"
+       "/main/ch07/01_main-chapter-code/instruction-data.json")
+data = download_and_load_file(file_path, url)
+print("Number of entries:", len(data))  # 1100</pre>
+                </div>
+
+                <h3 id="s72-prompt">Prompt Styles</h3>
+                <div class="figure-box">
+                    <div class="figure-label">Figure 7.4 -- Prompt Style Comparison <span class="page-ref">p. 208</span></div>
+                    <div class="book-figure">
+                        <img src="../assets/ch07/ch07__image007.png" alt="Figure 7.4 -- Prompt Style Comparison p. 208" loading="lazy">
+                        <span class="book-figure-tag">From the book (Raschka, 2025)</span>
+                    </div>
+                    <div class="figure-desc">
+                        <strong>Alpaca style:</strong> Structured format with <code>### Instruction:</code>, <code>### Input:</code>, <code>### Response:</code> sections.<br>
+                        <strong>Phi-3 style:</strong> Simpler format using <code>&lt;|user|&gt;</code> and <code>&lt;|assistant|&gt;</code> tokens.<br>
+                        This chapter uses the <strong>Alpaca prompt style</strong>.
+                    </div>
+                </div>
+
+                <div class="code-block">
+                    <div class="code-label">Listing 7.2 -- Implementing the prompt formatting function</div>
+<pre>def format_input(entry):
+    instruction_text = (
+        f"Below is an instruction that describes a task. "
+        f"Write a response that appropriately completes the request."
+        f"\n\n### Instruction:\n{entry['instruction']}"
+    )
+    input_text = (
+        f"\n\n### Input:\n{entry['input']}" if entry["input"] else ""
+    )
+    return instruction_text + input_text</pre>
+                </div>
+
+                <h3 id="s72-partition">Partitioning the Dataset</h3>
+                <div class="code-block">
+                    <div class="code-label">Listing 7.3 -- Partitioning the dataset</div>
+<pre>train_portion = int(len(data) * 0.85)   # 935 entries
+test_portion = int(len(data) * 0.1)      # 110 entries
+val_portion = len(data) - train_portion - test_portion  # 55 entries</pre>
+                </div>
+            </section>
+
+            <!-- 7.3 -->
+            <section class="section-card" id="s73">
+                <h2>7.3 Organizing Data into Training Batches <span class="page-ref">p. 211</span></h2>
+
+                <h3 id="s73-batching">The 5-Step Batching Process</h3>
+                <div class="figure-box">
+                    <div class="figure-label">Figure 7.6 -- Five Substeps of the Batching Process <span class="page-ref">p. 212</span></div>
+                    <div class="book-figure">
+                        <img src="../assets/ch07/ch07__image009.png" alt="Figure 7.6 -- Five Substeps of the Batching Process p. 212" loading="lazy">
+                        <span class="book-figure-tag">From the book (Raschka, 2025)</span>
+                    </div>
+                    <div class="diagram-container">
+                        <svg viewBox="0 0 700 340" xmlns="http://www.w3.org/2000/svg">
+                            <!-- Step 2.1 -->
+                            <rect x="20" y="10" width="180" height="50" rx="8" fill="#ebf4ff" stroke="#4299e1" stroke-width="1.5"/>
+                            <text x="110" y="30" text-anchor="middle" font-size="11" font-weight="bold" fill="#1a365d">2.1) Format data using</text>
+                            <text x="110" y="46" text-anchor="middle" font-size="11" fill="#1a365d">prompt template</text>
+                            <text x="350" y="35" font-size="10" fill="#718096">### Instruction: ... ### Response: ...</text>
+                            <line x1="110" y1="60" x2="110" y2="75" stroke="#718096" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+                            <!-- Step 2.2 -->
+                            <rect x="20" y="75" width="180" height="50" rx="8" fill="#ebf4ff" stroke="#4299e1" stroke-width="1.5"/>
+                            <text x="110" y="95" text-anchor="middle" font-size="11" font-weight="bold" fill="#1a365d">2.2) Tokenize</text>
+                            <text x="110" y="111" text-anchor="middle" font-size="11" fill="#1a365d">formatted data</text>
+                            <text x="350" y="100" font-size="10" fill="#718096">[21106, 318, 281, 12064, 326, ...]</text>
+                            <line x1="110" y1="125" x2="110" y2="140" stroke="#718096" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+                            <!-- Step 2.3 -->
+                            <rect x="20" y="140" width="180" height="50" rx="8" fill="#ebf4ff" stroke="#4299e1" stroke-width="1.5"/>
+                            <text x="110" y="160" text-anchor="middle" font-size="11" font-weight="bold" fill="#1a365d">2.3) Add padding</text>
+                            <text x="110" y="176" text-anchor="middle" font-size="11" fill="#1a365d">tokens (50256)</text>
+                            <text x="350" y="165" font-size="10" fill="#718096">Pad to same length within batch</text>
+                            <line x1="110" y1="190" x2="110" y2="205" stroke="#718096" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+                            <!-- Step 2.4 -->
+                            <rect x="20" y="205" width="180" height="50" rx="8" fill="#ebf4ff" stroke="#4299e1" stroke-width="1.5"/>
+                            <text x="110" y="225" text-anchor="middle" font-size="11" font-weight="bold" fill="#1a365d">2.4) Create target</text>
+                            <text x="110" y="241" text-anchor="middle" font-size="11" fill="#1a365d">token IDs (shift +1)</text>
+                            <text x="350" y="230" font-size="10" fill="#718096">Targets = inputs shifted right by 1 position</text>
+                            <line x1="110" y1="255" x2="110" y2="270" stroke="#718096" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+                            <!-- Step 2.5 -->
+                            <rect x="20" y="270" width="180" height="50" rx="8" fill="#fefcbf" stroke="#d69e2e" stroke-width="1.5"/>
+                            <text x="110" y="290" text-anchor="middle" font-size="11" font-weight="bold" fill="#975a16">2.5) Replace padding</text>
+                            <text x="110" y="306" text-anchor="middle" font-size="11" fill="#975a16">with -100</text>
+                            <text x="350" y="295" font-size="10" fill="#718096">PyTorch cross_entropy ignores -100 targets</text>
+                        </svg>
+                    </div>
+                </div>
+
+                <h3 id="s73-collate">Custom Collate Function</h3>
+                <div class="code-block">
+                    <div class="code-label">Listing 7.5 -- Implementing a custom batch collate function</div>
+<pre>def custom_collate_fn(
+    batch, pad_token_id=50256, ignore_index=-100,
+    allowed_max_length=None, device="cpu"
+):
+    batch_max_length = max(len(item)+1 for item in batch)
+    inputs_lst, targets_lst = [], []
+    for item in batch:
+        new_item = item.copy()
+        new_item += [pad_token_id]
+        padded = new_item + [pad_token_id] * (batch_max_length - len(new_item))
+        inputs = torch.tensor(padded[:-1])
+        targets = torch.tensor(padded[1:])
+        mask = targets == pad_token_id
+        indices = torch.nonzero(mask).squeeze()
+        if indices.numel() > 1:
+            targets[indices[1:]] = ignore_index
+        if allowed_max_length is not None:
+            inputs = inputs[:allowed_max_length]
+            targets = targets[:allowed_max_length]
+        inputs_lst.append(inputs)
+        targets_lst.append(targets)
+    inputs_tensor = torch.stack(inputs_lst).to(device)
+    targets_tensor = torch.stack(targets_lst).to(device)
+    return inputs_tensor, targets_tensor</pre>
+                </div>
+
+                <div class="key-concept">
+                    <strong>Why -100?</strong> PyTorch's cross_entropy loss function has a default <code>ignore_index=-100</code>, meaning it ignores targets labeled with -100. We use this to exclude padding tokens from the loss computation. We keep one 50256 token in targets so the LLM learns when to stop generating.
+                </div>
+
+                <h3 id="s73-masking">Instruction Masking (Optional)</h3>
+                <div class="figure-box">
+                    <div class="figure-label">Figure 7.13 -- Instruction Masking <span class="page-ref">p. 222</span></div>
+                    <div class="book-figure">
+                        <img src="../assets/ch07/ch07__image011.png" alt="Figure 7.13 -- Instruction Masking p. 222" loading="lazy">
+                        <span class="book-figure-tag">From the book (Raschka, 2025)</span>
+                    </div>
+                    <div class="figure-desc">
+                        <strong>Left:</strong> Full formatted input text tokenized and fed to the LLM.<br>
+                        <strong>Right:</strong> Target text with instruction tokens replaced by -100 (masked out), keeping only response tokens.<br>
+                        Research is divided on whether masking helps. Shi et al. (2024) found that <em>not</em> masking instructions benefits performance. This chapter does <strong>not</strong> apply masking.
+                    </div>
+                </div>
+            </section>
+
+            <!-- 7.4 -->
+            <section class="section-card" id="s74">
+                <h2>7.4 Creating Data Loaders for an Instruction Dataset <span class="page-ref">p. 223</span></h2>
+                <ul>
+                    <li>Plug InstructionDataset objects and custom_collate_fn into PyTorch DataLoaders</li>
+                    <li>Device options: <code>"cpu"</code>, <code>"cuda"</code>, or <code>"mps"</code> (Apple Silicon)</li>
+                    <li>Use <code>functools.partial</code> to create a customized collate function with <code>allowed_max_length=1024</code></li>
+                </ul>
+                <div class="code-block">
+                    <div class="code-label">Listing 7.6 -- Initializing the data loaders</div>
+<pre>from torch.utils.data import DataLoader
+from functools import partial
+
+customized_collate_fn = partial(
+    custom_collate_fn, device=device, allowed_max_length=1024
+)
+
+num_workers = 0; batch_size = 8
+torch.manual_seed(123)
+
+train_dataset = InstructionDataset(train_data, tokenizer)
+train_loader = DataLoader(train_dataset, batch_size=batch_size,
+    collate_fn=customized_collate_fn, shuffle=True, drop_last=True,
+    num_workers=num_workers)
+
+val_dataset = InstructionDataset(val_data, tokenizer)
+val_loader = DataLoader(val_dataset, batch_size=batch_size,
+    collate_fn=customized_collate_fn, shuffle=False, drop_last=False,
+    num_workers=num_workers)
+
+test_dataset = InstructionDataset(test_data, tokenizer)
+test_loader = DataLoader(test_dataset, batch_size=batch_size,
+    collate_fn=customized_collate_fn, shuffle=False, drop_last=False,
+    num_workers=num_workers)</pre>
+                </div>
+                <div class="note-box">
+                    <strong>Note:</strong> Batch dimensions vary -- e.g., torch.Size([8, 61]), torch.Size([8, 76]) -- because different batches have different sequence lengths thanks to the custom collate function.
+                </div>
+            </section>
+
+            <!-- 7.5 -->
+            <section class="section-card" id="s75">
+                <h2>7.5 Loading a Pretrained LLM <span class="page-ref">p. 226</span></h2>
+                <ul>
+                    <li>Load the <strong>GPT-2 medium (355M parameters)</strong> instead of the small (124M) model</li>
+                    <li>124M model is too limited in capacity for high-quality instruction fine-tuning</li>
+                    <li>Model download: approximately 1.42 GB</li>
+                </ul>
+                <div class="code-block">
+                    <div class="code-label">Listing 7.7 -- Loading the pretrained model</div>
+<pre>from gpt_download import download_and_load_gpt2
+from chapter04 import GPTModel
+from chapter05 import load_weights_into_gpt
+
+BASE_CONFIG = {
+    "vocab_size": 50257, "context_length": 1024,
+    "drop_rate": 0.0, "qkv_bias": True
+}
+CHOOSE_MODEL = "gpt2-medium (355M)"
+BASE_CONFIG.update(model_configs[CHOOSE_MODEL])
+
+settings, params = download_and_load_gpt2(model_size="355M", models_dir="gpt2")
+model = GPTModel(BASE_CONFIG)
+load_weights_into_gpt(model, params)
+model.eval()</pre>
+                </div>
+                <div class="note-box">
+                    <strong>Before fine-tuning:</strong> The pretrained model simply repeats the input sentence and instruction text when asked to convert active to passive voice -- demonstrating it cannot follow instructions yet.
+                </div>
+            </section>
+
+            <!-- 7.6 -->
+            <section class="section-card" id="s76">
+                <h2>7.6 Fine-Tuning the LLM on Instruction Data <span class="page-ref">p. 229</span></h2>
+                <ul>
+                    <li>Reuse <code>calc_loss_loader</code> and <code>train_model_simple</code> from chapter 5</li>
+                    <li>Initial training loss: 3.83; Initial validation loss: 3.76</li>
+                    <li>Optimizer: AdamW with lr=0.00005, weight_decay=0.1</li>
+                    <li>Training: 2 epochs</li>
+                </ul>
+
+                <div class="table-box">
+                    <div class="table-label">Hardware Run Times (Two Epochs) <span class="page-ref">p. 231</span></div>
+                    <table>
+                        <tr><th>Model</th><th>Device</th><th>Run Time</th></tr>
+                        <tr><td>gpt2-medium (355M)</td><td>CPU (M3 MacBook Air)</td><td>15.78 min</td></tr>
+                        <tr><td>gpt2-medium (355M)</td><td>GPU (NVIDIA L4)</td><td>1.83 min</td></tr>
+                        <tr><td>gpt2-medium (355M)</td><td>GPU (NVIDIA A100)</td><td>0.86 min</td></tr>
+                        <tr><td>gpt2-small (124M)</td><td>CPU (M3 MacBook Air)</td><td>5.74 min</td></tr>
+                        <tr><td>gpt2-small (124M)</td><td>GPU (NVIDIA L4)</td><td>0.69 min</td></tr>
+                        <tr><td>gpt2-small (124M)</td><td>GPU (NVIDIA A100)</td><td>0.39 min</td></tr>
+                    </table>
+                </div>
+
+                <div class="code-block">
+                    <div class="code-label">Listing 7.8 -- Instruction fine-tuning the pretrained LLM</div>
+<pre>import time
+start_time = time.time()
+torch.manual_seed(123)
+optimizer = torch.optim.AdamW(
+    model.parameters(), lr=0.00005, weight_decay=0.1
+)
+num_epochs = 2
+train_losses, val_losses, tokens_seen = train_model_simple(
+    model, train_loader, val_loader, optimizer, device,
+    num_epochs=num_epochs, eval_freq=5, eval_iter=5,
+    start_context=format_input(val_data[0]), tokenizer=tokenizer
+)</pre>
+                </div>
+
+                <div class="figure-box">
+                    <div class="figure-label">Figure 7.17 -- Training and Validation Loss <span class="page-ref">p. 233</span></div>
+                    <div class="book-figure">
+                        <img src="../assets/ch07/ch07__image013.png" alt="Figure 7.17 -- Training and Validation Loss p. 233" loading="lazy">
+                        <span class="book-figure-tag">From the book (Raschka, 2025)</span>
+                    </div>
+                    <div class="figure-desc">
+                        Both training and validation losses show a sharp initial decrease followed by gradual stabilization over 2 epochs. The model successfully learns to convert "The chef cooks the meal every day." to "The meal is cooked every day by the chef."
+                    </div>
+                </div>
+            </section>
+
+            <!-- 7.7 -->
+            <section class="section-card" id="s77">
+                <h2>7.7 Extracting and Saving Responses <span class="page-ref">p. 233</span></h2>
+                <ul>
+                    <li>Extract model-generated responses for each input in the test dataset</li>
+                    <li>Use the <code>generate</code> function with <code>max_new_tokens=256</code></li>
+                    <li>Save responses to <code>instruction-data-with-response.json</code></li>
+                    <li>Save model as <code>gpt2-medium355M-sft.pth</code></li>
+                </ul>
+
+                <h3>Sample Test Set Outputs</h3>
+                <div class="table-box">
+                    <div class="table-label">Test Set Response Comparison <span class="page-ref">p. 235</span></div>
+                    <table>
+                        <tr><th>Instruction</th><th>Expected</th><th>Model Response</th></tr>
+                        <tr><td>Rewrite using a simile</td><td>...as fast as lightning</td><td>...as fast as a bullet</td></tr>
+                        <tr><td>Cloud type for thunderstorms?</td><td>cumulonimbus</td><td>cumulus cloud</td></tr>
+                        <tr><td>Author of Pride and Prejudice</td><td>Jane Austen</td><td>...is Jane Austen</td></tr>
+                    </table>
+                </div>
+
+                <div class="code-block">
+                    <div class="code-label">Listing 7.9 -- Generating test set responses</div>
+<pre>from tqdm import tqdm
+for i, entry in tqdm(enumerate(test_data), total=len(test_data)):
+    input_text = format_input(entry)
+    token_ids = generate(model=model,
+        idx=text_to_token_ids(input_text, tokenizer).to(device),
+        max_new_tokens=256,
+        context_size=BASE_CONFIG["context_length"], eos_id=50256)
+    generated_text = token_ids_to_text(token_ids, tokenizer)
+    response_text = (generated_text[len(input_text):]
+        .replace("### Response:", "").strip())
+    test_data[i]["model_response"] = response_text
+with open("instruction-data-with-response.json", "w") as file:
+    json.dump(test_data, file, indent=4)</pre>
+                </div>
+            </section>
+
+            <!-- 7.8 -->
+            <section class="section-card" id="s78">
+                <h2>7.8 Evaluating the Fine-Tuned LLM <span class="page-ref">p. 238</span></h2>
+
+                <h3 id="s78-ollama">Using Ollama and Llama 3</h3>
+                <ul>
+                    <li>Use the 8-billion-parameter <strong>Llama 3</strong> model via <strong>Ollama</strong> (https://ollama.com) for automated evaluation</li>
+                    <li>Ollama wraps llama.cpp (pure C/C++ LLM implementation) for efficient inference</li>
+                    <li>Alternative models: phi3 (3.8B, ~8GB RAM), llama3:70b (70B, heavy resources)</li>
+                </ul>
+
+                <div class="figure-box">
+                    <div class="figure-label">Figure 7.19 -- Evaluation Pipeline <span class="page-ref">p. 239</span></div>
+                    <div class="book-figure">
+                        <img src="../assets/ch07/ch07__image015.png" alt="Figure 7.19 -- Evaluation Pipeline p. 239" loading="lazy">
+                        <span class="book-figure-tag">From the book (Raschka, 2025)</span>
+                    </div>
+                    <div class="diagram-container">
+                        <svg viewBox="0 0 700 200" xmlns="http://www.w3.org/2000/svg">
+                            <rect x="20" y="40" width="140" height="50" rx="8" fill="#ebf4ff" stroke="#4299e1" stroke-width="1.5"/>
+                            <text x="90" y="62" text-anchor="middle" font-size="11" fill="#1a365d">Fine-tuned Model</text>
+                            <text x="90" y="78" text-anchor="middle" font-size="10" fill="#718096">GPT-2 355M SFT</text>
+                            <line x1="160" y1="65" x2="200" y2="65" stroke="#718096" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+                            <rect x="200" y="40" width="140" height="50" rx="8" fill="#fefcbf" stroke="#d69e2e" stroke-width="1.5"/>
+                            <text x="270" y="62" text-anchor="middle" font-size="11" fill="#975a16">Test Set (110)</text>
+                            <text x="270" y="78" text-anchor="middle" font-size="10" fill="#975a16">Generate responses</text>
+                            <line x1="340" y1="65" x2="380" y2="65" stroke="#718096" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+                            <rect x="380" y="40" width="140" height="50" rx="8" fill="#c6f6d5" stroke="#48bb78" stroke-width="1.5"/>
+                            <text x="450" y="62" text-anchor="middle" font-size="11" fill="#1a365d">Llama 3 (8B)</text>
+                            <text x="450" y="78" text-anchor="middle" font-size="10" fill="#718096">Score 0-100</text>
+                            <line x1="520" y1="65" x2="560" y2="65" stroke="#718096" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+                            <rect x="560" y="40" width="120" height="50" rx="8" fill="#fff5f5" stroke="#e53e3e" stroke-width="1.5"/>
+                            <text x="620" y="62" text-anchor="middle" font-size="12" font-weight="bold" fill="#e53e3e">Avg: 50.32</text>
+                            <text x="620" y="78" text-anchor="middle" font-size="10" fill="#718096">110 scores</text>
+                        </svg>
+                    </div>
+                    <div class="figure-caption">The evaluation pipeline: generate responses with the fine-tuned model, then score each response using Llama 3 via Ollama on a 0-100 scale.</div>
+                </div>
+
+                <div class="code-block">
+                    <div class="code-label">Listing 7.10 -- Querying a local Ollama model</div>
+<pre>def query_model(prompt, model="llama3",
+                url="http://localhost:11434/api/chat"):
+    data = {"model": model,
+            "messages": [{"role": "user", "content": prompt}],
+            "options": {"seed": 123, "temperature": 0, "num_ctx": 2048}}
+    payload = json.dumps(data).encode("utf-8")
+    request = urllib.request.Request(url, data=payload, method="POST")
+    request.add_header("Content-Type", "application/json")
+    response_data = ""
+    with urllib.request.urlopen(request) as response:
+        while True:
+            line = response.readline().decode("utf-8")
+            if not line: break
+            response_json = json.loads(line)
+            response_data += response_json["message"]["content"]
+    return response_data</pre>
+                </div>
+
+                <h3 id="s78-scores">Scoring Results</h3>
+                <div class="table-box">
+                    <div class="table-label">Example Scores from Llama 3 <span class="page-ref">p. 244</span></div>
+                    <table>
+                        <tr><th>Task</th><th>Expected</th><th>Model Response</th><th>Score</th></tr>
+                        <tr><td>Simile rewriting</td><td>...as fast as lightning</td><td>...as fast as a bullet</td><td>85/100</td></tr>
+                        <tr><td>Thunderstorm cloud</td><td>cumulonimbus</td><td>cumulus cloud</td><td>40/100</td></tr>
+                        <tr><td>Author identification</td><td>Jane Austen</td><td>...is Jane Austen</td><td>95/100</td></tr>
+                    </table>
+                </div>
+
+                <div class="code-block">
+                    <div class="code-label">Listing 7.11 -- Evaluating the instruction fine-tuning LLM</div>
+<pre>def generate_model_scores(json_data, json_key, model="llama3"):
+    scores = []
+    for entry in tqdm(json_data, desc="Scoring entries"):
+        prompt = (f"Given the input `{format_input(entry)}` "
+                  f"and correct output `{entry['output']}`, "
+                  f"score the model response `{entry[json_key]}`"
+                  f" on a scale from 0 to 100, where 100 is the best score. "
+                  f"Respond with the integer number only.")
+        score = query_model(prompt, model)
+        try: scores.append(int(score))
+        except ValueError: continue
+    return scores
+
+scores = generate_model_scores(test_data, "model_response")
+# Average score: 50.32</pre>
+                </div>
+
+                <div class="key-concept">
+                    <strong>Performance Reference:</strong><br>
+                    Llama 3 8B base (no fine-tuning): avg score 58.51<br>
+                    Llama 3 8B Instruct (general instruction fine-tuned): avg score 82.6<br>
+                    Our fine-tuned GPT-2 355M: avg score 50.32
+                </div>
+            </section>
+
+            <!-- 7.9 -->
+            <section class="section-card" id="s79">
+                <h2>7.9 Conclusions <span class="page-ref">p. 247</span></h2>
+                <ul>
+                    <li>This chapter concludes the journey through the LLM development cycle</li>
+                    <li>Covered: implementing architecture, pretraining, and fine-tuning for specific tasks</li>
+                    <li><strong>Next step (optional):</strong> Preference fine-tuning (DPO) for better user alignment</li>
+                    <li><strong>Staying current:</strong> arXiv, r/LocalLLaMA, author's blog</li>
+                    <li><strong>Production tools:</strong> Axolotl, LitGPT</li>
+                </ul>
+
+                <div class="exercise-box">
+                    <strong>Exercise 7.4:</strong> Parameter-efficient fine-tuning with LoRA -- modify the code to use the low-rank adaptation method from appendix E and compare training run time and model performance.
+                </div>
+            </section>
+
+            <!-- Summary -->
+            <section class="summary-box section-card" id="summary">
+                <h2>Chapter Summary</h2>
+                <ul>
+                    <li>The instruction-fine-tuning process adapts a pretrained LLM to follow human instructions and generate desired responses</li>
+                    <li>Dataset preparation: download 1,100 instruction-response pairs, format using Alpaca template, split into train (935) / validation (55) / test (110)</li>
+                    <li>Training batches use a custom collate function that pads sequences, creates target token IDs (shifted by 1), and masks padding tokens with -100</li>
+                    <li>Load GPT-2 medium (355M parameters) as the starting point for instruction fine-tuning</li>
+                    <li>Fine-tune using AdamW (lr=5e-5, weight_decay=0.1) for 2 epochs -- losses decrease sharply then stabilize</li>
+                    <li>Evaluation: extract responses on test set, then score using Llama 3 (8B) via Ollama -- average score: 50.32/100</li>
+                    <li>The Ollama application enables automated scoring of LLM responses without extensive human evaluation</li>
+                </ul>
+            </section>
+
+        </main>
+    </div>
+</body>
+</html>

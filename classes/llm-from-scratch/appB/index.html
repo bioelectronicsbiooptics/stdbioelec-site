@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Appendix B: References and Further Reading</title>
+    <style>
+        :root {
+            --primary: #1a365d; --primary-light: #2c5282; --accent: #e53e3e; --bg: #f7fafc;
+            --card-bg: #ffffff; --text: #2d3748; --text-light: #718096; --border: #e2e8f0;
+            --code-bg: #1a202c; --code-text: #e2e8f0; --highlight: #fefcbf; --success: #48bb78; --info: #4299e1;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; }
+        .top-nav { background: var(--primary); color: white; padding: 12px 0; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .top-nav .container { display: flex; justify-content: space-between; align-items: center; }
+        .top-nav a { color: rgba(255,255,255,0.85); text-decoration: none; font-size: 0.9rem; }
+        .top-nav a:hover { color: white; }
+        .nav-links { display: flex; gap: 20px; }
+        .chapter-header { background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%); color: white; padding: 60px 0 40px; }
+        .chapter-header h1 { font-size: 2.5rem; font-weight: 700; margin-bottom: 10px; }
+        .chapter-header .subtitle { font-size: 1.1rem; opacity: 0.85; max-width: 700px; }
+        .chapter-badge { display: inline-block; background: var(--accent); color: white; padding: 4px 16px; border-radius: 20px; font-size: 0.85rem; font-weight: 600; margin-bottom: 16px; }
+        .container { max-width: 1100px; margin: 0 auto; padding: 0 24px; }
+        .content-layout { display: grid; grid-template-columns: 280px 1fr; gap: 40px; margin-top: 40px; }
+        .toc-sidebar { position: sticky; top: 80px; height: fit-content; max-height: calc(100vh - 100px); overflow-y: auto; }
+        .toc-sidebar h3 { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; color: var(--text-light); margin-bottom: 12px; }
+        .toc-sidebar ul { list-style: none; }
+        .toc-sidebar li { margin-bottom: 4px; }
+        .toc-sidebar a { display: block; padding: 6px 12px; color: var(--text-light); text-decoration: none; font-size: 0.88rem; border-left: 3px solid transparent; border-radius: 0 4px 4px 0; transition: all 0.2s; }
+        .toc-sidebar a:hover, .toc-sidebar a.active { color: var(--primary); background: rgba(26,54,93,0.05); border-left-color: var(--primary); }
+        .main-content { min-width: 0; padding-bottom: 80px; }
+        .section-card { background: var(--card-bg); border-radius: 12px; padding: 32px; margin-bottom: 28px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); border: 1px solid var(--border); }
+        .section-card h2 { font-size: 1.5rem; color: var(--primary); margin-bottom: 20px; padding-bottom: 12px; border-bottom: 2px solid var(--border); }
+        .section-card ul { padding-left: 20px; margin-bottom: 12px; }
+        .section-card li { margin-bottom: 8px; line-height: 1.6; }
+        .section-card li a { color: var(--info); text-decoration: none; }
+        .section-card li a:hover { text-decoration: underline; }
+        .section-card p { margin-bottom: 12px; }
+        @media (max-width: 900px) { .content-layout { grid-template-columns: 1fr; } .toc-sidebar { display: none; } .chapter-header h1 { font-size: 1.8rem; } }
+        @media print { .top-nav, .toc-sidebar { display: none; } .section-card { break-inside: avoid; box-shadow: none; border: 1px solid #ddd; } }
+    </style>
+</head>
+<body>
+    <nav class="top-nav">
+        <div class="container">
+            <a href="../index.html"><strong>Build a Large Language Model (From Scratch)</strong></a>
+            <div class="nav-links">
+                <a href="../appA/index.html">Previous</a>
+                <a href="../index.html">Contents</a>
+                <a href="../appC/index.html">Next</a>
+            </div>
+        </div>
+    </nav>
+
+    <header class="chapter-header">
+        <div class="container">
+            <span class="chapter-badge">Appendix B</span>
+            <h1>References and Further Reading</h1>
+            <p class="subtitle">A curated collection of papers, articles, and resources referenced throughout the book, organized by chapter.</p>
+        </div>
+    </header>
+
+    <div class="container content-layout">
+        <aside class="toc-sidebar">
+            <h3>By Chapter</h3>
+            <ul>
+                <li><a href="#ref-ch1">Chapter 1</a></li>
+                <li><a href="#ref-ch2">Chapter 2</a></li>
+                <li><a href="#ref-ch3">Chapter 3</a></li>
+                <li><a href="#ref-ch4">Chapter 4</a></li>
+                <li><a href="#ref-ch5">Chapter 5</a></li>
+                <li><a href="#ref-ch6">Chapter 6</a></li>
+                <li><a href="#ref-ch7">Chapter 7</a></li>
+                <li><a href="#ref-appa">Appendix A</a></li>
+            </ul>
+        </aside>
+
+        <main class="main-content">
+            <div class="section-card" id="ref-ch1">
+                <h2>Chapter 1</h2>
+                <ul>
+                    <li><strong>BloombergGPT</strong>: "A Large Language Model for Finance" (2023), Wu et al. -- <a href="https://arxiv.org/abs/2303.17564">arxiv.org/abs/2303.17564</a></li>
+                    <li><strong>Medical LLMs</strong>: "Towards Expert-Level Medical Question Answering with Large Language Models" (2023), Singhal et al. -- <a href="https://arxiv.org/abs/2305.09617">arxiv.org/abs/2305.09617</a></li>
+                    <li><strong>Transformer architecture</strong>: "Attention Is All You Need" (2017), Vaswani et al. -- <a href="https://arxiv.org/abs/1706.03762">arxiv.org/abs/1706.03762</a></li>
+                    <li><strong>BERT</strong>: "Pre-training of Deep Bidirectional Transformers" (2018), Devlin et al. -- <a href="https://arxiv.org/abs/1810.04805">arxiv.org/abs/1810.04805</a></li>
+                    <li><strong>GPT-3</strong>: "Language Models are Few-Shot Learners" (2020), Brown et al. -- <a href="https://arxiv.org/abs/2005.14165">arxiv.org/abs/2005.14165</a></li>
+                    <li><strong>Vision Transformer</strong>: "An Image is Worth 16x16 Words" (2020), Dosovitskiy et al. -- <a href="https://arxiv.org/abs/2010.11929">arxiv.org/abs/2010.11929</a></li>
+                    <li><strong>Non-transformer LLMs</strong>: RWKV (<a href="https://arxiv.org/abs/2305.13048">2305.13048</a>), Hyena (<a href="https://arxiv.org/abs/2302.10866">2302.10866</a>), Mamba (<a href="https://arxiv.org/abs/2312.00752">2312.00752</a>)</li>
+                    <li><strong>Llama 2</strong>: "Open Foundation and Fine-Tuned Chat Models" (2023), Touvron et al. -- <a href="https://arxiv.org/abs/2307.09288">arxiv.org/abs/2307.09288</a></li>
+                    <li><strong>The Pile</strong>: "An 800GB Dataset of Diverse Text" (2020), Gao et al. -- <a href="https://arxiv.org/abs/2101.00027">arxiv.org/abs/2101.00027</a></li>
+                    <li><strong>InstructGPT</strong>: "Training Language Models to Follow Instructions with Human Feedback" (2022), Ouyang et al. -- <a href="https://arxiv.org/abs/2203.02155">arxiv.org/abs/2203.02155</a></li>
+                </ul>
+            </div>
+            <div class="section-card" id="ref-ch2">
+                <h2>Chapter 2</h2>
+                <ul>
+                    <li><em>Machine Learning Q and AI</em> (2023) by Sebastian Raschka</li>
+                    <li><strong>BPE tokenization</strong>: "Neural Machine Translation of Rare Words with Subword Units" (2015), Sennrich et al. -- <a href="https://arxiv.org/abs/1508.07909">arxiv.org/abs/1508.07909</a></li>
+                    <li><strong>minbpe</strong>: Minimal BPE Tokenizer -- <a href="https://github.com/karpathy/minbpe">github.com/karpathy/minbpe</a></li>
+                    <li><strong>SentencePiece</strong> (2018), Kudo and Richardson</li>
+                    <li><strong>Fast WordPiece</strong> (2020), Song et al. -- <a href="https://arxiv.org/abs/2012.15524">arxiv.org/abs/2012.15524</a></li>
+                </ul>
+            </div>
+            <div class="section-card" id="ref-ch3">
+                <h2>Chapter 3</h2>
+                <ul>
+                    <li><strong>Bahdanau attention</strong>: "Jointly Learning to Align and Translate" (2014) -- <a href="https://arxiv.org/abs/1409.0473">arxiv.org/abs/1409.0473</a></li>
+                    <li><strong>Self-attention</strong>: "Attention Is All You Need" (2017), Vaswani et al. -- <a href="https://arxiv.org/abs/1706.03762">arxiv.org/abs/1706.03762</a></li>
+                    <li><strong>FlashAttention</strong> (2022), Dao et al. -- <a href="https://arxiv.org/abs/2205.14135">arxiv.org/abs/2205.14135</a></li>
+                    <li><strong>FlashAttention-2</strong> (2023), Dao -- <a href="https://arxiv.org/abs/2307.08691">arxiv.org/abs/2307.08691</a></li>
+                    <li><strong>Dropout</strong>: "A Simple Way to Prevent Neural Networks from Overfitting" (2014), Srivastava et al.</li>
+                    <li><strong>Simplifying Transformers</strong> (2023), He and Hofmann -- <a href="https://arxiv.org/abs/2311.01906">arxiv.org/abs/2311.01906</a></li>
+                </ul>
+            </div>
+            <div class="section-card" id="ref-ch4">
+                <h2>Chapter 4</h2>
+                <ul>
+                    <li><strong>Layer Normalization</strong> (2016), Ba, Kiros, and Hinton -- <a href="https://arxiv.org/abs/1607.06450">arxiv.org/abs/1607.06450</a></li>
+                    <li><strong>Pre-LayerNorm</strong> (2020), Xiong et al. -- <a href="https://arxiv.org/abs/2002.04745">arxiv.org/abs/2002.04745</a></li>
+                    <li><strong>RMSNorm</strong> (2019), Zhang and Sennrich -- <a href="https://arxiv.org/abs/1910.07467">arxiv.org/abs/1910.07467</a></li>
+                    <li><strong>GELU</strong> (2016), Hendricks and Gimpel -- <a href="https://arxiv.org/abs/1606.08415">arxiv.org/abs/1606.08415</a></li>
+                    <li><strong>GPT-2</strong>: "Language Models Are Unsupervised Multitask Learners" (2019), Radford et al.</li>
+                    <li><strong>NanoGPT</strong>: <a href="https://github.com/karpathy/nanoGPT">github.com/karpathy/nanoGPT</a></li>
+                </ul>
+            </div>
+            <div class="section-card" id="ref-ch5">
+                <h2>Chapter 5</h2>
+                <ul>
+                    <li><strong>Pythia</strong> (2023), Biderman et al. -- <a href="https://arxiv.org/abs/2304.01373">arxiv.org/abs/2304.01373</a></li>
+                    <li><strong>OLMo</strong> (2024), Groeneveld et al. -- <a href="https://arxiv.org/abs/2402.00838">arxiv.org/abs/2402.00838</a></li>
+                    <li><strong>Continual pretraining</strong> (2024), Ibrahim et al. -- <a href="https://arxiv.org/abs/2403.08763">arxiv.org/abs/2403.08763</a></li>
+                    <li><strong>GaLore</strong>: Memory-Efficient LLM Training (2024), Zhao et al. -- <a href="https://arxiv.org/abs/2403.03507">arxiv.org/abs/2403.03507</a></li>
+                    <li><strong>Large-scale datasets</strong>: Dolma, The Pile, RefinedWeb for Falcon, RedPajama, FineWeb</li>
+                    <li><strong>Top-k sampling</strong>: "Hierarchical Neural Story Generation" (2018), Fan et al. -- <a href="https://arxiv.org/abs/1805.04833">arxiv.org/abs/1805.04833</a></li>
+                    <li><strong>Beam search</strong>: "Diverse Beam Search" (2016), Vijayakumar et al. -- <a href="https://arxiv.org/abs/1610.02424">arxiv.org/abs/1610.02424</a></li>
+                </ul>
+            </div>
+            <div class="section-card" id="ref-ch6">
+                <h2>Chapter 6</h2>
+                <ul>
+                    <li>"Using and Finetuning Pretrained Transformers"</li>
+                    <li>"Finetuning Large Language Models"</li>
+                    <li>Email Spam Classification Dataset</li>
+                    <li><strong>BERT</strong> (2018), Devlin et al. -- <a href="https://arxiv.org/abs/1810.04805">arxiv.org/abs/1810.04805</a></li>
+                    <li><strong>RoBERTa</strong> (2019), Liu et al. -- <a href="https://arxiv.org/abs/1907.11692">arxiv.org/abs/1907.11692</a></li>
+                    <li><strong>Label Supervised LLaMA Finetuning</strong> (2023), Li et al. -- <a href="https://arxiv.org/abs/2310.01208">arxiv.org/abs/2310.01208</a></li>
+                    <li><strong>LLM2Vec</strong> (2024), BehnamGhader et al. -- <a href="https://arxiv.org/abs/2404.05961">arxiv.org/abs/2404.05961</a></li>
+                </ul>
+            </div>
+            <div class="section-card" id="ref-ch7">
+                <h2>Chapter 7</h2>
+                <ul>
+                    <li><strong>Stanford Alpaca</strong>: <a href="https://github.com/tatsu-lab/stanford_alpaca">github.com/tatsu-lab/stanford_alpaca</a></li>
+                    <li><strong>LIMA</strong>, Zhou et al. -- <a href="https://arxiv.org/abs/2305.11206">arxiv.org/abs/2305.11206</a></li>
+                    <li><strong>Phi-3</strong> (2024), Abdin et al. -- <a href="https://arxiv.org/abs/2404.14219">arxiv.org/abs/2404.14219</a></li>
+                    <li><strong>Magpie</strong> (2024), Xu et al. -- <a href="https://arxiv.org/abs/2406.08464">arxiv.org/abs/2406.08464</a></li>
+                    <li><strong>Instruction Tuning with Loss Over Instructions</strong> (2024), Shi -- <a href="https://arxiv.org/abs/2405.14394">arxiv.org/abs/2405.14394</a></li>
+                    <li><strong>Prometheus</strong> (2023), Kim et al. -- <a href="https://arxiv.org/abs/2310.08491">arxiv.org/abs/2310.08491</a></li>
+                    <li><strong>Fine-tuning and hallucinations</strong> (2024), Gekhman -- <a href="https://arxiv.org/abs/2405.05904">arxiv.org/abs/2405.05904</a></li>
+                    <li><strong>RLHF</strong>: "LLM Training: RLHF and Its Alternatives"</li>
+                </ul>
+            </div>
+            <div class="section-card" id="ref-appa">
+                <h2>Appendix A</h2>
+                <ul>
+                    <li><em>Machine Learning with PyTorch and Scikit-Learn</em> (2022), Raschka, Liu, and Mirjalili</li>
+                    <li><em>Deep Learning with PyTorch</em> (2021), Stevens, Antiga, and Viehmann</li>
+                    <li>"Model Evaluation, Model Selection, and Algorithm Selection in Machine Learning" (2018), Raschka -- <a href="https://arxiv.org/abs/1811.12808">arxiv.org/abs/1811.12808</a></li>
+                    <li>DDP documentation; for FSDP see PyTorch Fabric library</li>
+                </ul>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 6: Fine-Tuning for Classification</title>
+    <style>
+        :root {
+            --primary: #1a365d;
+            --primary-light: #2c5282;
+            --accent: #e53e3e;
+            --bg: #f7fafc;
+            --card-bg: #ffffff;
+            --text: #2d3748;
+            --text-light: #718096;
+            --border: #e2e8f0;
+            --code-bg: #1a202c;
+            --code-text: #e2e8f0;
+            --highlight: #fefcbf;
+            --success: #48bb78;
+            --info: #4299e1;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; }
+        .top-nav { background: var(--primary); color: white; padding: 12px 0; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .top-nav .container { display: flex; justify-content: space-between; align-items: center; }
+        .top-nav a { color: rgba(255,255,255,0.85); text-decoration: none; font-size: 0.9rem; }
+        .top-nav a:hover { color: white; }
+        .nav-links { display: flex; gap: 20px; }
+        .chapter-header { background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%); color: white; padding: 60px 0 40px; }
+        .chapter-header h1 { font-size: 2.5rem; font-weight: 700; margin-bottom: 10px; }
+        .chapter-header .subtitle { font-size: 1.1rem; opacity: 0.85; max-width: 700px; }
+        .chapter-badge { display: inline-block; background: var(--accent); color: white; padding: 4px 16px; border-radius: 20px; font-size: 0.85rem; font-weight: 600; margin-bottom: 16px; }
+        .container { max-width: 1100px; margin: 0 auto; padding: 0 24px; }
+        .content-layout { display: grid; grid-template-columns: 280px 1fr; gap: 40px; margin-top: 40px; }
+        .toc-sidebar { position: sticky; top: 80px; height: fit-content; max-height: calc(100vh - 100px); overflow-y: auto; }
+        .toc-sidebar h3 { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; color: var(--text-light); margin-bottom: 12px; }
+        .toc-sidebar ul { list-style: none; }
+        .toc-sidebar li { margin-bottom: 4px; }
+        .toc-sidebar a { display: block; padding: 6px 12px; color: var(--text-light); text-decoration: none; font-size: 0.88rem; border-left: 3px solid transparent; border-radius: 0 4px 4px 0; transition: all 0.2s; }
+        .toc-sidebar a:hover, .toc-sidebar a.active { color: var(--primary); background: rgba(26,54,93,0.05); border-left-color: var(--primary); }
+        .toc-sidebar a.sub { padding-left: 28px; font-size: 0.82rem; }
+        .main-content { min-width: 0; padding-bottom: 80px; }
+        .section-card { background: var(--card-bg); border-radius: 12px; padding: 32px; margin-bottom: 28px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); border: 1px solid var(--border); }
+        .section-card h2 { font-size: 1.5rem; color: var(--primary); margin-bottom: 20px; padding-bottom: 12px; border-bottom: 2px solid var(--border); }
+        .section-card h3 { font-size: 1.15rem; color: var(--primary-light); margin: 24px 0 12px; }
+        .section-card h4 { font-size: 1rem; color: var(--text); margin: 16px 0 8px; font-weight: 600; }
+        .section-card ul { padding-left: 20px; margin-bottom: 12px; }
+        .section-card li { margin-bottom: 8px; line-height: 1.6; }
+        .section-card p { margin-bottom: 12px; }
+        .figure-box { background: #f0f5ff; border: 1px solid #bee3f8; border-radius: 8px; padding: 20px; margin: 20px 0; }
+        .figure-box .figure-label { font-weight: 700; color: var(--info); font-size: 0.9rem; margin-bottom: 8px; }
+        .figure-box .figure-desc { font-size: 0.95rem; color: var(--text); line-height: 1.6; }
+        .figure-box .figure-caption { font-size: 0.85rem; color: var(--text-light); font-style: italic; margin-top: 10px; padding-top: 10px; border-top: 1px solid #bee3f8; }
+        .diagram-container { text-align: center; margin: 16px 0; padding: 16px; background: white; border-radius: 8px; }
+        .diagram-container svg { max-width: 100%; height: auto; }
+        .table-box { background: #f0fff4; border: 1px solid #c6f6d5; border-radius: 8px; padding: 20px; margin: 20px 0; overflow-x: auto; }
+        .table-box .table-label { font-weight: 700; color: var(--success); font-size: 0.9rem; margin-bottom: 12px; }
+        .table-box table { width: 100%; border-collapse: collapse; }
+        .table-box th, .table-box td { padding: 10px 14px; text-align: left; border-bottom: 1px solid #c6f6d5; font-size: 0.9rem; }
+        .table-box th { background: #e6ffed; font-weight: 600; color: var(--primary); }
+        .code-block { background: var(--code-bg); color: var(--code-text); border-radius: 8px; padding: 20px; margin: 16px 0; overflow-x: auto; font-family: 'JetBrains Mono', 'Fira Code', monospace; font-size: 0.85rem; line-height: 1.6; }
+        .code-block .code-label { color: #a0aec0; font-size: 0.8rem; margin-bottom: 10px; }
+        .note-box { background: var(--highlight); border-left: 4px solid #d69e2e; border-radius: 0 8px 8px 0; padding: 16px 20px; margin: 16px 0; font-size: 0.92rem; }
+        .note-box strong { color: #975a16; }
+        .key-concept { background: #ebf4ff; border-left: 4px solid var(--info); border-radius: 0 8px 8px 0; padding: 16px 20px; margin: 16px 0; }
+        .key-concept strong { color: var(--primary); }
+        .summary-box { background: linear-gradient(135deg, #ebf4ff 0%, #f0f5ff 100%); border: 2px solid var(--info); border-radius: 12px; padding: 28px; margin: 28px 0; }
+        .summary-box h2 { border-bottom-color: var(--info); }
+        .page-ref { display: inline-block; background: #edf2f7; color: var(--text-light); font-size: 0.75rem; padding: 2px 8px; border-radius: 10px; margin-left: 8px; }
+        @media (max-width: 900px) { .content-layout { grid-template-columns: 1fr; } .toc-sidebar { display: none; } .chapter-header h1 { font-size: 1.8rem; } }
+        @media print { .top-nav, .toc-sidebar { display: none; } .section-card { break-inside: avoid; box-shadow: none; border: 1px solid #ddd; } }
+            /* Book Figure Image */
+        .book-figure { text-align: center; margin: 18px 0 6px; padding: 14px; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 10px; }
+        .book-figure img { max-width: 100%; height: auto; border-radius: 6px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+        .book-figure .book-figure-tag { display: block; font-size: 0.78rem; color: #718096; margin-top: 8px; letter-spacing: 0.5px; text-transform: uppercase; }
+</style>
+</head>
+<body>
+    <nav class="top-nav">
+        <div class="container">
+            <a href="../index.html"><strong>Build a Large Language Model (From Scratch)</strong></a>
+            <div class="nav-links">
+                <a href="../ch05/index.html">Previous</a>
+                <a href="../index.html">Contents</a>
+                <a href="../ch07/index.html">Next</a>
+            </div>
+        </div>
+    </nav>
+
+    <header class="chapter-header">
+        <div class="container">
+            <span class="chapter-badge">Chapter 6</span>
+            <h1>Fine-Tuning for Classification</h1>
+            <p class="subtitle">Preparing a dataset for text classification, modifying a pretrained LLM, fine-tuning it to identify spam messages, and evaluating classification accuracy.</p>
+        </div>
+    </header>
+
+    <div class="container content-layout">
+        <aside class="toc-sidebar">
+            <h3>In This Chapter</h3>
+            <ul>
+                <li><a href="#intro">Introduction</a></li>
+                <li><a href="#sec-6-1">6.1 Categories of Fine-Tuning</a></li>
+                <li><a href="#sec-6-2">6.2 Preparing the Dataset</a></li>
+                <li><a href="#sec-6-3">6.3 Creating Data Loaders</a></li>
+                <li><a href="#sec-6-4">6.4 Initializing with Pretrained Weights</a></li>
+                <li><a href="#sec-6-5">6.5 Adding a Classification Head</a></li>
+                <li><a href="#sec-6-6">6.6 Classification Loss &amp; Accuracy</a></li>
+                <li><a href="#sec-6-7">6.7 Fine-Tuning on Supervised Data</a></li>
+                <li><a href="#sec-6-8">6.8 Using the LLM as Spam Classifier</a></li>
+                <li><a href="#summary">Summary</a></li>
+            </ul>
+        </aside>
+
+        <main class="main-content">
+
+            <!-- Introduction -->
+            <div class="section-card" id="intro">
+                <h2>Introduction</h2>
+                <p>Having coded the LLM architecture, pretrained it, and learned to import pretrained weights, the fruits of that labor are now reaped by fine-tuning the LLM on a specific target task: classifying text messages as "spam" or "not spam."</p>
+                <div class="figure-box" id="fig-6-1">
+                    <div class="figure-label">Figure 6.1 -- Three Main Stages of Coding an LLM</div>
+                    <div class="book-figure">
+                        <img src="../assets/ch06/ch06__image001.png" alt="Figure 6.1 -- Three Main Stages of Coding an LLM" loading="lazy">
+                        <span class="book-figure-tag">From the book (Raschka, 2025)</span>
+                    </div>
+                    <div class="figure-desc">This chapter focuses on stage 3 (step 8): fine-tuning a pretrained LLM as a classifier. From the Foundation model, two paths diverge: classification fine-tuning (with class labels) and instruction fine-tuning (with instruction datasets).</div>
+                </div>
+            </div>
+
+            <!-- Section 6.1 -->
+            <div class="section-card" id="sec-6-1">
+                <h2>6.1 Different Categories of Fine-Tuning</h2>
+                <ul>
+                    <li><strong>Instruction fine-tuning:</strong> Training on tasks with specific instructions to improve understanding and executing natural language prompts. Best for varied tasks; demands larger datasets and compute.</li>
+                    <li><strong>Classification fine-tuning:</strong> Training to recognize a specific set of class labels (e.g., "spam" / "not spam"). Highly specialized; requires less data and compute.</li>
+                </ul>
+                <div class="figure-box" id="fig-6-2">
+                    <div class="figure-label">Figure 6.2 -- Instruction Fine-Tuning Scenarios</div>
+                    <div class="book-figure">
+                        <img src="../assets/ch06/ch06__image003.png" alt="Figure 6.2 -- Instruction Fine-Tuning Scenarios" loading="lazy">
+                        <span class="book-figure-tag">From the book (Raschka, 2025)</span>
+                    </div>
+                    <div class="figure-desc">Top: Model determines if text is spam given instructions and a directive ("Answer with 'yes' or 'no'"). Bottom: Model translates English to German given an instruction.</div>
+                </div>
+                <div class="figure-box" id="fig-6-3">
+                    <div class="figure-label">Figure 6.3 -- Classification Fine-Tuning</div>
+                    <div class="book-figure">
+                        <img src="../assets/ch06/ch06__image005.png" alt="Figure 6.3 -- Classification Fine-Tuning" loading="lazy">
+                        <span class="book-figure-tag">From the book (Raschka, 2025)</span>
+                    </div>
+                    <div class="figure-desc">A classification fine-tuned model does not require instructions alongside input. It can only respond with "spam" or "not spam" -- restricted to classes seen during training.</div>
+                </div>
+                <div class="key-concept">
+                    <strong>Choosing the Right Approach:</strong> Instruction fine-tuning provides flexibility across many tasks but demands more resources. Classification fine-tuning is ideal for precise categorization (sentiment analysis, spam detection) with less data and compute.
+                </div>
+            </div>
+
+            <!-- Section 6.2 -->
+            <div class="section-card" id="sec-6-2">
+                <h2>6.2 Preparing the Dataset</h2>
+                <p>The SMS Spam Collection dataset contains 5,572 text messages labeled "ham" (not spam) or "spam".</p>
+                <div class="code-block">
+                    <div class="code-label">Listing 6.1: Downloading and unzipping the dataset</div>
+<pre>url = "https://archive.ics.uci.edu/static/public/228/sms+spam+collection.zip"
+download_and_unzip_spam_data(url, zip_path, extracted_path, data_file_path)
+
+df = pd.read_csv(data_file_path, sep="\t", header=None, names=["Label", "Text"])
+# ham: 4825, spam: 747</pre>
+                </div>
+                <h3>Creating a Balanced Dataset</h3>
+                <p>Undersample to 747 instances per class for balanced training:</p>
+                <div class="code-block">
+                    <div class="code-label">Listing 6.2: Creating a balanced dataset</div>
+<pre>def create_balanced_dataset(df):
+    num_spam = df[df["Label"] == "spam"].shape[0]
+    ham_subset = df[df["Label"] == "ham"].sample(num_spam, random_state=123)
+    balanced_df = pd.concat([ham_subset, df[df["Label"] == "spam"]])
+    return balanced_df
+
+balanced_df["Label"] = balanced_df["Label"].map({"ham": 0, "spam": 1})</pre>
+                </div>
+                <h3>Splitting the Dataset</h3>
+                <p>Split: 70% training, 10% validation, 20% testing.</p>
+                <div class="code-block">
+                    <div class="code-label">Listing 6.3: Splitting the dataset</div>
+<pre>train_df, validation_df, test_df = random_split(balanced_df, 0.7, 0.1)
+train_df.to_csv("train.csv", index=None)
+validation_df.to_csv("validation.csv", index=None)
+test_df.to_csv("test.csv", index=None)</pre>
+                </div>
+            </div>
+
+            <!-- Section 6.3 -->
+            <div class="section-card" id="sec-6-3">
+                <h2>6.3 Creating Data Loaders</h2>
+                <p>Text messages have varying lengths. Two options: truncate to shortest or pad to longest. Padding is chosen to preserve all content, using token ID <code>50256</code> (<code>&lt;|endoftext|&gt;</code>).</p>
+                <div class="figure-box" id="fig-6-6">
+                    <div class="figure-label">Figure 6.6 -- Input Text Preparation</div>
+                    <div class="book-figure">
+                        <img src="../assets/ch06/ch06__image007.png" alt="Figure 6.6 -- Input Text Preparation" loading="lazy">
+                        <span class="book-figure-tag">From the book (Raschka, 2025)</span>
+                    </div>
+                    <div class="figure-desc">Each text message is tokenized, then shorter sequences are padded with token ID 50256 to match the longest sequence length.</div>
+                </div>
+                <div class="code-block">
+                    <div class="code-label">Listing 6.4: SpamDataset class</div>
+<pre>class SpamDataset(Dataset):
+    def __init__(self, csv_file, tokenizer, max_length=None, pad_token_id=50256):
+        self.data = pd.read_csv(csv_file)
+        self.encoded_texts = [
+            tokenizer.encode(text) for text in self.data["Text"]
+        ]
+        if max_length is None:
+            self.max_length = self._longest_encoded_length()
+        else:
+            self.max_length = max_length
+            self.encoded_texts = [et[:self.max_length] for et in self.encoded_texts]
+        self.encoded_texts = [
+            et + [pad_token_id] * (self.max_length - len(et))
+            for et in self.encoded_texts
+        ]
+
+    def __getitem__(self, index):
+        encoded = self.encoded_texts[index]
+        label = self.data.iloc[index]["Label"]
+        return (torch.tensor(encoded, dtype=torch.long),
+                torch.tensor(label, dtype=torch.long))
+
+    def __len__(self):
+        return len(self.data)</pre>
+                </div>
+                <p>Longest sequence: <strong>120 tokens</strong>. Batches: 130 training, 19 validation, 38 test (batch size 8).</p>
+            </div>
+
+            <!-- Section 6.4 -->
+            <div class="section-card" id="sec-6-4">
+                <h2>6.4 Initializing a Model with Pretrained Weights</h2>
+                <div class="code-block">
+                    <div class="code-label">Listing 6.6: Loading a pretrained GPT model</div>
+<pre>from gpt_download import download_and_load_gpt2
+
+model_size = "124M"
+settings, params = download_and_load_gpt2(model_size=model_size, models_dir="gpt2")
+
+model = GPTModel(BASE_CONFIG)
+load_weights_into_gpt(model, params)
+model.eval()</pre>
+                </div>
+                <p>Verified with text generation: <code>"Every effort moves you forward. The first step is to understand the importance of your work"</code> -- confirms correct weight loading.</p>
+                <p>Testing instruction following (before fine-tuning) -- the model repeats the prompt instead of answering, confirming it lacks instruction fine-tuning capability.</p>
+            </div>
+
+            <!-- Section 6.5 -->
+            <div class="section-card" id="sec-6-5">
+                <h2>6.5 Adding a Classification Head</h2>
+                <p>Replace the output layer (768 -&gt; 50,257) with a smaller classification layer (768 -&gt; 2 classes).</p>
+                <div class="figure-box" id="fig-6-9">
+                    <div class="figure-label">Figure 6.9 -- Adapting GPT for Spam Classification</div>
+                    <div class="book-figure">
+                        <img src="../assets/ch06/ch06__image009.png" alt="Figure 6.9 -- Adapting GPT for Spam Classification" loading="lazy">
+                        <span class="book-figure-tag">From the book (Raschka, 2025)</span>
+                    </div>
+                    <div class="figure-desc">The original linear output layer mapping 768 hidden units to 50,257 tokens is replaced with a new layer mapping 768 units to just 2 classes ("spam" and "not spam").</div>
+                </div>
+                <div class="code-block">
+<pre># Freeze all layers
+for param in model.parameters():
+    param.requires_grad = False
+
+# Replace output layer
+torch.manual_seed(123)
+num_classes = 2
+model.out_head = torch.nn.Linear(
+    in_features=BASE_CONFIG["emb_dim"], out_features=num_classes
+)
+
+# Make last transformer block and final LayerNorm trainable
+for param in model.trf_blocks[-1].parameters():
+    param.requires_grad = True
+for param in model.final_norm.parameters():
+    param.requires_grad = True</pre>
+                </div>
+                <div class="figure-box" id="fig-6-12">
+                    <div class="figure-label">Figure 6.12 -- Why Focus on the Last Token?</div>
+                    <div class="book-figure">
+                        <img src="../assets/ch06/ch06__image011.png" alt="Figure 6.12 -- Why Focus on the Last Token?" loading="lazy">
+                        <span class="book-figure-tag">From the book (Raschka, 2025)</span>
+                    </div>
+                    <div class="figure-desc">Due to causal attention masking, the last token is the only one with attention scores to all preceding tokens. It accumulates the most information, making it ideal for classification.</div>
+                </div>
+                <p>Output shape changes from <code>[1, 4, 50257]</code> to <code>[1, 4, 2]</code>. We use only the last row (<code>outputs[:, -1, :]</code>) for classification.</p>
+            </div>
+
+            <!-- Section 6.6 -->
+            <div class="section-card" id="sec-6-6">
+                <h2>6.6 Calculating the Classification Loss and Accuracy</h2>
+                <div class="code-block">
+                    <div class="code-label">Listing 6.8: Classification accuracy</div>
+<pre>def calc_accuracy_loader(data_loader, model, device, num_batches=None):
+    model.eval()
+    correct_predictions, num_examples = 0, 0
+    if num_batches is None:
+        num_batches = len(data_loader)
+    else:
+        num_batches = min(num_batches, len(data_loader))
+    for i, (input_batch, target_batch) in enumerate(data_loader):
+        if i &lt; num_batches:
+            input_batch = input_batch.to(device)
+            target_batch = target_batch.to(device)
+            with torch.no_grad():
+                logits = model(input_batch)[:, -1, :]
+            predicted_labels = torch.argmax(logits, dim=-1)
+            num_examples += predicted_labels.shape[0]
+            correct_predictions += (predicted_labels == target_batch).sum().item()
+        else:
+            break
+    return correct_predictions / num_examples</pre>
+                </div>
+                <p>Initial accuracy (before fine-tuning): Training <strong>46.25%</strong>, Validation <strong>45.00%</strong>, Test <strong>48.75%</strong> -- near random (50%).</p>
+                <p>Initial loss: Training <strong>2.453</strong>, Validation <strong>2.583</strong>, Test <strong>2.322</strong>.</p>
+            </div>
+
+            <!-- Section 6.7 -->
+            <div class="section-card" id="sec-6-7">
+                <h2>6.7 Fine-Tuning the Model on Supervised Data</h2>
+                <div class="code-block">
+                    <div class="code-label">Listing 6.10: Training function</div>
+<pre>def train_classifier_simple(model, train_loader, val_loader,
+                            optimizer, device, num_epochs, eval_freq, eval_iter):
+    train_losses, val_losses, train_accs, val_accs = [], [], [], []
+    examples_seen, global_step = 0, -1
+
+    for epoch in range(num_epochs):
+        model.train()
+        for input_batch, target_batch in train_loader:
+            optimizer.zero_grad()
+            loss = calc_loss_batch(input_batch, target_batch, model, device)
+            loss.backward()
+            optimizer.step()
+            examples_seen += input_batch.shape[0]
+            global_step += 1
+
+            if global_step % eval_freq == 0:
+                train_loss, val_loss = evaluate_model(...)
+                print(f"Ep {epoch+1} (Step {global_step:06d}): "
+                      f"Train loss {train_loss:.3f}, Val loss {val_loss:.3f}")
+
+        train_accuracy = calc_accuracy_loader(train_loader, model, device, ...)
+        val_accuracy = calc_accuracy_loader(val_loader, model, device, ...)
+        print(f"Training accuracy: {train_accuracy*100:.2f}% | "
+              f"Validation accuracy: {val_accuracy*100:.2f}%")
+
+    return train_losses, val_losses, train_accs, val_accs, examples_seen</pre>
+                </div>
+                <h3>Training Results (5 epochs, AdamW lr=5e-5)</h3>
+                <div class="table-box">
+                    <div class="table-label">Training Progress</div>
+                    <table>
+                        <tr><th>Epoch</th><th>Train Loss</th><th>Val Loss</th><th>Train Acc</th><th>Val Acc</th></tr>
+                        <tr><td>1</td><td>0.523</td><td>0.557</td><td>70.00%</td><td>72.50%</td></tr>
+                        <tr><td>2</td><td>0.409</td><td>0.353</td><td>82.50%</td><td>85.00%</td></tr>
+                        <tr><td>3</td><td>0.340</td><td>0.306</td><td>90.00%</td><td>90.00%</td></tr>
+                        <tr><td>4</td><td>0.222</td><td>0.137</td><td>100.00%</td><td>97.50%</td></tr>
+                        <tr><td>5</td><td>0.083</td><td>0.074</td><td>100.00%</td><td>97.50%</td></tr>
+                    </table>
+                </div>
+                <p>Training completed in <strong>~5.65 minutes</strong> on an M3 MacBook Air.</p>
+                <div class="figure-box" id="fig-6-16">
+                    <div class="figure-label">Figure 6.16 -- Loss Curves</div>
+                    <div class="book-figure">
+                        <img src="../assets/ch06/ch06__image013.png" alt="Figure 6.16 -- Loss Curves" loading="lazy">
+                        <span class="book-figure-tag">From the book (Raschka, 2025)</span>
+                    </div>
+                    <div class="figure-desc">Both training and validation losses sharply decline in the first epoch and stabilize. No noticeable gap between them indicates good generalization with minimal overfitting.</div>
+                </div>
+                <h3>Final Evaluation</h3>
+                <ul>
+                    <li>Training accuracy: <strong>97.21%</strong></li>
+                    <li>Validation accuracy: <strong>97.32%</strong></li>
+                    <li>Test accuracy: <strong>95.67%</strong></li>
+                </ul>
+            </div>
+
+            <!-- Section 6.8 -->
+            <div class="section-card" id="sec-6-8">
+                <h2>6.8 Using the LLM as a Spam Classifier</h2>
+                <div class="code-block">
+                    <div class="code-label">Listing 6.12: Classifying new texts</div>
+<pre>def classify_review(text, model, tokenizer, device, max_length=None,
+                    pad_token_id=50256):
+    model.eval()
+    input_ids = tokenizer.encode(text)
+    supported_context_length = model.pos_emb.weight.shape[0]
+    input_ids = input_ids[:min(max_length, supported_context_length)]
+    input_ids += [pad_token_id] * (max_length - len(input_ids))
+    input_tensor = torch.tensor(input_ids, device=device).unsqueeze(0)
+
+    with torch.no_grad():
+        logits = model(input_tensor)[:, -1, :]
+    predicted_label = torch.argmax(logits, dim=-1).item()
+    return "spam" if predicted_label == 1 else "not spam"</pre>
+                </div>
+                <p>Testing on examples:</p>
+                <ul>
+                    <li><code>"You are a winner you have been specially selected to receive $1000 cash..."</code> -- correctly predicted <strong>"spam"</strong></li>
+                    <li><code>"Hey, just wanted to check if we're still on for dinner tonight?"</code> -- correctly predicted <strong>"not spam"</strong></li>
+                </ul>
+                <div class="code-block">
+                    <div class="code-label">Save and load model</div>
+<pre>torch.save(model.state_dict(), "review_classifier.pth")
+
+model_state_dict = torch.load("review_classifier.pth", map_location=device)
+model.load_state_dict(model_state_dict)</pre>
+                </div>
+            </div>
+
+            <!-- Summary -->
+            <div class="summary-box section-card" id="summary">
+                <h2>Summary</h2>
+                <ul>
+                    <li>Two main strategies: <strong>classification fine-tuning</strong> and <strong>instruction fine-tuning</strong></li>
+                    <li>Classification fine-tuning replaces the output layer with a small classification layer (2 output nodes instead of 50,256)</li>
+                    <li>The model is trained to output correct <strong>class labels</strong> instead of next tokens</li>
+                    <li>Model input remains text converted to token IDs, same as pretraining</li>
+                    <li>Pretrained model serves as a <strong>base model</strong> for fine-tuning</li>
+                    <li>Evaluation uses <strong>classification accuracy</strong> (fraction of correct predictions)</li>
+                    <li>Fine-tuning uses the same <strong>cross entropy loss</strong> as pretraining</li>
+                    <li>The <strong>last output token</strong> is used for classification due to causal attention giving it access to all previous tokens</li>
+                </ul>
+            </div>
+
+        </main>
+    </div>
+</body>
+</html>
